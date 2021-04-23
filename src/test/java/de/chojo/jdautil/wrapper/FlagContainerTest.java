@@ -1,0 +1,28 @@
+package de.chojo.jdautil.wrapper;
+
+import de.chojo.jdautil.parsing.ArgumentUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+class FlagContainerTest {
+
+    @Test
+    void of() {
+        String[] s = "hello -wu -n name --age 17".split("\\s");
+
+        FlagContainer container = FlagContainer.of(s);
+
+        Assertions.assertTrue(container.has("w"));
+        Assertions.assertTrue(container.has("u"));
+        Assertions.assertNull(container.get("w"));
+        Assertions.assertNull(container.get("u"));
+
+        Assertions.assertTrue(container.has("n"));
+        Assertions.assertEquals("name", container.get("n"));
+
+        Assertions.assertTrue(container.has("age"));
+        Assertions.assertEquals("17", container.get("age"));
+    }
+}
