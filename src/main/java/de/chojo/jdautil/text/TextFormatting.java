@@ -30,7 +30,7 @@ public final class TextFormatting {
         if (string.length() >= fill) {
             return string;
         }
-        int charsToFill = fill - string.length();
+        var charsToFill = fill - string.length();
         return string + " ".repeat(charsToFill);
     }
 
@@ -45,11 +45,11 @@ public final class TextFormatting {
      * @return range as string
      */
     public static String getRangeAsString(String delimiter, String[] source, int from, int to) {
-        int finalTo = to;
+        var finalTo = to;
         if (to < 1) {
             finalTo = source.length + to;
         }
-        int finalFrom = from;
+        var finalFrom = from;
         if (from < 0) {
             finalFrom = source.length + from;
         }
@@ -76,15 +76,15 @@ public final class TextFormatting {
             return string;
         }
         if (!keepWords) {
-            String substring = string.substring(0, Math.max(0, maxChars - endSequence.length()));
+            var substring = string.substring(0, Math.max(0, maxChars - endSequence.length()));
             return (substring + endSequence).trim();
         }
 
-        String[] split = string.split("\\s");
+        var split = string.split("\\s");
 
-        StringBuilder builder = new StringBuilder();
+        var builder = new StringBuilder();
 
-        for (String s : split) {
+        for (var s : split) {
             if (builder.length() + s.length() + 1 + endSequence.length() > maxChars) {
                 return builder.toString().trim() + endSequence;
             }
@@ -173,7 +173,7 @@ public final class TextFormatting {
             if (rowPointer == 0) {
                 return;
             }
-            for (int i = 0; i < columnEntries.length; i++) {
+            for (var i = 0; i < columnEntries.length; i++) {
                 columnEntries[i] = columnEntries[i].replace("`", "");
             }
             if (columnEntries.length <= table[0].length) {
@@ -222,29 +222,29 @@ public final class TextFormatting {
          */
         @Override
         public String toString() {
-            int[] length = new int[table[0].length];
-            for (int column = 0; column < length.length; column++) {
-                int max = 0;
-                for (String[] strings : table) {
+            var length = new int[table[0].length];
+            for (var column = 0; column < length.length; column++) {
+                var max = 0;
+                for (var strings : table) {
                     max = Math.max(max, strings[column].length());
                 }
                 length[column] = max;
             }
 
 
-            for (int col = 0; col < length.length; col++) {
-                for (int row = 0; row < table.length; row++) {
+            for (var col = 0; col < length.length; col++) {
+                for (var row = 0; row < table.length; row++) {
                     table[row][col] = fillString(table[row][col], length[col] + padding);
                 }
             }
 
             List<String> rows = new ArrayList<>();
 
-            for (String[] strings : table) {
+            for (var strings : table) {
                 rows.add(String.join("", strings));
             }
 
-            StringBuilder builder = new StringBuilder("```");
+            var builder = new StringBuilder("```");
             if (!markdown.isBlank()) {
                 builder.append(markdown.trim());
             }

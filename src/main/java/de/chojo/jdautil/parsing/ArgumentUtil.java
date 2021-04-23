@@ -26,8 +26,8 @@ public final class ArgumentUtil {
     public static String[] parseQuotedArgs(String[] args) {
         List<String> currArgs = new ArrayList<>();
         List<String> currArg = new ArrayList<>();
-        boolean open = false;
-        for (String arg : args) {
+        var open = false;
+        for (var arg : args) {
             if (arg.startsWith("\"") && arg.endsWith("\"")) {
                 currArgs.add(arg.replace("\"", ""));
                 continue;
@@ -129,11 +129,11 @@ public final class ArgumentUtil {
      * @return sublist.
      */
     public static <T> List<T> getRangeAsList(List<T> objects, int from, int to) {
-        int finalTo = to;
+        var finalTo = to;
         if (to < 1) {
             finalTo = objects.size() + to;
         }
-        int finalFrom = from;
+        var finalFrom = from;
         if (from < 0) {
             finalFrom = objects.size() + from;
         }

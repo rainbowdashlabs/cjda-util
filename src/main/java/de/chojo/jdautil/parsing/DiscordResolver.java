@@ -11,11 +11,11 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ public class DiscordResolver {
     }
 
     private static Optional<Member> byNameOnGuild(String memberString, Guild guild) {
-        Optional<Member> collect = guild.getMembers().stream()
+        var collect = guild.getMembers().stream()
                 .filter(m -> m.getEffectiveName().toLowerCase()
                         .startsWith(memberString.toLowerCase())).findFirst();
         if (collect.isPresent()) {
@@ -60,7 +60,7 @@ public class DiscordResolver {
             return Optional.empty();
         }
 
-        TextChannel textChannel = byId(channelString, guild::getTextChannelById);
+        var textChannel = byId(channelString, guild::getTextChannelById);
 
         if (textChannel == null) {
             textChannel = byName(channelString, s -> guild.getTextChannelsByName(s, true));
@@ -71,13 +71,13 @@ public class DiscordResolver {
 
     private static <T> T byId(String id, Function<String, T> convert) {
         if (isValidId(id)) {
-            return convert.apply(getIdRaw(id));
+            return convert.apply(getIdRaw(id).orElse("0"));
         }
         return null;
     }
 
     private static <T> T byName(String name, Function<String, List<T>> convert) {
-        List<T> nameMatches = convert.apply(name);
+        var nameMatches = convert.apply(name);
         if (nameMatches.isEmpty()) {
             return null;
         }
@@ -105,7 +105,7 @@ public class DiscordResolver {
      * @return list of valid roles
      */
     public static List<Role> getValidRoles(Guild guild, String[] args) {
-        return Arrays.stream(args).map(roleId -> guild.getRoleById(getIdRaw(roleId)))
+        return Arrays.stream(args).map(roleId -> guild.getRoleById(getIdRaw(roleId).orElse("0")))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -130,8 +130,22 @@ public class DiscordResolver {
      *
      * @return list of valid channels
      */
-    private static List<TextChannel> getValidTextChannels(Guild guild, String[] args) {
-        return Arrays.stream(args).map(channelId -> guild.getTextChannelById(getIdRaw(channelId)))
+    public static List<TextChannel> getValidTextChannels(Guild guild, String[] args) {
+        return Arrays.stream(args).map(channelId -> guild.getTextChannelById(getIdRaw(channelId).orElse("0")))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns from a list of text channel ids all valid channels.
+     *
+     * @param guild guild for channel lookup
+     * @param ids   array of channel ids
+     *
+     * @return list of valid channels
+     */
+    public static List<TextChannel> getValidTextChannelsById(Guild guild, List<Long> ids) {
+        return ids.stream().map(guild::getTextChannelById)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -151,12 +165,12 @@ public class DiscordResolver {
                 .collect(Collectors.toList());
     }
 
-    public Optional<GuildChannel> getGuildChannel(Guild guild, String content) {
-        GuildChannel channel = byId(content, shardManager::getTextChannelById);
+    public static Optional<GuildChannel> getGuildChannel(Guild guild, String content) {
+        GuildChannel channel = byId(content, guild::getTextChannelById);
         if (channel != null) {
             return Optional.of(channel);
         }
-        return Optional.ofNullable(byId(content, shardManager::getVoiceChannelById));
+        return Optional.ofNullable(byId(content, guild::getVoiceChannelById));
     }
 
     /**
@@ -167,7 +181,7 @@ public class DiscordResolver {
      *
      * @return user object if user is present or null
      */
-    public Optional<User> getGuildUser(Guild guild, String userString) {
+    public static Optional<User> getGuildUser(Guild guild, String userString) {
         return getGuildMember(guild, userString).map(Member::getUser);
     }
 
@@ -179,12 +193,12 @@ public class DiscordResolver {
      *
      * @return member object of member is present or null
      */
-    public Optional<Member> getGuildMember(Guild guild, String memberString) {
+    public static Optional<Member> getGuildMember(Guild guild, String memberString) {
         if (memberString == null) {
             return Optional.empty();
         }
         //Lookup by id
-        Member foundUser = byId(memberString, guild::getMemberById);
+        var foundUser = byId(memberString, guild::getMemberById);
 
         //Lookup by tag
         if (foundUser == null && DISCORD_TAG.matcher(memberString).matches()) {
@@ -210,7 +224,7 @@ public class DiscordResolver {
             return byNameOnGuild(memberString, guild);
         }
 
-        return Optional.ofNullable(foundUser);
+        return Optional.of(foundUser);
     }
 
     /**
@@ -223,7 +237,7 @@ public class DiscordResolver {
      * @return user object or null if no user is found
      */
     public Optional<User> getUserDeepSearch(String userString, Guild guild) {
-        Optional<User> user = getGuildUser(guild, userString);
+        var user = getGuildUser(guild, userString);
         return user.or(() -> getUser(userString));
     }
 
@@ -240,8 +254,8 @@ public class DiscordResolver {
         }
 
         User user = null;
-        String idRaw = getIdRaw(userString);
-        if (isValidId(idRaw)) {
+        var idRaw = getIdRaw(userString);
+        if (idRaw.isPresent()) {
             user = byId(userString, shardManager::getUserById);
         }
 
@@ -264,7 +278,7 @@ public class DiscordResolver {
      *
      * @return list of text channels without null objects
      */
-    public List<TextChannel> getTextChannels(Guild guild, Collection<String> channelStrings) {
+    public static List<TextChannel> getTextChannels(Guild guild, Collection<String> channelStrings) {
         return channelStrings.stream().map(s -> getTextChannel(guild, s))
                 .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
@@ -277,7 +291,7 @@ public class DiscordResolver {
      *
      * @return list of roles. without null objects
      */
-    public List<Role> getRoles(Guild guild, Collection<String> roleStrings) {
+    public static List<Role> getRoles(Guild guild, Collection<String> roleStrings) {
         return roleStrings.stream().map(roleString -> getRole(guild, roleString))
                 .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
     }
@@ -290,15 +304,15 @@ public class DiscordResolver {
      *
      * @return role object or null
      */
-    public Optional<Role> getRole(Guild guild, String roleString) {
+    public static Optional<Role> getRole(Guild guild, String roleString) {
         if (roleString == null) {
             return Optional.empty();
         }
 
-        Role role = byId(roleString, guild::getRoleById);
+        var role = byId(roleString, guild::getRoleById);
 
         if (role == null) {
-            List<Role> roles = guild.getRolesByName(roleString, true);
+            var roles = guild.getRolesByName(roleString, true);
             if (!roles.isEmpty()) {
                 role = roles.get(0);
             }
@@ -329,7 +343,7 @@ public class DiscordResolver {
      *
      * @return list of member object without nulls
      */
-    public List<Member> getGuildMembers(Guild guild, Collection<String> memberStrings) {
+    public static List<Member> getGuildMembers(Guild guild, Collection<String> memberStrings) {
         return memberStrings.stream()
                 .map(memberString -> getGuildMember(guild, memberString))
                 .filter(Optional::isPresent)
@@ -345,7 +359,7 @@ public class DiscordResolver {
      *
      * @return list of users without null
      */
-    public List<User> getGuildUsers(Guild guild, Collection<String> userStrings) {
+    public static List<User> getGuildUsers(Guild guild, Collection<String> userStrings) {
         return userStrings.stream()
                 .map(memberString -> getGuildUser(guild, memberString))
                 .filter(Optional::isPresent)
@@ -376,10 +390,10 @@ public class DiscordResolver {
      * @return guild object or null
      */
     public Optional<Guild> getGuild(String guildString) {
-        Guild guild = byId(guildString, s -> shardManager.getGuildById(guildString));
+        var guild = byId(guildString, s -> shardManager.getGuildById(guildString));
 
         if (guild == null) {
-            List<Guild> guilds = shardManager.getGuildsByName(guildString, false);
+            var guilds = shardManager.getGuildsByName(guildString, false);
             if (!guilds.isEmpty()) {
                 guild = guilds.get(0);
             }
@@ -404,14 +418,14 @@ public class DiscordResolver {
             return null;
         }
 
-        User user = byId(userString, shardManager::getUserById);
+        var user = byId(userString, shardManager::getUserById);
         if (user != null) {
             return Collections.singletonList(user);
         }
 
-        String idRaw = getIdRaw(userString);
-        if (isValidId(idRaw)) {
-            user = shardManager.getUserById(idRaw);
+        var idRaw = getIdRaw(userString);
+        if (idRaw.isPresent()) {
+            user = shardManager.getUserById(idRaw.get());
             if (user != null) {
                 return Collections.singletonList(user);
             }
@@ -433,56 +447,52 @@ public class DiscordResolver {
      * Search a user by fuzzy search on a guild.
      *
      * @param userString user string to search
-     * @param guildId    guild if to search
+     * @param guild      guild to search
      *
      * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
      * returned.
      */
 
-    public List<User> fuzzyGuildUserSearch(long guildId, String userString) {
-        Guild guild = shardManager.getGuildById(guildId);
+    public static List<WeightedEntry<Member>> fuzzyGuildUserSearch(Guild guild, String userString) {
         if (guild == null) {
             return Collections.emptyList();
         }
         //Lookup by id
-        Member foundUser = byId(userString, guild::getMemberById);
+        var foundUser = byId(userString, guild::getMemberById);
         if (foundUser != null) {
-            return Collections.singletonList(foundUser.getUser());
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
         //Lookup by tag
         if (DISCORD_TAG.matcher(userString).matches()) {
             foundUser = guild.getMemberByTag(userString);
             if (foundUser != null) {
-                return Collections.singletonList(foundUser.getUser());
+                return Collections.singletonList(WeightedEntry.directMatch(foundUser));
             }
         }
 
         //lookup by nickname
         foundUser = byName(userString, s -> guild.getMembersByNickname(s, true));
         if (foundUser != null) {
-            return Collections.singletonList(foundUser.getUser());
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
         //lookup by effective name
         foundUser = byName(userString, s -> guild.getMembersByEffectiveName(s, true));
         if (foundUser != null) {
-            return Collections.singletonList(foundUser.getUser());
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
         //lookup by name
         foundUser = byName(userString, s -> guild.getMembersByName(s, true));
         if (foundUser != null) {
-            return Collections.singletonList(foundUser.getUser());
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
-        Predicate<Member> effectiveNameMatch = member -> member.getEffectiveName().toLowerCase()
-                .contains(userString.toLowerCase());
-        Predicate<Member> nameMatch = member -> member.getUser().getName().toLowerCase()
-                .contains(userString.toLowerCase());
-        return guild.getMembers().stream()
-                .filter(effectiveNameMatch.or(nameMatch))
-                .map(Member::getUser)
+        return guild.getMemberCache().stream().map(m -> WeightedEntry.withJaro(m, userString))
+                .sorted(Comparator.reverseOrder())
+                .limit(10)
                 .collect(Collectors.toList());
     }
+
 }

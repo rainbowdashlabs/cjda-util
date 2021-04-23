@@ -28,7 +28,7 @@ public class FlagContainer {
      * @return new flag container with parsed args
      */
     public static FlagContainer of(String[] args) {
-        FlagContainer flagContainer = new FlagContainer(args);
+        var flagContainer = new FlagContainer(args);
         flagContainer.parse();
         return flagContainer;
     }
@@ -38,10 +38,10 @@ public class FlagContainer {
     }
 
     private void parse() {
-        for (String arg : args) {
+        for (var arg : args) {
             if (FLAG.matcher(arg).matches()) {
                 flushFlag();
-                String flag = arg.substring(1);
+                var flag = arg.substring(1);
                 if (flag.length() > 1) {
                     addSingleFlags(flag);
                     continue;
@@ -73,7 +73,7 @@ public class FlagContainer {
     }
 
     private void addSingleFlags(String flags) {
-        for (char c : flags.toCharArray()) {
+        for (var c : flags.toCharArray()) {
             this.flags.put(String.valueOf(c), null);
         }
     }

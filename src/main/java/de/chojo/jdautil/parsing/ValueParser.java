@@ -1,8 +1,6 @@
 package de.chojo.jdautil.parsing;
 
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.regex.Pattern;
 

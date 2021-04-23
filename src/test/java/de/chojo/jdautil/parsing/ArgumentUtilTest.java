@@ -7,7 +7,7 @@ class ArgumentUtilTest {
 
     @Test
     void parseQuotedArgs() {
-        String[] args = "These \"are some\" nicely splittet \"arguments\" right?".split("\\s");
+        var args = "These \"are some\" nicely splittet \"arguments\" right?".split("\\s");
 
         args = ArgumentUtil.parseQuotedArgs(args);
 

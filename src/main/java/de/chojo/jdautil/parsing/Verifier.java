@@ -1,19 +1,10 @@
 package de.chojo.jdautil.parsing;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.sharding.ShardManager;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 
 public final class Verifier {
@@ -24,7 +15,8 @@ public final class Verifier {
     private static final Pattern DOMAIN = Pattern.compile("^(?!://)([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]"
             + "+\\.[a-zA-Z]{2,11}?(:[0-9]{1,5})?$");
 
-    private Verifier(){}
+    private Verifier() {
+    }
 
     /**
      * Returns true if the id is a valid id.
@@ -34,7 +26,7 @@ public final class Verifier {
      * @return true if id is valid
      */
     public static boolean isValidId(String id) {
-        return getIdRaw(id).length() == 18;
+        return getIdRaw(id).isPresent();
     }
 
     /**
@@ -51,7 +43,6 @@ public final class Verifier {
     }
 
 
-
     /**
      * Returns true if on of the arguments matches the argument. Not case sensitive.
      *
@@ -61,10 +52,8 @@ public final class Verifier {
      * @return true if one argument matches.
      */
     public static boolean isArgument(String argument, String... args) {
-        for (String arg : args) {
-            if (argument.equalsIgnoreCase(arg)) {
-                return true;
-            }
+        for (var arg : args) {
+            if (argument.equalsIgnoreCase(arg)) return true;
         }
         return false;
     }
@@ -76,12 +65,9 @@ public final class Verifier {
      *
      * @return the extracted id.
      */
-    public static String getIdRaw(String id) {
-        Matcher matcher = ID_PATTERN.matcher(id);
-        if (!matcher.matches()) {
-            return "0";
-        }
-        return matcher.group(1);
+    public static Optional<String> getIdRaw(String id) {
+        var matcher = ID_PATTERN.matcher(id);
+        return !matcher.matches() ? Optional.empty() : Optional.ofNullable(matcher.group(1));
     }
 
 }

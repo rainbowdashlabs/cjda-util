@@ -5,12 +5,18 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
+
+import javax.annotation.CheckReturnValue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 
 public class MessageEventWrapper {
@@ -23,9 +29,11 @@ public class MessageEventWrapper {
     private final Message message;
     private final User author;
     private final TextChannel textChannel;
+    private final boolean isUpdate;
 
     private MessageEventWrapper(JDA jda, long messageId, long responseNumber, Guild guild, Member member,
-                                boolean isWebhookMessage, Message message, User author, TextChannel textChannel) {
+                                boolean isWebhookMessage, Message message, User author, TextChannel textChannel,
+                                boolean isUpdate) {
         this.jda = jda;
         this.messageId = messageId;
         this.responseNumber = responseNumber;
@@ -35,6 +43,7 @@ public class MessageEventWrapper {
         this.message = message;
         this.author = author;
         this.textChannel = textChannel;
+        this.isUpdate = isUpdate;
     }
 
     public static MessageEventWrapper create(GuildMessageReceivedEvent event) {
@@ -47,7 +56,8 @@ public class MessageEventWrapper {
                 event.isWebhookMessage(),
                 event.getMessage(),
                 event.getAuthor(),
-                event.getChannel()
+                event.getChannel(),
+                false
         );
     }
 
@@ -61,7 +71,8 @@ public class MessageEventWrapper {
                 false,
                 event.getMessage(),
                 event.getAuthor(),
-                event.getChannel()
+                event.getChannel(),
+                true
         );
     }
 
@@ -75,7 +86,8 @@ public class MessageEventWrapper {
                 false,
                 event.getMessage(),
                 event.getAuthor(),
-                null
+                null,
+                false
         );
     }
 
@@ -89,7 +101,8 @@ public class MessageEventWrapper {
                 false,
                 event.getMessage(),
                 event.getAuthor(),
-                null
+                null,
+                true
         );
     }
 
@@ -115,6 +128,7 @@ public class MessageEventWrapper {
     public long getMessageIdLong() {
         return messageId;
     }
+
     public String getMessageId() {
         return String.valueOf(messageId);
     }
@@ -145,5 +159,53 @@ public class MessageEventWrapper {
 
     public TextChannel getTextChannel() {
         return textChannel;
+    }
+
+    public ChannelLocation getChannelLocation() {
+        return new ChannelLocation(guild, textChannel, author);
+    }
+
+    public boolean isUpdate() {
+        return isUpdate;
+    }
+
+    @CheckReturnValue
+    public MessageAction answer(String message) {
+        return getChannel().sendMessage(message);
+    }
+
+    @CheckReturnValue
+    public MessageAction answer(MessageEmbed embed) {
+        return getChannel().sendMessage(embed);
+    }
+
+    @CheckReturnValue
+    public MessageAction reply(String message) {
+        return getMessage().reply(message);
+    }
+
+    @CheckReturnValue
+    public MessageAction reply(MessageEmbed embed) {
+        return getMessage().reply(embed);
+    }
+    @CheckReturnValue
+    public MessageAction replyNonMention(String message) {
+        return reply(message).mentionRepliedUser(false);
+    }
+
+    @CheckReturnValue
+    public MessageAction replyNonMention(MessageEmbed embed) {
+        return reply(embed).mentionRepliedUser(false);
+    }
+
+    @CheckReturnValue
+    public void replyErrorAndDelete(MessageEmbed embed, int deleteDelay) {
+        getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
+        reply(embed).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+    }
+    @CheckReturnValue
+    public void replyErrorAndDelete(String embed, int deleteDelay) {
+        getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
+        reply(embed).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 }

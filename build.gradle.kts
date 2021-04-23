@@ -1,4 +1,3 @@
-
 plugins {
     java
     `maven-publish`
@@ -18,7 +17,7 @@ repositories {
 
 dependencies {
     api("net.dv8tion:JDA:4.2.0_229")
-    api("net.sf.jopt-simple:jopt-simple:6.0-alpha-3")
+    api("org.apache.commons", "commons-text", "1.9")
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -32,10 +31,20 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
+        groupId = project.group as String?
+        artifactId = project.name
+        version = project.version as String?
     }
 }
 
-tasks.test{
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+
+
+tasks.test {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
