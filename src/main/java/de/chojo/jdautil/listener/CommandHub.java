@@ -22,11 +22,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public class CommandListener<Command extends SimpleCommand> extends ListenerAdapter {
+public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final ShardManager shardManager;
     private final boolean guildMessages;
     private final boolean guildMessagesUpdates;
@@ -39,11 +41,11 @@ public class CommandListener<Command extends SimpleCommand> extends ListenerAdap
     private final BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck;
     private final ConversationHandler conversationHandler;
 
-    public CommandListener(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
-                           boolean privateMessages, boolean privateMessagesUpdates, int maxUpdateAge,
-                           @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
-                           Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
-                           ConversationHandler conversationHandler) {
+    public CommandHub(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
+                      boolean privateMessages, boolean privateMessagesUpdates, int maxUpdateAge,
+                      @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
+                      Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
+                      ConversationHandler conversationHandler) {
         this.shardManager = shardManager;
         this.guildMessages = guildMessages;
         this.guildMessagesUpdates = guildMessagesUpdates;
@@ -122,21 +124,36 @@ public class CommandListener<Command extends SimpleCommand> extends ListenerAdap
         var label = stripped[0];
         var args = Arrays.copyOfRange(stripped, 1, stripped.length);
 
-        var command = commands.get(label.toLowerCase());
-        if (command == null) return;
+        var optCommand = getCommand(label);
+        if (optCommand.isEmpty()) return;
+
+        var command = optCommand.get();
 
         if (command.getPermission() != Permission.UNKNOWN && !permissionCheck.apply(eventWrapper, command)) return;
 
         if (!command.onCommand(eventWrapper, new CommandContext(label, args, conversationHandler))) {
             eventWrapper.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
-            eventWrapper.getChannel().sendMessage(command.getUsage())
-                    .queue(message -> message.delete().queueAfter(30, TimeUnit.SECONDS));
+            var s = "Invalid arguments: " + command.getCommand() + " " + (command.getArgs() == null ? "" : command.getArgs());
+            s += "\n" + Arrays.stream(command.getSubCommands())
+                    .map(c -> command.getCommand() + " " + c.getName() + (c.getArgs() == null ? "" : c.getArgs()))
+                    .collect(Collectors.joining("\n"));
+            eventWrapper.getChannel().sendMessage(s)
+                    .queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
         }
+    }
+
+    public Optional<Command> getCommand(String name) {
+        return Optional.ofNullable(commands.get(name.toLowerCase()));
+    }
+
+    public Set<Command> getCommands() {
+        return Set.copyOf(commands.values());
     }
 
 
     public static class Builder<T extends SimpleCommand> {
         private final ShardManager shardManager;
+        private final Map<String, T> commands = new HashMap<>();
         private boolean guildMessages = false;
         private boolean guildMessagesUpdates = false;
         private boolean privateMessages = false;
@@ -145,7 +162,6 @@ public class CommandListener<Command extends SimpleCommand> extends ListenerAdap
         @NotNull
         private String defaultPrefix;
         private Function<Guild, Optional<String>> prefixResolver = (g) -> Optional.of(defaultPrefix);
-        private final Map<String, T> commands = new HashMap<>();
         private BiFunction<MessageEventWrapper, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isGuild()) {
 
@@ -214,13 +230,13 @@ public class CommandListener<Command extends SimpleCommand> extends ListenerAdap
             return this;
         }
 
-        public CommandListener<T> build() {
+        public CommandHub<T> build() {
             ConversationHandler conversationHandler = null;
             if (withConversations) {
                 conversationHandler = new ConversationHandler();
 
             }
-            var commandListener = new CommandListener<>(shardManager, guildMessages, guildMessagesUpdates,
+            var commandListener = new CommandHub<>(shardManager, guildMessages, guildMessagesUpdates,
                     privateMessages, privateMessagesUpdates, maxUpdateAge, defaultPrefix, prefixResolver, commands,
                     permissionCheck, conversationHandler);
             shardManager.addEventListener(commandListener);

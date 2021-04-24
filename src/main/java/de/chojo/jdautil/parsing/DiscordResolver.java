@@ -199,6 +199,7 @@ public class DiscordResolver {
         }
         //Lookup by id
         var foundUser = byId(memberString, guild::getMemberById);
+        foundUser = byId(memberString, m -> guild.retrieveMemberById(m).complete());
 
         //Lookup by tag
         if (foundUser == null && DISCORD_TAG.matcher(memberString).matches()) {
@@ -225,49 +226,6 @@ public class DiscordResolver {
         }
 
         return Optional.of(foundUser);
-    }
-
-    /**
-     * Searches for a user. First on a guild and after this on all users the bot currently know. Equal to calling {@link
-     * #getGuildUser(Guild, String)} and {@link #getUser(String)}.
-     *
-     * @param userString string for lookup
-     * @param guild      guild for lookup
-     *
-     * @return user object or null if no user is found
-     */
-    public Optional<User> getUserDeepSearch(String userString, Guild guild) {
-        var user = getGuildUser(guild, userString);
-        return user.or(() -> getUser(userString));
-    }
-
-    /**
-     * Get a user object by id, name or tag.
-     *
-     * @param userString string for lookup
-     *
-     * @return user object or null if no user is found
-     */
-    public Optional<User> getUser(String userString) {
-        if (userString == null) {
-            return Optional.empty();
-        }
-
-        User user = null;
-        var idRaw = getIdRaw(userString);
-        if (idRaw.isPresent()) {
-            user = byId(userString, shardManager::getUserById);
-        }
-
-        if (user == null && DISCORD_TAG.matcher(userString).matches()) {
-            user = shardManager.getUserByTag(userString);
-        }
-
-        if (user == null) {
-            return shardManager.getUserCache().stream()
-                    .filter(cu -> cu.getName().toLowerCase().startsWith(userString.toLowerCase())).findFirst();
-        }
-        return Optional.of(user);
     }
 
     /**
@@ -321,21 +279,6 @@ public class DiscordResolver {
     }
 
     /**
-     * Get user objects from a list of ids, names and/or tags.
-     *
-     * @param userStrings list of ids, names and/or tags
-     *
-     * @return a list of user objects. without null
-     */
-    public List<User> getUsers(Collection<String> userStrings) {
-        return userStrings.stream()
-                .map(this::getUser)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Get guild member objects by a list of ids, tags, nickname or effective name.
      *
      * @param guild         guild for lookup
@@ -362,6 +305,116 @@ public class DiscordResolver {
     public static List<User> getGuildUsers(Guild guild, Collection<String> userStrings) {
         return userStrings.stream()
                 .map(memberString -> getGuildUser(guild, memberString))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Search a user by fuzzy search on a guild.
+     *
+     * @param userString user string to search
+     * @param guild      guild to search
+     *
+     * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
+     * returned.
+     */
+
+    public static List<WeightedEntry<Member>> fuzzyGuildUserSearch(Guild guild, String userString) {
+        if (guild == null) {
+            return Collections.emptyList();
+        }
+        //Lookup by id
+        var foundUser = byId(userString, guild::getMemberById);
+        if (foundUser != null) {
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
+        }
+
+        //Lookup by tag
+        if (DISCORD_TAG.matcher(userString).matches()) {
+            foundUser = guild.getMemberByTag(userString);
+            if (foundUser != null) {
+                return Collections.singletonList(WeightedEntry.directMatch(foundUser));
+            }
+        }
+
+        //lookup by nickname
+        foundUser = byName(userString, s -> guild.getMembersByNickname(s, true));
+        if (foundUser != null) {
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
+        }
+
+        //lookup by effective name
+        foundUser = byName(userString, s -> guild.getMembersByEffectiveName(s, true));
+        if (foundUser != null) {
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
+        }
+
+        //lookup by name
+        foundUser = byName(userString, s -> guild.getMembersByName(s, true));
+        if (foundUser != null) {
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
+        }
+
+        return guild.getMemberCache().stream().map(m -> WeightedEntry.withJaro(m, userString))
+                .sorted(Comparator.reverseOrder())
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Searches for a user. First on a guild and after this on all users the bot currently know. Equal to calling {@link
+     * #getGuildUser(Guild, String)} and {@link #getUser(String)}.
+     *
+     * @param userString string for lookup
+     * @param guild      guild for lookup
+     *
+     * @return user object or null if no user is found
+     */
+    public Optional<User> getUserDeepSearch(String userString, Guild guild) {
+        var user = getGuildUser(guild, userString);
+        return user.or(() -> getUser(userString));
+    }
+
+    /**
+     * Get a user object by id, name or tag.
+     *
+     * @param userString string for lookup
+     *
+     * @return user object or null if no user is found
+     */
+    public Optional<User> getUser(String userString) {
+        if (userString == null) {
+            return Optional.empty();
+        }
+
+        User user = null;
+        var idRaw = getIdRaw(userString);
+        if (idRaw.isPresent()) {
+            user = byId(userString, shardManager::getUserById);
+        }
+
+        if (user == null && DISCORD_TAG.matcher(userString).matches()) {
+            user = shardManager.getUserByTag(userString);
+        }
+
+        if (user == null) {
+            return shardManager.getUserCache().stream()
+                    .filter(cu -> cu.getName().toLowerCase().startsWith(userString.toLowerCase())).findFirst();
+        }
+        return Optional.of(user);
+    }
+
+    /**
+     * Get user objects from a list of ids, names and/or tags.
+     *
+     * @param userStrings list of ids, names and/or tags
+     *
+     * @return a list of user objects. without null
+     */
+    public List<User> getUsers(Collection<String> userStrings) {
+        return userStrings.stream()
+                .map(this::getUser)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -419,6 +472,7 @@ public class DiscordResolver {
         }
 
         var user = byId(userString, shardManager::getUserById);
+        user = byId(userString, s -> shardManager.retrieveUserById(s).complete());
         if (user != null) {
             return Collections.singletonList(user);
         }
@@ -440,58 +494,6 @@ public class DiscordResolver {
 
         return shardManager.getUserCache().stream()
                 .filter(cu -> cu.getName().toLowerCase().contains(userString.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Search a user by fuzzy search on a guild.
-     *
-     * @param userString user string to search
-     * @param guild      guild to search
-     *
-     * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
-     * returned.
-     */
-
-    public static List<WeightedEntry<Member>> fuzzyGuildUserSearch(Guild guild, String userString) {
-        if (guild == null) {
-            return Collections.emptyList();
-        }
-        //Lookup by id
-        var foundUser = byId(userString, guild::getMemberById);
-        if (foundUser != null) {
-            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
-        }
-
-        //Lookup by tag
-        if (DISCORD_TAG.matcher(userString).matches()) {
-            foundUser = guild.getMemberByTag(userString);
-            if (foundUser != null) {
-                return Collections.singletonList(WeightedEntry.directMatch(foundUser));
-            }
-        }
-
-        //lookup by nickname
-        foundUser = byName(userString, s -> guild.getMembersByNickname(s, true));
-        if (foundUser != null) {
-            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
-        }
-
-        //lookup by effective name
-        foundUser = byName(userString, s -> guild.getMembersByEffectiveName(s, true));
-        if (foundUser != null) {
-            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
-        }
-
-        //lookup by name
-        foundUser = byName(userString, s -> guild.getMembersByName(s, true));
-        if (foundUser != null) {
-            return Collections.singletonList(WeightedEntry.directMatch(foundUser));
-        }
-
-        return guild.getMemberCache().stream().map(m -> WeightedEntry.withJaro(m, userString))
-                .sorted(Comparator.reverseOrder())
-                .limit(10)
                 .collect(Collectors.toList());
     }
 

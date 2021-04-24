@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.CheckReturnValue;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 
@@ -44,6 +43,11 @@ public class MessageEventWrapper {
         this.author = author;
         this.textChannel = textChannel;
         this.isUpdate = isUpdate;
+    }
+
+    public static MessageEventWrapper fake() {
+        return new MessageEventWrapper(null, 0, 0, null, null, false,
+                null, null, null, false);
     }
 
     public static MessageEventWrapper create(GuildMessageReceivedEvent event) {
@@ -188,6 +192,7 @@ public class MessageEventWrapper {
     public MessageAction reply(MessageEmbed embed) {
         return getMessage().reply(embed);
     }
+
     @CheckReturnValue
     public MessageAction replyNonMention(String message) {
         return reply(message).mentionRepliedUser(false);
@@ -203,9 +208,10 @@ public class MessageEventWrapper {
         getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
         reply(embed).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
+
     @CheckReturnValue
-    public void replyErrorAndDelete(String embed, int deleteDelay) {
+    public void replyErrorAndDelete(String message, int deleteDelay) {
         getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
-        reply(embed).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        reply(message).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 }

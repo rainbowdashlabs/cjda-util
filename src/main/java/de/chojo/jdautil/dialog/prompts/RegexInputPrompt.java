@@ -5,8 +5,8 @@ import de.chojo.jdautil.dialog.ConversationContext;
 import java.util.regex.Pattern;
 
 public abstract class RegexInputPrompt extends StringInputPrompt {
-    private Pattern pattern;
-    private String valueKey;
+    private final Pattern pattern;
+    private final String valueKey;
 
     public RegexInputPrompt(Pattern pattern, String valueKey) {
         this.pattern = pattern;

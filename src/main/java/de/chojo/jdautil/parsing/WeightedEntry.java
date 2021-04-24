@@ -26,9 +26,9 @@ public class WeightedEntry<T> implements Comparable<WeightedEntry<T>> {
     }
 
     public static WeightedEntry<Member> withJaro(Member member, String name) {
-        String lowerName = name.toLowerCase(Locale.ROOT);
-        String lowerEffective = member.getEffectiveName().toLowerCase(Locale.ROOT);
-        String lowerUser = member.getUser().getName().toLowerCase(Locale.ROOT);
+        var lowerName = name.toLowerCase(Locale.ROOT);
+        var lowerEffective = member.getEffectiveName().toLowerCase(Locale.ROOT);
+        var lowerUser = member.getUser().getName().toLowerCase(Locale.ROOT);
         var jaro = Math.max(SIMILARITY.apply(member.getEffectiveName(), name), SIMILARITY.apply(member.getUser().getName(), name));
         var startsWith = lowerEffective.startsWith(lowerName) || lowerUser.startsWith(lowerName) ? 1 : 0.65;
         var contains = lowerEffective.contains(lowerName) || lowerUser.contains(lowerName) ? 0.95 : 0.4;

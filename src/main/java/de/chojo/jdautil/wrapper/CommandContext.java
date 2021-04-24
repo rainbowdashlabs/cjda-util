@@ -4,6 +4,8 @@ import de.chojo.jdautil.dialog.Conversation;
 import de.chojo.jdautil.dialog.ConversationHandler;
 import de.chojo.jdautil.parsing.ArgumentUtil;
 import de.chojo.jdautil.parsing.ValueParser;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,9 +14,9 @@ import java.util.function.Function;
 
 public class CommandContext {
     private final String label;
-    private String[] args;
     private final FlagContainer flags;
-    private ConversationHandler conversationHandler;
+    private final ConversationHandler conversationHandler;
+    private String[] args;
 
     public CommandContext(String label, String[] args, ConversationHandler conversationHandler) {
         this.label = label;
@@ -54,6 +56,14 @@ public class CommandContext {
         return parseArg(index, ValueParser::parseLong);
     }
 
+    public Optional<Boolean> argBoolean(int index) {
+        return parseArg(index, ValueParser::parseBoolean);
+    }
+
+    public Optional<Boolean> argBoolean(int index, String aTrue, String aFalse) {
+        return parseArg(index, s -> ValueParser.parseBoolean(s, aTrue, aFalse));
+    }
+
     public List<String> args(int from) {
         return ArgumentUtil.getRangeAsList(args, from);
     }
@@ -86,5 +96,30 @@ public class CommandContext {
     public CommandContext subCommandcontext(String label) {
         return new CommandContext(label, ArgumentUtil.getRangeAsList(args, 1).toArray(new String[0]),
                 conversationHandler);
+    }
+
+    public boolean hasFlag(@NotNull String flag) {
+        return flags.has(flag);
+    }
+
+    public boolean hasFlagValue(String flag) {
+        return flags.hasValue(flag);
+    }
+
+    public <T> T getFlag(@NotNull String flag, Function<@Nullable String, T> map) {
+        return flags.get(flag, map);
+    }
+
+    @Nullable
+    public String getFlag(String flag) {
+        return flags.get(flag);
+    }
+
+    public Optional<String> getFlagValueIfPresent(String flag) {
+        return flags.getIfPresent(flag);
+    }
+
+    public <T> Optional<T> getFlagValueIfPresent(@NotNull String flag, Function<String, T> map) {
+        return flags.getIfPresent(flag, map);
     }
 }

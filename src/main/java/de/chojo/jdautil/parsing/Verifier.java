@@ -3,7 +3,6 @@ package de.chojo.jdautil.parsing;
 import net.dv8tion.jda.api.entities.ISnowflake;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 

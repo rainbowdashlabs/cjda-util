@@ -6,6 +6,7 @@ package de.chojo.jdautil.container;
  * @param <A> value A
  * @param <B> value B
  * @param <C> value C
+ *
  * @since 1.0.0
  */
 public class Triple<A, B, C> {
@@ -35,6 +36,7 @@ public class Triple<A, B, C> {
      * @param <X> type of first value
      * @param <Y> type of second value
      * @param <Z> type of third value
+     *
      * @return new tripple
      */
     public static <X, Y, Z> Triple<X, Y, Z> of(X x, Y y, Z z) {

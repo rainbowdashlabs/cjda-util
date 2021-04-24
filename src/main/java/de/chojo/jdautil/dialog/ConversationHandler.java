@@ -3,7 +3,6 @@ package de.chojo.jdautil.dialog;
 import de.chojo.jdautil.wrapper.ChannelLocation;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 
-import java.awt.Dialog;
 import java.util.HashMap;
 import java.util.Map;
 

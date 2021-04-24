@@ -5,6 +5,7 @@ package de.chojo.jdautil.container;
  *
  * @param <A> value A
  * @param <B> value B
+ *
  * @since 1.0.0
  */
 public class Pair<A, B> {
@@ -29,6 +30,7 @@ public class Pair<A, B> {
      * @param y   second value
      * @param <X> type of first value
      * @param <Y> type of second value
+     *
      * @return new pair
      */
     public static <X, Y> Pair<X, Y> of(X x, Y y) {

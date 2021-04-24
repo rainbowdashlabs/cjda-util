@@ -14,6 +14,7 @@ import java.util.function.Function;
  * @param <T2> the type of the second argument to the function
  * @param <T3> the type of the third argument to the function
  * @param <R>  the type of the result of the function
+ *
  * @see Function
  * @since 1.0.0
  */
@@ -26,6 +27,7 @@ public interface TriFunction<T1, T2, T3, R> {
      * @param t1 the first function argument
      * @param t2 the second function argument
      * @param t3 the third function argument
+     *
      * @return the function result
      */
     R apply(T1 t1, T2 t2, T3 t3);
@@ -37,7 +39,9 @@ public interface TriFunction<T1, T2, T3, R> {
      *
      * @param <V>   the type of output of the {@code after} function, and of the composed function
      * @param after the function to apply after this function is applied
+     *
      * @return a composed function that first applies this function and then applies the {@code after} function
+     *
      * @throws NullPointerException if after is null
      */
     default <V> TriFunction<T1, T2, T3, V> andThen(Function<? super R, ? extends V> after) {

@@ -17,8 +17,12 @@ public class FlagContainer {
     private final Map<String, String> flags = new HashMap<>();
 
     private final List<String> flagArgs = new LinkedList<>();
-    private String currFlag = null;
     private final String[] args;
+    private String currFlag = null;
+
+    private FlagContainer(String[] args) {
+        this.args = args;
+    }
 
     /**
      * Create a new flag container based on the arguments
@@ -31,10 +35,6 @@ public class FlagContainer {
         var flagContainer = new FlagContainer(args);
         flagContainer.parse();
         return flagContainer;
-    }
-
-    private FlagContainer(String[] args) {
-        this.args = args;
     }
 
     private void parse() {
@@ -142,8 +142,8 @@ public class FlagContainer {
      * If the value is not present the mapping function will not be applied and a empty optional will be returned.
      *
      * @param flag flag to retrieve
-     * @param map function to map the flag
-     * @param <T> type of returned optional
+     * @param map  function to map the flag
+     * @param <T>  type of returned optional
      *
      * @return flag value parsed and wrapped into an optional
      */
