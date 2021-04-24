@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.entities.Member;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 public class WeightedEntry<T> implements Comparable<WeightedEntry<T>> {
     private static final JaroWinklerSimilarity SIMILARITY = new JaroWinklerSimilarity();
 
@@ -24,8 +26,14 @@ public class WeightedEntry<T> implements Comparable<WeightedEntry<T>> {
     }
 
     public static WeightedEntry<Member> withJaro(Member member, String name) {
-        var weight = Math.max(SIMILARITY.apply(member.getEffectiveName(), name), SIMILARITY.apply(member.getUser().getName(), name));
-        return new WeightedEntry<>(member, weight);
+        String lowerName = name.toLowerCase(Locale.ROOT);
+        String lowerEffective = member.getEffectiveName().toLowerCase(Locale.ROOT);
+        String lowerUser = member.getUser().getName().toLowerCase(Locale.ROOT);
+        var jaro = Math.max(SIMILARITY.apply(member.getEffectiveName(), name), SIMILARITY.apply(member.getUser().getName(), name));
+        var startsWith = lowerEffective.startsWith(lowerName) || lowerUser.startsWith(lowerName) ? 1 : 0.65;
+        var contains = lowerEffective.contains(lowerName) || lowerUser.contains(lowerName) ? 0.95 : 0.4;
+        var score = ((startsWith + contains) / 2 + jaro) / 2;
+        return new WeightedEntry<>(member, score);
     }
 
     @Override

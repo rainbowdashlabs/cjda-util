@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CommandListener<Command extends SimpleCommand> extends ListenerAdapter {
-    private ShardManager shardManager;
+    private final ShardManager shardManager;
     private final boolean guildMessages;
     private final boolean guildMessagesUpdates;
     private final boolean privateMessages;

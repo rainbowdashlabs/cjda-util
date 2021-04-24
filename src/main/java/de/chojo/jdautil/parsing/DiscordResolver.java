@@ -37,13 +37,13 @@ public class DiscordResolver {
     }
 
     private static Optional<Member> byNameOnGuild(String memberString, Guild guild) {
-        var collect = guild.getMembers().stream()
+        var collect = guild.getMemberCache().stream()
                 .filter(m -> m.getEffectiveName().toLowerCase()
                         .startsWith(memberString.toLowerCase())).findFirst();
         if (collect.isPresent()) {
             return collect;
         }
-        return guild.getMembers().stream().filter(m -> m.getUser().getName().toLowerCase()
+        return guild.getMemberCache().stream().filter(m -> m.getUser().getName().toLowerCase()
                 .startsWith(memberString.toLowerCase())).findFirst();
     }
 
