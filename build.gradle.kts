@@ -5,7 +5,9 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
+    mavenLocal {
+        isAllowInsecureProtocol = true
+    }
     maven {
         url = uri("https://jcenter.bintray.com")
     }
