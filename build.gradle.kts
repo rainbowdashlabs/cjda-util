@@ -43,7 +43,7 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/RainbowDashLabs/cdja-util")
             credentials {
-                username = System.getenv("GITHUB_USERNAME")
+                username = System.getenv("USERNAME")
                 password = System.getenv("GITHUB_TOKEN")
             }
         }
