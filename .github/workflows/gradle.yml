@@ -18,3 +18,6 @@ jobs:
         run: ./gradlew test
       - name: Publish to github
         run: ./gradlew publish
+        env:
+          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
