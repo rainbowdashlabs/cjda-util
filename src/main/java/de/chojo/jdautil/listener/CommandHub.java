@@ -115,7 +115,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
 
-
     private void onMessageReceived(MessageEventWrapper eventWrapper) {
         if (eventWrapper.getAuthor().isBot()) return;
 
@@ -157,6 +156,10 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             eventWrapper.getChannel().sendMessage(s)
                     .queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
         }
+    }
+
+    public boolean canExecute(MessageEventWrapper eventWrapper, Command command) {
+        return permissionCheck.apply(eventWrapper, command);
     }
 
     public Optional<Command> getCommand(String name) {
