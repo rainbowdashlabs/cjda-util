@@ -3,6 +3,7 @@ package de.chojo.jdautil.localization.util;
 import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import javax.annotation.Nonnull;
@@ -14,7 +15,7 @@ import java.time.temporal.TemporalAccessor;
  * Wrapper for auto localization of embeds.
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
-    private final MessageEventWrapper messageContext;
+    private final Guild guild;
     private final Localizer localizer;
 
     /**
@@ -24,13 +25,18 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      */
     public LocalizedEmbedBuilder(Localizer localizer, MessageEventWrapper messageContext) {
         this.localizer = localizer;
-        this.messageContext = messageContext != null ? messageContext : MessageEventWrapper.fake();
+        this.guild = messageContext != null ? messageContext.getGuild() : null;
+    }
+
+    public LocalizedEmbedBuilder(Localizer localizer, @Nullable Guild guild) {
+        this.guild = guild;
+        this.localizer = localizer;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline) {
-        super.addField(localizer.localizeByWrapper(name, messageContext), localizer.localizeByWrapper(value, messageContext), inline);
+        super.addField(localizer.localize(name, guild), localizer.localize(value, guild), inline);
         return this;
     }
 
@@ -56,28 +62,28 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title) {
-        super.setTitle(localizer.localizeByWrapper(title, messageContext));
+        super.setTitle(localizer.localize(title, guild));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url) {
-        super.setTitle(localizer.localizeByWrapper(title, messageContext), url);
+        super.setTitle(localizer.localize(title, guild), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text) {
-        super.setFooter(localizer.localizeByWrapper(text, messageContext));
+        super.setFooter(localizer.localize(text, guild));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
-        super.setFooter(localizer.localizeByWrapper(text, messageContext), iconUrl);
+        super.setFooter(localizer.localize(text, guild), iconUrl);
         return this;
     }
 
@@ -89,14 +95,14 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @return the builder after the description has been set
      */
     public LocalizedEmbedBuilder setDescription(String text) {
-        super.setDescription(localizer.localizeByWrapper(text, messageContext));
+        super.setDescription(localizer.localize(text, guild));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description) {
-        super.appendDescription(localizer.localizeByWrapper(description.toString(), messageContext));
+        super.appendDescription(localizer.localize(description.toString(), guild));
         return this;
     }
 
@@ -145,21 +151,21 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name) {
-        super.setAuthor(localizer.localizeByWrapper(name, messageContext));
+        super.setAuthor(localizer.localize(name, guild));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url) {
-        super.setAuthor(localizer.localizeByWrapper(name, messageContext), url);
+        super.setAuthor(localizer.localize(name, guild), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
-        super.setAuthor(localizer.localizeByWrapper(name, messageContext), url, iconUrl);
+        super.setAuthor(localizer.localize(name, guild), url, iconUrl);
         return this;
     }
 

@@ -87,26 +87,26 @@ public class Localizer {
         return defaultLanguage;
     }
 
-    public String localizeByWrapper(String message, MessageEventWrapper wrapper, Replacement... replacements) {
+    public String localize(String message, MessageEventWrapper wrapper, Replacement... replacements) {
         Guild guild = null;
         if (wrapper.isGuild()) {
             guild = wrapper.getGuild();
         }
-        return localizeByGuild(message, guild, replacements);
+        return localize(message, guild, replacements);
     }
 
 
-    public String localizeByChannel(String message, MessageChannel channel, Replacement... replacements) {
+    public String localize(String message, MessageChannel channel, Replacement... replacements) {
         if (channel instanceof TextChannel) {
             var guildChannel = (TextChannel) channel;
-            return localizeByGuild(message, guildChannel.getGuild(), replacements);
+            return localize(message, guildChannel.getGuild(), replacements);
         } else {
-            return localizeByGuild(message, null, replacements);
+            return localize(message, (Guild) null, replacements);
         }
     }
 
 
-    public String localizeByGuild(String message, Guild guild, Replacement... replacements) {
+    public String localize(String message, Guild guild, Replacement... replacements) {
         if (message == null) {
             return null;
         }
