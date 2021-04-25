@@ -1,5 +1,7 @@
 package de.chojo.jdautil.wrapper;
 
+import de.chojo.jdautil.localization.Localizer;
+import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,6 +17,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.CheckReturnValue;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 
@@ -29,6 +32,7 @@ public class MessageEventWrapper {
     private final User author;
     private final TextChannel textChannel;
     private final boolean isUpdate;
+    private Localizer localizer;
 
     private MessageEventWrapper(JDA jda, long messageId, long responseNumber, Guild guild, Member member,
                                 boolean isWebhookMessage, Message message, User author, TextChannel textChannel,
@@ -110,6 +114,10 @@ public class MessageEventWrapper {
         );
     }
 
+    public void registerLocalizer(Localizer localizer) {
+        this.localizer = localizer;
+    }
+
     public MessageChannel getChannel() {
         if (isGuild()) {
             return textChannel;
@@ -173,7 +181,12 @@ public class MessageEventWrapper {
         return isUpdate;
     }
 
+    public String localize(String message, Replacement... replacements) {
+        return localizer.localize(message, guild, replacements);
+    }
+
     @CheckReturnValue
+
     public MessageAction answer(String message) {
         return getChannel().sendMessage(message);
     }
@@ -184,34 +197,34 @@ public class MessageEventWrapper {
     }
 
     @CheckReturnValue
-    public MessageAction reply(String message) {
+    public MessageAction replyMention(String message) {
         return getMessage().reply(message);
     }
 
     @CheckReturnValue
-    public MessageAction reply(MessageEmbed embed) {
+    public MessageAction replyMention(MessageEmbed embed) {
         return getMessage().reply(embed);
     }
 
     @CheckReturnValue
-    public MessageAction replyNonMention(String message) {
-        return reply(message).mentionRepliedUser(false);
+    public MessageAction reply(String message) {
+        return replyMention(message).allowedMentions(Collections.emptyList()).mentionRepliedUser(false);
     }
 
     @CheckReturnValue
-    public MessageAction replyNonMention(MessageEmbed embed) {
-        return reply(embed).mentionRepliedUser(false);
+    public MessageAction reply(MessageEmbed embed) {
+        return replyMention(embed).allowedMentions(Collections.emptyList()).mentionRepliedUser(false);
     }
 
     @CheckReturnValue
     public void replyErrorAndDelete(MessageEmbed embed, int deleteDelay) {
         getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
-        reply(embed).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        reply(embed).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 
     @CheckReturnValue
     public void replyErrorAndDelete(String message, int deleteDelay) {
         getMessage().delete().queueAfter(deleteDelay, TimeUnit.SECONDS);
-        reply(message).mentionRepliedUser(false).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        reply(message).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 }

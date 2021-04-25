@@ -93,7 +93,7 @@ public class CommandContext {
         conversationHandler.startDialog(eventWrapper, conversation);
     }
 
-    public CommandContext subCommandcontext(String label) {
+    public CommandContext subContext(String label) {
         return new CommandContext(label, ArgumentUtil.getRangeAsList(args, 1).toArray(new String[0]),
                 conversationHandler);
     }

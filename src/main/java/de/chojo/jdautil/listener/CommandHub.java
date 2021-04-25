@@ -2,11 +2,14 @@ package de.chojo.jdautil.listener;
 
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.dialog.ConversationHandler;
+import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -40,12 +43,15 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Map<String, Command> commands;
     private final BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck;
     private final ConversationHandler conversationHandler;
+    private final BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider;
+    private final Localizer localizer;
 
     public CommandHub(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
                       boolean privateMessages, boolean privateMessagesUpdates, int maxUpdateAge,
                       @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
                       Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
-                      ConversationHandler conversationHandler) {
+                      ConversationHandler conversationHandler,
+                      BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, Localizer localizer) {
         this.shardManager = shardManager;
         this.guildMessages = guildMessages;
         this.guildMessagesUpdates = guildMessagesUpdates;
@@ -57,6 +63,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.commands = commands;
         this.permissionCheck = permissionCheck;
         this.conversationHandler = conversationHandler;
+        this.invalidArgumentProvider = invalidArgumentProvider;
+        this.localizer = localizer;
     }
 
     public static <T extends SimpleCommand> Builder<T> builder(ShardManager shardManager, String defaultPrefix) {
@@ -106,8 +114,12 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         return message.getTimeCreated().toInstant().until(Instant.now(), ChronoUnit.MINUTES) <= maxUpdateAge;
     }
 
+
+
     private void onMessageReceived(MessageEventWrapper eventWrapper) {
         if (eventWrapper.getAuthor().isBot()) return;
+
+        eventWrapper.registerLocalizer(localizer);
 
         if (conversationHandler != null) {
             if (conversationHandler.invoke(eventWrapper)) {
@@ -132,6 +144,11 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         if (command.getPermission() != Permission.UNKNOWN && !permissionCheck.apply(eventWrapper, command)) return;
 
         if (!command.onCommand(eventWrapper, new CommandContext(label, args, conversationHandler))) {
+            if (invalidArgumentProvider != null) {
+                eventWrapper.replyErrorAndDelete(invalidArgumentProvider.apply(localizer.getContextLocalizer(eventWrapper),
+                        command), 10);
+                return;
+            }
             eventWrapper.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
             var s = "Invalid arguments: " + command.getCommand() + " " + (command.getArgs() == null ? "" : command.getArgs());
             s += "\n" + Arrays.stream(command.getSubCommands())
@@ -162,6 +179,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         @NotNull
         private String defaultPrefix;
         private Function<Guild, Optional<String>> prefixResolver = (g) -> Optional.of(defaultPrefix);
+        private BiFunction<ContextLocalizer, T, MessageEmbed> invalidArgumentProvider;
+        private Localizer localizer;
         private BiFunction<MessageEventWrapper, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isGuild()) {
 
@@ -209,6 +228,16 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return this;
         }
 
+        public Builder<T> withInvalidArgumentProvider(BiFunction<ContextLocalizer, T, MessageEmbed> invalidArgumentProvider) {
+            this.invalidArgumentProvider = invalidArgumentProvider;
+            return this;
+        }
+
+        public Builder<T> withLocalizer(Localizer localizer) {
+            this.localizer = localizer;
+            return this;
+        }
+
         @SafeVarargs
         public final Builder<T> withCommands(T... commands) {
             for (var command : commands) {
@@ -238,7 +267,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             }
             var commandListener = new CommandHub<>(shardManager, guildMessages, guildMessagesUpdates,
                     privateMessages, privateMessagesUpdates, maxUpdateAge, defaultPrefix, prefixResolver, commands,
-                    permissionCheck, conversationHandler);
+                    permissionCheck, conversationHandler, invalidArgumentProvider, localizer);
             shardManager.addEventListener(commandListener);
             return commandListener;
         }

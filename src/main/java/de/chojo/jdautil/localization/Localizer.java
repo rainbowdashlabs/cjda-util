@@ -75,16 +75,20 @@ public class Localizer {
             return defaultLanguage;
         }
         var apply = languageProvider.apply(guild).orElse(defaultLanguage.getCode());
-        return getLanguage(apply);
+        return getLanguage(apply).orElse(defaultLanguage);
     }
 
-    private Language getLanguage(String code) {
+    public Optional<Language> getLanguage(String code) {
         for (var language : languages.keySet()) {
             if (language.isLanguage(code)) {
-                return language;
+                return Optional.of(language);
             }
         }
-        return defaultLanguage;
+        return Optional.empty();
+    }
+
+    public Set<Language> getLanguages() {
+        return languages.keySet();
     }
 
     public String localize(String message, MessageEventWrapper wrapper, Replacement... replacements) {
@@ -137,6 +141,26 @@ public class Localizer {
             result = replacement.invoke(result);
         }
         return result;
+    }
+
+    public ContextLocalizer getContextLocalizer(Guild guild) {
+        return new ContextLocalizer(this, guild);
+    }
+
+    public ContextLocalizer getContextLocalizer(MessageEventWrapper wrapper) {
+        return new ContextLocalizer(this, wrapper.getGuild());
+    }
+
+    public ContextLocalizer getContextLocalizer(MessageChannel channel) {
+        if (channel instanceof TextChannel) {
+            return new ContextLocalizer(this, ((TextChannel) channel).getGuild());
+        } else {
+            return new ContextLocalizer(this, null);
+        }
+    }
+
+    public Language getDefaultLanguage() {
+        return defaultLanguage;
     }
 
     public static class Builder {
