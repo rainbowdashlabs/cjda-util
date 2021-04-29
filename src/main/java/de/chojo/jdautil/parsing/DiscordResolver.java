@@ -2,6 +2,7 @@ package de.chojo.jdautil.parsing;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -27,14 +28,7 @@ import static de.chojo.jdautil.parsing.Verifier.isValidId;
  */
 public class DiscordResolver {
     private static final Pattern DISCORD_TAG = Pattern.compile(".+?#[0-9]{4}");
-    private final ShardManager shardManager;
 
-    /**
-     * Create a new argument parser.
-     */
-    public DiscordResolver(ShardManager shardManager) {
-        this.shardManager = shardManager;
-    }
 
     private static Optional<Member> byNameOnGuild(String memberString, Guild guild) {
         var collect = guild.getMemberCache().stream()
@@ -76,12 +70,27 @@ public class DiscordResolver {
         return null;
     }
 
+    private static <T extends ISnowflake> Optional<T> targetById(String id, Collection<T> targets) {
+        if (isValidId(id)) {
+            var l = Long.parseLong(getIdRaw(id).orElse("0"));
+            return targets.stream().filter(t -> t.getIdLong() == l).findFirst();
+        }
+        return Optional.empty();
+    }
+
     private static <T> T byName(String name, Function<String, List<T>> convert) {
         var nameMatches = convert.apply(name);
         if (nameMatches.isEmpty()) {
             return null;
         }
         return nameMatches.get(0);
+    }
+
+    private static Optional<Member> targetByName(String name, Collection<Member> targets) {
+        return targets.stream()
+                .filter(t -> t.getEffectiveName().equalsIgnoreCase(name)
+                        || t.getUser().getName().equalsIgnoreCase(name))
+                .findFirst();
     }
 
     /**
@@ -363,17 +372,55 @@ public class DiscordResolver {
     }
 
     /**
+     * Search a user by fuzzy search on a guild.
+     *
+     * @param userString user string to search
+     * @param targets    possible targets
+     *
+     * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
+     * returned.
+     */
+
+    public static List<WeightedEntry<Member>> fuzzyGuildTargetSearch(String userString, Collection<Member> targets) {
+        if (targets == null) {
+            return Collections.emptyList();
+        }
+
+        //Lookup by id
+        var foundUser = targetById(userString, targets);
+        if (foundUser.isPresent()) {
+            return Collections.singletonList(WeightedEntry.directMatch(foundUser.get()));
+        }
+
+        //Lookup by tag
+        if (DISCORD_TAG.matcher(userString).matches()) {
+            foundUser = targets.stream().filter(t -> t.getUser().getAsTag().equalsIgnoreCase(userString)).findFirst();
+            if (foundUser.isPresent()) {
+                return Collections.singletonList(WeightedEntry.directMatch(foundUser.get()));
+            }
+        }
+
+        //lookup by nickname
+        foundUser = targetByName(userString, targets);
+        return foundUser.map(member -> Collections.singletonList(WeightedEntry.directMatch(member)))
+                .orElseGet(() -> targets.stream().map(m -> WeightedEntry.withJaro(m, userString))
+                        .sorted(Comparator.reverseOrder())
+                        .limit(10)
+                        .collect(Collectors.toList()));
+    }
+
+    /**
      * Searches for a user. First on a guild and after this on all users the bot currently know. Equal to calling {@link
-     * #getGuildUser(Guild, String)} and {@link #getUser(String)}.
+     * #getGuildUser(Guild, String)} and {@link DiscordResolver#getUser(ShardManager, String)}.
      *
      * @param userString string for lookup
      * @param guild      guild for lookup
      *
      * @return user object or null if no user is found
      */
-    public Optional<User> getUserDeepSearch(String userString, Guild guild) {
+    public static Optional<User> getUserDeepSearch(ShardManager shardManager, String userString, Guild guild) {
         var user = getGuildUser(guild, userString);
-        return user.or(() -> getUser(userString));
+        return user.or(() -> getUser(shardManager, userString));
     }
 
     /**
@@ -383,7 +430,7 @@ public class DiscordResolver {
      *
      * @return user object or null if no user is found
      */
-    public Optional<User> getUser(String userString) {
+    public static Optional<User> getUser(ShardManager shardManager, String userString) {
         if (userString == null) {
             return Optional.empty();
         }
@@ -412,9 +459,9 @@ public class DiscordResolver {
      *
      * @return a list of user objects. without null
      */
-    public List<User> getUsers(Collection<String> userStrings) {
+    public static List<User> getUsers(ShardManager shardManager, Collection<String> userStrings) {
         return userStrings.stream()
-                .map(this::getUser)
+                .map(m -> getUser(shardManager, m))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -427,9 +474,9 @@ public class DiscordResolver {
      *
      * @return list of guilds. without null
      */
-    public List<Guild> getGuilds(List<String> guildStrings) {
+    public static List<Guild> getGuilds(ShardManager shardManager, List<String> guildStrings) {
         return guildStrings.stream()
-                .map(this::getGuild)
+                .map(g -> getGuild(shardManager, g))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -442,7 +489,7 @@ public class DiscordResolver {
      *
      * @return guild object or null
      */
-    public Optional<Guild> getGuild(String guildString) {
+    public static Optional<Guild> getGuild(ShardManager shardManager, String guildString) {
         var guild = byId(guildString, s -> shardManager.getGuildById(guildString));
 
         if (guild == null) {
@@ -466,7 +513,7 @@ public class DiscordResolver {
      *
      * @return a list of users. if a direct match was found only
      */
-    public List<User> fuzzyGlobalUserSearch(String userString) {
+    public static List<User> fuzzyGlobalUserSearch(ShardManager shardManager, String userString) {
         if (userString == null) {
             return null;
         }
