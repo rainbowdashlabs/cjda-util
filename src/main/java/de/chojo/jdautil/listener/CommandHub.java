@@ -4,6 +4,9 @@ import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.dialog.ConversationHandler;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.Localizer;
+import de.chojo.jdautil.parsing.ArgumentUtil;
+import de.chojo.jdautil.parsing.DiscordResolver;
+import de.chojo.jdautil.parsing.Verifier;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.Permission;
@@ -29,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
@@ -129,11 +133,35 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         var contentRaw = eventWrapper.getMessage().getContentRaw();
         var prefix = prefixResolver.apply(eventWrapper.getGuild()).orElse(defaultPrefix);
 
-        if (!contentRaw.startsWith(prefix)) return;
+        String[] stripped;
+        var splitted = contentRaw.split(" ");
+        var user = DiscordResolver.getUser(shardManager, splitted[0]);
 
-        var stripped = contentRaw.substring(prefix.length()).split("\\s");
+        if (user.isEmpty() || !Verifier.equalSnowflake(user.get(), eventWrapper.getJda().getSelfUser())) {
+            if (prefix.startsWith("re:")) {
+                var pattern = Pattern.compile(prefix.substring(3));
+                if (!pattern.matcher(contentRaw).find()) return;
+                // command via regex prefix
+                stripped = pattern.matcher(contentRaw).replaceAll("").split("\\s+");
+            } else {
+                if (!contentRaw.startsWith(prefix)) return;
+                // command via prefix
+                stripped = contentRaw.substring(prefix.length()).split("\\s+");
+            }
+        } else {
+            // Bot is mentioned
+            stripped = ArgumentUtil.getRangeAsList(splitted, 1).toArray(new String[0]);
+        }
+
+        if (stripped.length == 0) {
+            return;
+        }
+
         var label = stripped[0];
-        var args = Arrays.copyOfRange(stripped, 1, stripped.length);
+        var args = new String[0];
+        if (stripped.length > 1) {
+            args = Arrays.copyOfRange(stripped, 1, stripped.length);
+        }
 
         var optCommand = getCommand(label);
         if (optCommand.isEmpty()) return;
