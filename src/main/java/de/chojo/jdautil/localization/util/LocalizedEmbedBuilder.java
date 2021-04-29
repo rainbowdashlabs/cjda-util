@@ -17,6 +17,7 @@ import java.time.temporal.TemporalAccessor;
 public class LocalizedEmbedBuilder extends EmbedBuilder {
     private final Guild guild;
     private final Localizer localizer;
+    private final MessageEventWrapper messageContext;
 
     /**
      * Creates a new localized embed builder.
@@ -26,17 +27,35 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     public LocalizedEmbedBuilder(Localizer localizer, MessageEventWrapper messageContext) {
         this.localizer = localizer;
         this.guild = messageContext != null ? messageContext.getGuild() : null;
+        this.messageContext = null;
+    }
+
+    public LocalizedEmbedBuilder(MessageEventWrapper messageContext) {
+        if (!messageContext.hasLocalizer()) {
+            throw new NullPointerException("Message Event wrapper must have a localizer");
+        }
+        this.messageContext = messageContext;
+        localizer = null;
+        this.guild = messageContext.getGuild();
     }
 
     public LocalizedEmbedBuilder(Localizer localizer, @Nullable Guild guild) {
         this.guild = guild;
         this.localizer = localizer;
+        messageContext = null;
+    }
+
+    private String localize(String message) {
+        if (localizer == null) {
+            return messageContext.localize(message);
+        }
+        return localizer.localize(message, guild);
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline) {
-        super.addField(localizer.localize(name, guild), localizer.localize(value, guild), inline);
+        super.addField(localize(name), localize(value), inline);
         return this;
     }
 
@@ -62,28 +81,28 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title) {
-        super.setTitle(localizer.localize(title, guild));
+        super.setTitle(localize(title));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url) {
-        super.setTitle(localizer.localize(title, guild), url);
+        super.setTitle(localize(title), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text) {
-        super.setFooter(localizer.localize(text, guild));
+        super.setFooter(localize(text));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
-        super.setFooter(localizer.localize(text, guild), iconUrl);
+        super.setFooter(localize(text), iconUrl);
         return this;
     }
 
@@ -95,14 +114,14 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @return the builder after the description has been set
      */
     public LocalizedEmbedBuilder setDescription(String text) {
-        super.setDescription(localizer.localize(text, guild));
+        super.setDescription(localize(text));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description) {
-        super.appendDescription(localizer.localize(description.toString(), guild));
+        super.appendDescription(localize(description.toString()));
         return this;
     }
 
@@ -151,21 +170,21 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name) {
-        super.setAuthor(localizer.localize(name, guild));
+        super.setAuthor(localize(name));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url) {
-        super.setAuthor(localizer.localize(name, guild), url);
+        super.setAuthor(localize(name), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
-        super.setAuthor(localizer.localize(name, guild), url, iconUrl);
+        super.setAuthor(localize(name), url, iconUrl);
         return this;
     }
 
