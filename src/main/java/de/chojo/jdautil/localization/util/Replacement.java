@@ -147,7 +147,7 @@ public final class Replacement {
      */
     public String invoke(String string) {
         if (!caseSensitive) {
-            return string.replaceAll("(?i)" + key, value);
+            return string.replaceAll("(?i)" + key, "{PL}").replace("{PL}", value);
         }
         return string.replace(key, value);
     }
