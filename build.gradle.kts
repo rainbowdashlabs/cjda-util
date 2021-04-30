@@ -26,8 +26,8 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.0"
-description = "CJDAUtil"
+version = "1.0.0"
+description = "Discord utilities for use with JDA"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 publishing {
@@ -40,12 +40,19 @@ publishing {
 
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/RainbowDashLabs/cdja-util")
-            credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_TOKEN")
+            val isSnapshot = version.toString().endsWith("SNAPSHOT");
+            val release = "https://eldonexus.de/repository/maven-releases/";
+            val snapshot = "https://eldonexus.de/repository/maven-snapshots/";
+
+            authentication {
+                credentials(PasswordCredentials::class) {
+                    username = System.getenv("NEXUS_USERNAME")
+                    password = System.getenv("NEXUS_PASSWORD")
+                }
             }
+
+            name = "EldoNexus"
+            url = uri(if (isSnapshot) snapshot else release)
         }
     }
 }

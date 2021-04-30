@@ -1,6 +1,6 @@
-name: Build
+name: Verify state
 
-on: [push, workflow_dispatch]
+on: [push]
 
 jobs:
   build:
@@ -16,8 +16,3 @@ jobs:
         run: ./gradlew --build-cache build
       - name: Test with Gradle
         run: ./gradlew test
-      - name: Publish to github
-        run: ./gradlew publish
-        env:
-          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
