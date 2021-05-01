@@ -26,7 +26,7 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.0.0"
+version = "1.0.1"
 description = "Discord utilities for use with JDA"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
