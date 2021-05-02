@@ -1,4 +1,7 @@
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RainbowDashLabs/cjda-util/Publish%20to%20Nexus?style=flat-square)
 [![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/de.chojo/cjda-util?nexusVersion=3&server=https%3A%2F%2Feldonexus.de&style=flat-square)][nexus_releases]
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RainbowDashLabs/cjda-util/Verify%20state?style=flat-square)
 [![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.chojo/cjda-util?server=https%3A%2F%2Feldonexus.de&style=flat-square&color=orange)][nexus_snapshots]
 
 Gradle:
