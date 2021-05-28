@@ -3,6 +3,7 @@ package de.chojo.jdautil.listener;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.dialog.ConversationHandler;
 import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.parsing.ArgumentUtil;
 import de.chojo.jdautil.parsing.DiscordResolver;
@@ -13,18 +14,22 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +46,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final boolean guildMessagesUpdates;
     private final boolean privateMessages;
     private final boolean privateMessagesUpdates;
+    private final boolean slashCommands;
+    private final boolean textCommands;
     private final int maxUpdateAge;
     private final String defaultPrefix;
     private final Function<Guild, Optional<String>> prefixResolver;
@@ -48,19 +55,21 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck;
     private final ConversationHandler conversationHandler;
     private final BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider;
-    private final Localizer localizer;
+    private final ILocalizer localizer;
 
     public CommandHub(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
-                      boolean privateMessages, boolean privateMessagesUpdates, int maxUpdateAge,
+                      boolean privateMessages, boolean privateMessagesUpdates, boolean slashCommands, boolean textCommands, int maxUpdateAge,
                       @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
                       Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
                       ConversationHandler conversationHandler,
-                      BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, Localizer localizer) {
+                      BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, ILocalizer localizer) {
         this.shardManager = shardManager;
         this.guildMessages = guildMessages;
         this.guildMessagesUpdates = guildMessagesUpdates;
         this.privateMessages = privateMessages;
         this.privateMessagesUpdates = privateMessagesUpdates;
+        this.slashCommands = slashCommands;
+        this.textCommands = textCommands;
         this.maxUpdateAge = maxUpdateAge;
         this.defaultPrefix = defaultPrefix;
         this.prefixResolver = prefixResolver;
@@ -75,11 +84,21 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         return new Builder<>(shardManager, defaultPrefix);
     }
 
+    @Override
+    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+        if (!slashCommands) return;
+        var name = event.getName();
+        var command = getCommand(name).get();
+        if (command.permission() != Permission.UNKNOWN
+                && !permissionCheck.apply(MessageEventWrapper.create(event), command)) return;
+        command.onSlashCommand(event);
+    }
+
     @SafeVarargs
     public final void registerCommands(Command... commands) {
         for (var command : commands) {
-            this.commands.put(command.getCommand().toLowerCase(Locale.ROOT), command);
-            for (var alias : command.getAlias()) {
+            this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
+            for (var alias : command.alias()) {
                 this.commands.put(alias.toLowerCase(Locale.ROOT), command);
             }
         }
@@ -116,6 +135,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
     private boolean freshMessage(Message message) {
         return message.getTimeCreated().toInstant().until(Instant.now(), ChronoUnit.MINUTES) <= maxUpdateAge;
+    }
+
+    private void updateCommands() {
+        List<CommandData> commandData = new ArrayList<>();
+        for (var value : commands.values()) {
+            commandData.add(value.getCommandData(localizer));
+        }
+        shardManager.getShardById(0).updateCommands().addCommands(commandData).queue();
     }
 
 
@@ -168,7 +195,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
         var command = optCommand.get();
 
-        if (command.getPermission() != Permission.UNKNOWN && !permissionCheck.apply(eventWrapper, command)) return;
+        if (command.permission() != Permission.UNKNOWN && !permissionCheck.apply(eventWrapper, command)) return;
 
         if (!command.onCommand(eventWrapper, new CommandContext(label, args, conversationHandler))) {
             if (invalidArgumentProvider != null) {
@@ -177,9 +204,10 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                 return;
             }
             eventWrapper.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
-            var s = "Invalid arguments: " + command.getCommand() + " " + (command.getArgs() == null ? "" : command.getArgs());
+            // Todo implement new args
+            var s = "Invalid arguments: " + command.command() + " " + (command.args() == null ? "" : command.args());
             s += "\n" + Arrays.stream(command.getSubCommands())
-                    .map(c -> command.getCommand() + " " + c.getName() + (c.getArgs() == null ? "" : c.getArgs()))
+                    .map(c -> command.command() + " " + c.name() + (c.args() == null ? "" : c.args()))
                     .collect(Collectors.joining("\n"));
             eventWrapper.getChannel().sendMessage(s)
                     .queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
@@ -202,49 +230,65 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public static class Builder<T extends SimpleCommand> {
         private final ShardManager shardManager;
         private final Map<String, T> commands = new HashMap<>();
-        private boolean guildMessages = false;
-        private boolean guildMessagesUpdates = false;
-        private boolean privateMessages = false;
-        private boolean privateMessagesUpdates = false;
+        private boolean guildMessages;
+        private boolean guildMessagesUpdates;
+        private boolean privateMessages;
+        private boolean privateMessagesUpdates;
+        private boolean slashCommands;
+        private boolean textCommands;
         private int maxUpdateAge = 5;
         @NotNull
         private String defaultPrefix;
         private Function<Guild, Optional<String>> prefixResolver = (g) -> Optional.of(defaultPrefix);
         private BiFunction<ContextLocalizer, T, MessageEmbed> invalidArgumentProvider;
-        private Localizer localizer;
+        private ILocalizer localizer = ILocalizer.DEFAULT;
         private BiFunction<MessageEventWrapper, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isGuild()) {
 
-                if (command.getPermission() == Permission.UNKNOWN) {
+                if (command.permission() == Permission.UNKNOWN) {
                     return true;
                 }
-                return eventWrapper.getMember().hasPermission(command.getPermission());
+                return eventWrapper.getMember().hasPermission(command.permission());
             }
             return true;
         };
-        private boolean withConversations = false;
+        private boolean withConversations;
 
         private Builder(ShardManager shardManager, String defaultPrefix) {
             this.shardManager = shardManager;
             this.defaultPrefix = defaultPrefix;
         }
 
+        public Builder<T> withSlashCommands() {
+            slashCommands = true;
+            return this;
+        }
+
+        public Builder<T> withTextCommands() {
+            textCommands = true;
+            return this;
+        }
+
         public Builder<T> receiveGuildMessage() {
+            textCommands = true;
             this.guildMessages = true;
             return this;
         }
 
         public Builder<T> receiveGuildMessagesUpdates() {
+            textCommands = true;
             this.guildMessagesUpdates = true;
             return this;
         }
 
         public Builder<T> receivePrivateMessage() {
+            textCommands = true;
             this.privateMessages = true;
             return this;
         }
 
         public Builder<T> receivePrivateMessagesUpdates() {
+            textCommands = true;
             this.privateMessagesUpdates = true;
             return this;
         }
@@ -272,8 +316,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         @SafeVarargs
         public final Builder<T> withCommands(T... commands) {
             for (var command : commands) {
-                this.commands.put(command.getCommand().toLowerCase(Locale.ROOT), command);
-                for (var alias : command.getAlias()) {
+                this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
+                for (var alias : command.alias()) {
                     this.commands.put(alias.toLowerCase(Locale.ROOT), command);
                 }
             }
@@ -296,10 +340,13 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                 conversationHandler = new ConversationHandler();
 
             }
-            var commandListener = new CommandHub<>(shardManager, guildMessages, guildMessagesUpdates,
-                    privateMessages, privateMessagesUpdates, maxUpdateAge, defaultPrefix, prefixResolver, commands,
+            var commandListener = new CommandHub<T>(shardManager, guildMessages, guildMessagesUpdates,
+                    privateMessages, privateMessagesUpdates, slashCommands, textCommands, maxUpdateAge, defaultPrefix, prefixResolver, commands,
                     permissionCheck, conversationHandler, invalidArgumentProvider, localizer);
             shardManager.addEventListener(commandListener);
+            if (slashCommands) {
+                commandListener.updateCommands();
+            }
             return commandListener;
         }
     }

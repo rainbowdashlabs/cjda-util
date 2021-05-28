@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
-public class Localizer {
+public class Localizer implements ILocalizer {
     private static final Pattern LOCALIZATION_CODE = Pattern.compile("\\$([a-zA-Z.]+?)\\$");
     private static final Pattern SIMPLE_LOCALIZATION_CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
     private static final Logger log = getLogger(Localizer.class);
@@ -50,7 +50,6 @@ public class Localizer {
      *
      * @param guild     guild for language lookup
      * @param localetag locale code
-     *
      * @return message in the local code or the default language if key is missing.
      */
     public String getLanguageString(Guild guild, String localetag) {
@@ -91,6 +90,7 @@ public class Localizer {
         return languages.keySet();
     }
 
+    @Override
     public String localize(String message, MessageEventWrapper wrapper, Replacement... replacements) {
         Guild guild = null;
         if (wrapper.isGuild()) {
@@ -100,6 +100,7 @@ public class Localizer {
     }
 
 
+    @Override
     public String localize(String message, MessageChannel channel, Replacement... replacements) {
         if (channel instanceof TextChannel) {
             var guildChannel = (TextChannel) channel;
@@ -109,7 +110,12 @@ public class Localizer {
         }
     }
 
+    @Override
+    public String localize(String message, Replacement... replacements) {
+        return localize(message, (Guild) null, replacements);
+    }
 
+    @Override
     public String localize(String message, Guild guild, Replacement... replacements) {
         if (message == null) {
             return null;
@@ -143,14 +149,17 @@ public class Localizer {
         return result;
     }
 
+    @Override
     public ContextLocalizer getContextLocalizer(Guild guild) {
         return new ContextLocalizer(this, guild);
     }
 
+    @Override
     public ContextLocalizer getContextLocalizer(MessageEventWrapper wrapper) {
         return new ContextLocalizer(this, wrapper.getGuild());
     }
 
+    @Override
     public ContextLocalizer getContextLocalizer(MessageChannel channel) {
         if (channel instanceof TextChannel) {
             return new ContextLocalizer(this, ((TextChannel) channel).getGuild());

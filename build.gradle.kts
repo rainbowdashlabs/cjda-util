@@ -5,12 +5,13 @@ plugins {
 }
 
 repositories {
-    maven { url = uri("https://jcenter.bintray.com") }
-    maven { url = uri("https://repo.maven.apache.org/maven2/") }
+    maven("https://jitpack.io")
+    maven("https://eldonexus.de/repository/maven-proxies/")
+    maven("https://m2.dv8tion.net/releases")
 }
 
 dependencies {
-    api("net.dv8tion:JDA:4.2.0_229")
+    api("com.github.DV8FromTheWorld:JDA:667dac5dd3")
     api("org.apache.commons", "commons-text", "1.9")
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
@@ -18,9 +19,9 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.0.1"
+version = "1.1.0"
 description = "Discord utilities for use with JDA"
-java.sourceCompatibility = JavaVersion.VERSION_11
+java.sourceCompatibility = JavaVersion.VERSION_15
 
 publishing {
     publications.create<MavenPublication>("maven") {

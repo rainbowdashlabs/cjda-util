@@ -1,6 +1,6 @@
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.localization.Localizer;
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
@@ -32,7 +33,7 @@ public class MessageEventWrapper {
     private final User author;
     private final TextChannel textChannel;
     private final boolean isUpdate;
-    private Localizer localizer;
+    private ILocalizer localizer;
 
     private MessageEventWrapper(JDA jda, long messageId, long responseNumber, Guild guild, Member member,
                                 boolean isWebhookMessage, Message message, User author, TextChannel textChannel,
@@ -114,7 +115,22 @@ public class MessageEventWrapper {
         );
     }
 
-    public void registerLocalizer(Localizer localizer) {
+    public static MessageEventWrapper create(SlashCommandEvent event) {
+        return new MessageEventWrapper(
+                event.getJDA(),
+                0,
+                event.getResponseNumber(),
+                null,
+                null,
+                false,
+                null,
+                event.getUser(),
+                null,
+                true
+        );
+    }
+
+    public void registerLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
     }
 
