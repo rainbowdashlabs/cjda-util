@@ -234,13 +234,13 @@ public class MessageEventWrapper {
 
     @CheckReturnValue
     public void replyErrorAndDelete(MessageEmbed embed, int deleteDelay) {
-        getMessage().delete().queueAfter(0, TimeUnit.SECONDS);
+        getMessage().delete().queue();
         reply(embed).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 
     @CheckReturnValue
     public void replyErrorAndDelete(String message, int deleteDelay) {
-        getMessage().delete().queueAfter(0, TimeUnit.SECONDS);
+        getMessage().delete().queue();
         reply(message).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
     }
 
