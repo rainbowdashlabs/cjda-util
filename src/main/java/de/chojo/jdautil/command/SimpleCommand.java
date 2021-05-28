@@ -1,11 +1,11 @@
 package de.chojo.jdautil.command;
 
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
@@ -41,6 +41,10 @@ public abstract class SimpleCommand {
 
     public static SubCommandBuilder subCommandBuilder() {
         return new SubCommandBuilder();
+    }
+
+    public static ArgumentBuilder argsBuilder() {
+        return new ArgumentBuilder();
     }
 
     public String command() {
@@ -85,6 +89,24 @@ public abstract class SimpleCommand {
 
         public SimpleSubCommand[] build() {
             return subCommands.toArray(new SimpleSubCommand[0]);
+        }
+    }
+
+    public static class ArgumentBuilder {
+        List<SimpleArgument> arguments = new ArrayList<>();
+
+        public ArgumentBuilder add(OptionType type, String name, String description, boolean required) {
+            arguments.add(SimpleArgument.of(type, name, description, required));
+            return this;
+        }
+
+        public ArgumentBuilder add(OptionType type, String name, String description) {
+            arguments.add(SimpleArgument.of(type, name, description));
+            return this;
+        }
+
+        public SimpleArgument[] build() {
+            return arguments.toArray(new SimpleArgument[0]);
         }
     }
 
