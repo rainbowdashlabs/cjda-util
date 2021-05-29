@@ -10,6 +10,7 @@ import de.chojo.jdautil.parsing.DiscordResolver;
 import de.chojo.jdautil.parsing.Verifier;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -57,13 +58,15 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final ConversationHandler conversationHandler;
     private final BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider;
     private final ILocalizer localizer;
+    private boolean useSlashGlobalCommands = true;
+    private long[] guildIds;
 
     public CommandHub(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
                       boolean privateMessages, boolean privateMessagesUpdates, boolean slashCommands, boolean textCommands, int maxUpdateAge,
                       @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
                       Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
                       ConversationHandler conversationHandler,
-                      BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, ILocalizer localizer) {
+                      BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, ILocalizer localizer, boolean useSlashGlobalCommands, long[] guildIds) {
         this.shardManager = shardManager;
         this.guildMessages = guildMessages;
         this.guildMessagesUpdates = guildMessagesUpdates;
@@ -79,6 +82,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.conversationHandler = conversationHandler;
         this.invalidArgumentProvider = invalidArgumentProvider;
         this.localizer = localizer;
+        this.useSlashGlobalCommands = useSlashGlobalCommands;
+        this.guildIds = guildIds;
     }
 
     public static <T extends SimpleCommand> Builder<T> builder(ShardManager shardManager, String defaultPrefix) {
@@ -143,7 +148,20 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         for (var value : new HashSet<>(commands.values())) {
             commandData.add(value.getCommandData(localizer));
         }
-        shardManager.getShardById(0).updateCommands().addCommands(commandData).queue();
+        if (useSlashGlobalCommands) {
+            shardManager.getShardById(0).updateCommands().addCommands(commandData).queue();
+        } else {
+            for (var shard : shardManager.getShards()) {
+                try {
+                    shard.awaitReady();
+                } catch (InterruptedException e) {
+                }
+            }
+            for (var guildId : guildIds) {
+                var jda = shardManager.getGuildById(guildId);
+                jda.updateCommands().addCommands(commandData).queue();
+            }
+        }
     }
 
 
@@ -254,10 +272,18 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return true;
         };
         private boolean withConversations;
+        private boolean useSlashGlobalCommands = true;
+        private long[] guildIds;
 
         private Builder(ShardManager shardManager, String defaultPrefix) {
             this.shardManager = shardManager;
             this.defaultPrefix = defaultPrefix;
+        }
+
+        public Builder<T> onlyGuildCommands(long... ids) {
+            useSlashGlobalCommands = false;
+            this.guildIds = ids;
+            return this;
         }
 
         public Builder<T> withSlashCommands() {
@@ -343,7 +369,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             }
             var commandListener = new CommandHub<T>(shardManager, guildMessages, guildMessagesUpdates,
                     privateMessages, privateMessagesUpdates, slashCommands, textCommands, maxUpdateAge, defaultPrefix, prefixResolver, commands,
-                    permissionCheck, conversationHandler, invalidArgumentProvider, localizer);
+                    permissionCheck, conversationHandler, invalidArgumentProvider, localizer, useSlashGlobalCommands, guildIds);
             shardManager.addEventListener(commandListener);
             if (slashCommands) {
                 commandListener.updateCommands();
