@@ -14,7 +14,9 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class SimpleCommand {
     private final String command;
@@ -122,6 +124,7 @@ public abstract class SimpleCommand {
                 for (var arg : subCommand.args()) {
                     subCmdData.addOption(arg.type(), arg.name(), localizer.localize(arg.description()), arg.isRequired());
                 }
+                subcommands.add(subCmdData);
             }
             commandData.addSubcommands(subcommands);
         } else if (args() != null) {
@@ -143,5 +146,34 @@ public abstract class SimpleCommand {
 
     protected Message wrap(String message) {
         return new MessageBuilder(message).build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        var that = (SimpleCommand) o;
+
+        if (!Objects.equals(command, that.command)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(alias, that.alias)) return false;
+        if (!Objects.equals(description, that.description)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(args, that.args)) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(subCommands, that.subCommands)) return false;
+        return permission == that.permission;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = command != null ? command.hashCode() : 0;
+        result = 31 * result + Arrays.hashCode(alias);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(args);
+        result = 31 * result + Arrays.hashCode(subCommands);
+        result = 31 * result + (permission != null ? permission.hashCode() : 0);
+        return result;
     }
 }

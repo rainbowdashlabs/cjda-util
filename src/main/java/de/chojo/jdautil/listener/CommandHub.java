@@ -29,6 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -139,7 +140,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
     private void updateCommands() {
         List<CommandData> commandData = new ArrayList<>();
-        for (var value : commands.values()) {
+        for (var value : new HashSet<>(commands.values())) {
             commandData.add(value.getCommandData(localizer));
         }
         shardManager.getShardById(0).updateCommands().addCommands(commandData).queue();
