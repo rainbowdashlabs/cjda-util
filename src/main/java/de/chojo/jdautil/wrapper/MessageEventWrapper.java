@@ -118,15 +118,15 @@ public class MessageEventWrapper {
     public static MessageEventWrapper create(SlashCommandEvent event) {
         return new MessageEventWrapper(
                 event.getJDA(),
-                0,
+                event.getCommandIdLong(),
                 event.getResponseNumber(),
-                null,
-                null,
+                event.getGuild(),
+                event.getMember(),
                 false,
                 null,
                 event.getUser(),
-                null,
-                true
+                event.getTextChannel(),
+                false
         );
     }
 
