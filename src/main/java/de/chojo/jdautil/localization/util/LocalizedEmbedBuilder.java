@@ -1,5 +1,6 @@
 package de.chojo.jdautil.localization.util;
 
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,7 +17,7 @@ import java.time.temporal.TemporalAccessor;
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
     private final Guild guild;
-    private final Localizer localizer;
+    private final ILocalizer localizer;
     private final MessageEventWrapper messageContext;
 
     /**
@@ -24,7 +25,7 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      *
      * @param messageContext message context for guild and language detection
      */
-    public LocalizedEmbedBuilder(Localizer localizer, MessageEventWrapper messageContext) {
+    public LocalizedEmbedBuilder(ILocalizer localizer, MessageEventWrapper messageContext) {
         this.localizer = localizer;
         this.guild = messageContext != null ? messageContext.getGuild() : null;
         this.messageContext = null;
@@ -39,7 +40,7 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         this.guild = messageContext.getGuild();
     }
 
-    public LocalizedEmbedBuilder(Localizer localizer, @Nullable Guild guild) {
+    public LocalizedEmbedBuilder(ILocalizer localizer, @Nullable Guild guild) {
         this.guild = guild;
         this.localizer = localizer;
         messageContext = null;
