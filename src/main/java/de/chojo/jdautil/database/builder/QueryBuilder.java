@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -121,6 +122,20 @@ public class QueryBuilder<T> extends QueryObject implements ConfigurationStage<T
     @Override
     public ResultStage<T> params(ThrowingConsumer<PreparedStatement, SQLException> stmt) {
         this.currStatementConsumer = stmt;
+        return this;
+    }
+
+    /**
+     * Set the parameter of the {@link PreparedStatement} of the query.
+     *
+     * @param params a consumer of a param builder used for simple setting of params.
+     * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
+     */
+    @Override
+    public ResultStage<T> paramsBuilder(Consumer<ParamBuilder> params) {
+        this.currStatementConsumer = stmt -> {
+            params.accept(new ParamBuilder(stmt));
+        };
         return this;
     }
 

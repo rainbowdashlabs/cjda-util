@@ -1,10 +1,12 @@
 package de.chojo.jdautil.database.builder.stage;
 
 import de.chojo.jdautil.consumer.ThrowingConsumer;
+import de.chojo.jdautil.database.builder.ParamBuilder;
 import de.chojo.jdautil.database.builder.QueryBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 /**
  * Statement stage of a {@link QueryBuilder}
@@ -19,6 +21,14 @@ public interface StatementStage<T> {
      * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
      */
     ResultStage<T> params(ThrowingConsumer<PreparedStatement, SQLException> stmt);
+
+    /**
+     * Set the parameter of the {@link PreparedStatement} of the query.
+     *
+     * @param params a consumer of a param builder used for simple setting of params.
+     * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
+     */
+    ResultStage<T> paramsBuilder(Consumer<ParamBuilder> params);
 
     /**
      * Skip this stage and set no parameters in the query.
