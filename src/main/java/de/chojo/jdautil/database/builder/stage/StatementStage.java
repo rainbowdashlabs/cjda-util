@@ -28,7 +28,7 @@ public interface StatementStage<T> {
      * @param params a consumer of a param builder used for simple setting of params.
      * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
      */
-    ResultStage<T> paramsBuilder(Consumer<ParamBuilder> params);
+    ResultStage<T> paramsBuilder(ThrowingConsumer<ParamBuilder, SQLException> params);
 
     /**
      * Skip this stage and set no parameters in the query.

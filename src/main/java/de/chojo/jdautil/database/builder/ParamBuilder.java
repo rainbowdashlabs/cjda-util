@@ -323,7 +323,7 @@ public class ParamBuilder {
     /**
      * Sets the value of the designated parameter with the given object.
      * <p>
-     * This method is similar to {@link #setObject(Object x, int targetSqlType, int scaleOrLength)return this;},
+     * This method is similar to {@link #setObject(Object x, int targetSqlType, int scaleOrLength)},
      * except that it assumes a scale of zero.
      *
      * @param x             the object containing the input parameter value
@@ -609,7 +609,7 @@ public class ParamBuilder {
 
     /**
      * Sets the designated parameter to a <code>InputStream</code> object.
-     * The {@code Inputstreamreturn this;} must contain  the number
+     * The {@code Inputstream} must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
      * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
@@ -625,7 +625,7 @@ public class ParamBuilder {
      *                                         marker in the SQL statement; if a database access error occurs;
      *                                         this method is called on a closed <code>PreparedStatement</code>;
      *                                         if the length specified
-     *                                         is less than zero or if the number of bytes in the {@code InputStreamreturn this;} does not match
+     *                                         is less than zero or if the number of bytes in the {@code InputStream} does not match
      *                                         the specified length.
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this method
      * @since 1.6
@@ -1009,17 +1009,16 @@ public class ParamBuilder {
     /**
      * Sets the value of the designated parameter with the given object.
      * <p>
-     * This method is similar to {@link #setObject(Object)
-     * Object x, SQLType targetSqlType, int scaleOrLength)return this;},
+     * This method is similar to {@link #setObject(Object, int, int)},
      * except that it assumes a scale of zero.
      * <p>
-     * The default implementation will throw {@code SQLFeatureNotSupportedExceptionreturn this;}
+     * The default implementation will throw {@code SQLFeatureNotSupportedException}
      *
      * @param x             the object containing the input parameter value
      * @param targetSqlType the SQL type to be sent to the database
      * @throws SQLException                    if parameterIndex does not correspond to a
      *                                         parameter marker in the SQL statement; if a database access error occurs
-     *                                         or this method is called on a closed {@code PreparedStatementreturn this;}
+     *                                         or this method is called on a closed {@code PreparedStatement}
      * @throws SQLFeatureNotSupportedException if
      *                                         the JDBC driver does not support the specified targetSqlType
      * @see JDBCType

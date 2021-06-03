@@ -132,7 +132,7 @@ public class QueryBuilder<T> extends QueryObject implements ConfigurationStage<T
      * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
      */
     @Override
-    public ResultStage<T> paramsBuilder(Consumer<ParamBuilder> params) {
+    public ResultStage<T> paramsBuilder(ThrowingConsumer<ParamBuilder, SQLException> params) {
         this.currStatementConsumer = stmt -> {
             params.accept(new ParamBuilder(stmt));
         };
