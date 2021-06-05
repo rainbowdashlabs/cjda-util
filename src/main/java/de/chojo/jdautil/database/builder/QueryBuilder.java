@@ -125,17 +125,9 @@ public class QueryBuilder<T> extends QueryObject implements ConfigurationStage<T
         return this;
     }
 
-    /**
-     * Set the parameter of the {@link PreparedStatement} of the query.
-     *
-     * @param params a consumer of a param builder used for simple setting of params.
-     * @return The {@link QueryBuilder} in a {@link ResultStage} with the parameters applied to the query.
-     */
     @Override
     public ResultStage<T> paramsBuilder(ThrowingConsumer<ParamBuilder, SQLException> params) {
-        this.currStatementConsumer = stmt -> {
-            params.accept(new ParamBuilder(stmt));
-        };
+        this.currStatementConsumer = stmt -> params.accept(new ParamBuilder(stmt));
         return this;
     }
 

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    api("com.github.DV8FromTheWorld:JDA:667dac5dd3")
+    api("net.dv8tion:JDA:4.2.1_269")
     api("org.apache.commons", "commons-text", "1.9")
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
@@ -19,7 +19,7 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.2.2"
+version = "1.2.3"
 description = "Discord utilities for use with JDA"
 java.sourceCompatibility = JavaVersion.VERSION_15
 
