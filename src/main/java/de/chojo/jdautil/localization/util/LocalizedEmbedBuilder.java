@@ -1,7 +1,7 @@
 package de.chojo.jdautil.localization.util;
 
+import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,8 +16,7 @@ import java.time.temporal.TemporalAccessor;
  * Wrapper for auto localization of embeds.
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
-    private final Guild guild;
-    private final ILocalizer localizer;
+    private final ContextLocalizer localizer;
     private final MessageEventWrapper messageContext;
 
     /**
@@ -26,8 +25,7 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @param messageContext message context for guild and language detection
      */
     public LocalizedEmbedBuilder(ILocalizer localizer, MessageEventWrapper messageContext) {
-        this.localizer = localizer;
-        this.guild = messageContext != null ? messageContext.getGuild() : null;
+        this.localizer = localizer.getContextLocalizer(messageContext == null ? null : messageContext.getGuild());
         this.messageContext = null;
     }
 
@@ -37,12 +35,15 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         }
         this.messageContext = messageContext;
         localizer = null;
-        this.guild = messageContext.getGuild();
+    }
+
+    public LocalizedEmbedBuilder(ContextLocalizer localizer) {
+        this.localizer = localizer;
+        messageContext = null;
     }
 
     public LocalizedEmbedBuilder(ILocalizer localizer, @Nullable Guild guild) {
-        this.guild = guild;
-        this.localizer = localizer;
+        this.localizer = localizer.getContextLocalizer(guild);
         messageContext = null;
     }
 
@@ -50,7 +51,7 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         if (localizer == null) {
             return messageContext.localize(message);
         }
-        return localizer.localize(message, guild);
+        return localizer.localize(message);
     }
 
     @Nonnull
@@ -72,7 +73,6 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * Add a localized field.
      *
      * @param field localized field to add.
-     *
      * @return the builder after the field has been set
      */
     public LocalizedEmbedBuilder addField(LocalizedField field) {
@@ -111,7 +111,6 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * Set the description with auto translation.
      *
      * @param text text to set
-     *
      * @return the builder after the description has been set
      */
     public LocalizedEmbedBuilder setDescription(String text) {
