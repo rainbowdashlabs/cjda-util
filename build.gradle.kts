@@ -5,21 +5,23 @@ plugins {
 }
 
 repositories {
-    maven("https://jitpack.io")
     maven("https://eldonexus.de/repository/maven-proxies/")
     maven("https://m2.dv8tion.net/releases")
 }
 
 dependencies {
-    api("net.dv8tion:JDA:4.2.1_269")
+    api("net.dv8tion", "JDA", "4.2.1_269")
     api("org.apache.commons", "commons-text", "1.9")
+    // Serialization
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.12.3")
+
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 group = "de.chojo"
-version = "1.2.4"
+version = "1.3.0"
 description = "Discord utilities for use with JDA"
 java.sourceCompatibility = JavaVersion.VERSION_15
 
