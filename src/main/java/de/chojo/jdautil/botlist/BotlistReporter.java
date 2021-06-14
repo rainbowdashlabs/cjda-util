@@ -134,6 +134,7 @@ public class BotlistReporter implements Runnable {
             if (executorService == null) {
                 executorService = Executors.newSingleThreadScheduledExecutor();
             }
+            log.info("Started BotlistReporter for {} lists. Sending data every {} {}", botLists.size(), interval, unit.name());
             var botlistReporter = new BotlistReporter(shardManager, botLists);
             executorService.scheduleAtFixedRate(botlistReporter, 1, interval, unit);
             return botlistReporter;

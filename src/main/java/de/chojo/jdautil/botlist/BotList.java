@@ -28,7 +28,7 @@ public class BotList {
     private final String submitUrl;
     private final Pair<String, String> auth;
     private final int successCode;
-    private Function<ShardManager, Map<String, Object>> dataMapper;
+    private final Function<ShardManager, Map<String, Object>> dataMapper;
 
     BotList(String name, String submitUrl, Pair<String, String> auth, int successCode, Function<ShardManager, Map<String, Object>> dataMapper) {
         this.name = name;
