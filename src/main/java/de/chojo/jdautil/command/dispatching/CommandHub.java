@@ -1,7 +1,6 @@
-package de.chojo.jdautil.listener;
+package de.chojo.jdautil.command.dispatching;
 
 import de.chojo.jdautil.command.SimpleCommand;
-import de.chojo.jdautil.consumer.TriConsumer;
 import de.chojo.jdautil.dialog.ConversationHandler;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -65,7 +65,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
     private final long[] guildIds;
-    private final TriConsumer<Command, String, Throwable> commandErrorHandler;
+    private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
 
     public CommandHub(ShardManager shardManager, boolean guildMessages, boolean guildMessagesUpdates,
                       boolean privateMessages, boolean privateMessagesUpdates, boolean slashCommands, boolean textCommands, int maxUpdateAge,
@@ -73,7 +73,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                       Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
                       ConversationHandler conversationHandler,
                       BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, ILocalizer localizer,
-                      boolean useSlashGlobalCommands, long[] guildIds, TriConsumer<Command, String, Throwable> commandErrorHandler) {
+                      boolean useSlashGlobalCommands, long[] guildIds, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler) {
         this.shardManager = shardManager;
         this.guildMessages = guildMessages;
         this.guildMessagesUpdates = guildMessagesUpdates;
@@ -121,7 +121,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         try {
             command.onSlashCommand(event);
         } catch (Throwable t) {
-            commandErrorHandler.accept(command, SlashCommandUtil.commandAsString(event), t);
+            var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+            commandErrorHandler.accept(executionContext, t);
         }
     }
 
@@ -196,7 +197,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             }
             for (var guildId : guildIds) {
                 var guild = shardManager.getGuildById(guildId);
-                log.info("Updating slash commands for guild {}({})",guild.getName(), guildId);
+                log.info("Updating slash commands for guild {}({})", guild.getName(), guildId);
                 guild.updateCommands().addCommands(commandData).queue();
             }
         }
@@ -259,7 +260,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         try {
             success = command.onCommand(eventWrapper, new CommandContext(label, args, conversationHandler));
         } catch (Throwable t) {
-            commandErrorHandler.accept(command, String.join(" ", args), t);
+            var executionContext = new CommandExecutionContext<>(command, String.join(" ", args), eventWrapper.getGuild(), eventWrapper.getChannel());
+            commandErrorHandler.accept(executionContext, t);
             return;
         }
 
@@ -321,8 +323,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         private boolean withConversations;
         private boolean useSlashGlobalCommands = true;
         private long[] guildIds;
-        private TriConsumer<T, String, Throwable> commandErrorHandler =
-                (command, message, err) -> log.error("An unhandled exception occured while executing command {}: {}", command.command(), message, err);
+        private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
+                (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
 
         private Builder(ShardManager shardManager, String defaultPrefix) {
             this.shardManager = shardManager;
@@ -496,7 +498,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
          * @param commandErrorHandler handler for errors
          * @return builder instance
          */
-        public Builder<T> withCommandErrorHandler(TriConsumer<T, String, Throwable> commandErrorHandler) {
+        public Builder<T> withCommandErrorHandler(BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler) {
             this.commandErrorHandler = commandErrorHandler;
             return this;
         }

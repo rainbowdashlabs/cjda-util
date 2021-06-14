@@ -1,5 +1,7 @@
 package de.chojo.jdautil.botlist;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.chojo.jdautil.container.Pair;
@@ -22,7 +24,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class BotList {
     private static final Logger log = getLogger(BotList.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private final String name;
     private final String submitUrl;
