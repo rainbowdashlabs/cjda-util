@@ -15,6 +15,10 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.Response;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.CheckReturnValue;
@@ -234,14 +238,14 @@ public class MessageEventWrapper {
 
     @CheckReturnValue
     public void replyErrorAndDelete(MessageEmbed embed, int deleteDelay) {
-        getMessage().delete().queue();
         reply(embed).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        getMessage().delete().queue(unused -> {}, ErrorResponseException.ignore(ErrorResponse.MISSING_PERMISSIONS));
     }
 
     @CheckReturnValue
     public void replyErrorAndDelete(String message, int deleteDelay) {
-        getMessage().delete().queue();
         reply(message).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        getMessage().delete().queue(unused -> {}, ErrorResponseException.ignore(ErrorResponse.MISSING_PERMISSIONS));
     }
 
     public boolean hasLocalizer() {
