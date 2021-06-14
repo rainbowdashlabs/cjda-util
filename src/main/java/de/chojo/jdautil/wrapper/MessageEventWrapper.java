@@ -1,6 +1,6 @@
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.localization.Localizer;
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,10 +10,15 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.Response;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.CheckReturnValue;
@@ -32,7 +37,7 @@ public class MessageEventWrapper {
     private final User author;
     private final TextChannel textChannel;
     private final boolean isUpdate;
-    private Localizer localizer;
+    private ILocalizer localizer;
 
     private MessageEventWrapper(JDA jda, long messageId, long responseNumber, Guild guild, Member member,
                                 boolean isWebhookMessage, Message message, User author, TextChannel textChannel,
@@ -114,7 +119,22 @@ public class MessageEventWrapper {
         );
     }
 
-    public void registerLocalizer(Localizer localizer) {
+    public static MessageEventWrapper create(SlashCommandEvent event) {
+        return new MessageEventWrapper(
+                event.getJDA(),
+                event.getCommandIdLong(),
+                event.getResponseNumber(),
+                event.getGuild(),
+                event.getMember(),
+                false,
+                null,
+                event.getUser(),
+                event.getTextChannel(),
+                false
+        );
+    }
+
+    public void registerLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
     }
 
@@ -218,14 +238,14 @@ public class MessageEventWrapper {
 
     @CheckReturnValue
     public void replyErrorAndDelete(MessageEmbed embed, int deleteDelay) {
-        getMessage().delete().queueAfter(0, TimeUnit.SECONDS);
         reply(embed).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        getMessage().delete().queue(unused -> {}, ErrorResponseException.ignore(ErrorResponse.MISSING_PERMISSIONS));
     }
 
     @CheckReturnValue
     public void replyErrorAndDelete(String message, int deleteDelay) {
-        getMessage().delete().queueAfter(0, TimeUnit.SECONDS);
         reply(message).queue(m -> m.delete().queueAfter(deleteDelay, TimeUnit.SECONDS));
+        getMessage().delete().queue(unused -> {}, ErrorResponseException.ignore(ErrorResponse.MISSING_PERMISSIONS));
     }
 
     public boolean hasLocalizer() {
