@@ -102,20 +102,17 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void onSlashCommand(@NotNull SlashCommandEvent event) {
         if (!slashCommands) return;
         if (event.getGuild() == null && !privateMessages) {
-            event.deferReply(true).queue();
-            event.reply("🚫").queue();
+            event.reply("🚫").setEphemeral(true).queue();
             return;
         }
         if (event.getGuild() != null && !guildMessages) {
-            event.deferReply(true).queue();
-            event.reply("🚫").queue();
+            event.reply("🚫").setEphemeral(true).queue();
             return;
         }
         var name = event.getName();
         var command = getCommand(name).get();
         if (!canExecute(MessageEventWrapper.create(event), command)) {
-            event.deferReply(true).queue();
-            event.reply("🚫").queue();
+            event.reply("🚫").setEphemeral(true).queue();
             return;
         }
         try {
