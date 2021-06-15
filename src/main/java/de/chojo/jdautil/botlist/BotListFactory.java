@@ -25,7 +25,7 @@ public interface BotListFactory {
             Pair.of("Authorization", key),
             200,
             shardManager -> new HashMap<>() {{
-                put("guilds", shardManager.getGuilds().size());
+                put("guildCount", shardManager.getGuilds().size());
                 put("shardCount", shardManager.getShards().size());
             }});
 
