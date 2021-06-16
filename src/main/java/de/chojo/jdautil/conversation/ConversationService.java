@@ -1,36 +1,45 @@
-package de.chojo.jdautil.dialog;
+package de.chojo.jdautil.conversation;
 
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.wrapper.ChannelLocation;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConversationHandler {
+public class ConversationService {
+    private final ILocalizer localizer;
     // Guild -> Channel -> User -> Dialogue
     private final Map<ChannelLocation, Conversation> conversations = new HashMap<>();
+
+    public ConversationService(ILocalizer localizer) {
+        this.localizer = localizer;
+    }
 
     /**
      * Invoke a dialog in this context.
      *
      * @param eventWrapper wrapper of message Event
-     *
      * @return true if a dialog was invoked.
      */
     public boolean invoke(MessageEventWrapper eventWrapper) {
         if (eventWrapper.isUpdate()) return false;
 
         var content = eventWrapper.getMessage().getContentRaw();
-        if ("exit".equalsIgnoreCase(content) || "cancel".equalsIgnoreCase(content)) {
+        var cancel = localizer.localize("conversation.canceled", eventWrapper.getGuild());
+        var exit = localizer.localize("conversation.exit", eventWrapper.getGuild());
+        if (exit.equalsIgnoreCase(content) || cancel.equalsIgnoreCase(content)) {
             if (removeDialog(eventWrapper)) {
-                eventWrapper.getChannel().sendMessage("Canceled.").queue();
+                var canceled = localizer.localize("conversation.canceled", eventWrapper.getGuild());
+                eventWrapper.getChannel().sendMessage(canceled).queue();
             }
             return true;
         }
 
         var dialog = getDialog(eventWrapper);
         if (dialog != null) {
-            if (dialog.invoke(eventWrapper)) {
+            if (dialog.handle(eventWrapper.getMessage())) {
+                dialog.close();
                 removeDialog(eventWrapper);
             }
             return true;
@@ -48,14 +57,13 @@ public class ConversationHandler {
 
     public void startDialog(MessageEventWrapper eventWrapper, Conversation conversation) {
         if (dialogInProgress(eventWrapper)) {
-            eventWrapper.getChannel().sendMessage("A dialog is already in progress. Finish dialog or type \"exit\" to end the current dialog.").queue();
+            var message = localizer.localize("conversation.inProgress", eventWrapper.getGuild());
+            eventWrapper.getChannel().sendMessage(message).queue();
             return;
         }
 
-        var promptText = conversation.getPromptText(eventWrapper);
-        if (promptText.isBlank()) return;
-        eventWrapper.getChannel().sendMessage(promptText).queue();
-
+        conversation.addLocalizer(localizer);
+        conversation.start(eventWrapper.getTextChannel());
         conversations.putIfAbsent(eventWrapper.getChannelLocation(), conversation);
     }
 

@@ -1,7 +1,7 @@
 package de.chojo.jdautil.command.dispatching;
 
 import de.chojo.jdautil.command.SimpleCommand;
-import de.chojo.jdautil.dialog.ConversationHandler;
+import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.Localizer;
@@ -60,7 +60,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Function<Guild, Optional<String>> prefixResolver;
     private final Map<String, Command> commands;
     private final BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck;
-    private final ConversationHandler conversationHandler;
+    private final ConversationService conversationService;
     private final BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
@@ -71,7 +71,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                       boolean privateMessages, boolean privateMessagesUpdates, boolean slashCommands, boolean textCommands, int maxUpdateAge,
                       @NotNull String defaultPrefix, Function<Guild, Optional<String>> prefixResolver,
                       Map<String, Command> commands, BiFunction<MessageEventWrapper, Command, Boolean> permissionCheck,
-                      ConversationHandler conversationHandler,
+                      ConversationService conversationService,
                       BiFunction<ContextLocalizer, Command, MessageEmbed> invalidArgumentProvider, ILocalizer localizer,
                       boolean useSlashGlobalCommands, long[] guildIds, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler) {
         this.shardManager = shardManager;
@@ -86,7 +86,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.prefixResolver = prefixResolver;
         this.commands = commands;
         this.permissionCheck = permissionCheck;
-        this.conversationHandler = conversationHandler;
+        this.conversationService = conversationService;
         this.invalidArgumentProvider = invalidArgumentProvider;
         this.localizer = localizer;
         this.useSlashGlobalCommands = useSlashGlobalCommands;
@@ -178,7 +178,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             commandData.add(command.getCommandData(localizer));
         }
         if (useSlashGlobalCommands) {
-            var baseShard = shardManager.getShardById(0);
+            var baseShard = shardManager.getShards().get(0);
             try {
                 baseShard.awaitReady();
             } catch (InterruptedException e) {
@@ -186,6 +186,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             log.info("Updating global slash commands");
             baseShard.updateCommands().addCommands(commandData).queue();
         } else {
+            var baseShard = shardManager.getShards().get(0);
+            try {
+                baseShard.awaitReady();
+            } catch (InterruptedException e) {
+            }
+            log.info("Removing global slash commands and using guild commands.");
+            baseShard.updateCommands().queue();
+
             for (var shard : shardManager.getShards()) {
                 try {
                     shard.awaitReady();
@@ -207,8 +215,8 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
         eventWrapper.registerLocalizer(localizer);
 
-        if (conversationHandler != null) {
-            if (conversationHandler.invoke(eventWrapper)) {
+        if (conversationService != null) {
+            if (conversationService.invoke(eventWrapper)) {
                 return;
             }
         }
@@ -255,7 +263,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
         var success = false;
         try {
-            success = command.onCommand(eventWrapper, new CommandContext(label, args, conversationHandler));
+            success = command.onCommand(eventWrapper, new CommandContext(label, args, conversationService));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, String.join(" ", args), eventWrapper.getGuild(), eventWrapper.getChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -510,14 +518,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
          * @return command hub instance
          */
         public CommandHub<T> build() {
-            ConversationHandler conversationHandler = null;
+            ConversationService conversationService = null;
             if (withConversations) {
-                conversationHandler = new ConversationHandler();
+                conversationService = new ConversationService(localizer);
 
             }
             var commandListener = new CommandHub<T>(shardManager, guildMessages, guildMessagesUpdates,
                     privateMessages, privateMessagesUpdates, slashCommands, textCommands, maxUpdateAge, defaultPrefix, prefixResolver, commands,
-                    permissionCheck, conversationHandler, invalidArgumentProvider, localizer, useSlashGlobalCommands, guildIds, commandErrorHandler);
+                    permissionCheck, conversationService, invalidArgumentProvider, localizer, useSlashGlobalCommands, guildIds, commandErrorHandler);
             shardManager.addEventListener(commandListener);
             if (slashCommands) {
                 commandListener.updateCommands();
