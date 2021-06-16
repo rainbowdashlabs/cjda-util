@@ -1,19 +1,20 @@
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RainbowDashLabs/cjda-util/Publish%20to%20Nexus?style=flat-square)
-[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/de.chojo/cjda-util?nexusVersion=3&server=https%3A%2F%2Feldonexus.de&style=flat-square)][nexus_releases]
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/RainbowDashLabs/cjda-util/Verify%20state?style=flat-square)
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.chojo/cjda-util?server=https%3A%2F%2Feldonexus.de&style=flat-square&color=orange)][nexus_snapshots]
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rainbowdashlabs/cjda-util/Publish%20to%20Nexus?style=for-the-badge&label=Publishing)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rainbowdashlabs/cjda-util/Verify%20state?style=for-the-badge&label=Building)
+![Sonatype Nexus (Releases)](https://img.shields.io/nexus/maven-releases/de.chojo/cjda-util?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
+![Sonatype Nexus (Development)](https://img.shields.io/nexus/maven-dev/de.chojo/cjda-util?label=DEV&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
+![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.chojo/cjda-util?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
 
 Gradle:
 ``` kotlin
 repositories {
     maven {
-        url = uri("https://eldonexus.de/repository/maven-releases")
+        url = uri("https://eldonexus.de/repository/maven-public")
     }
 }
 
 dependencies {
-    implementation("de.chojo", "cjda-util", "1.0.0")
+    implementation("de.chojo", "cjda-util", "{version}")
 }
 ```
 
@@ -22,7 +23,7 @@ Maven:
     <repositories>
         <repository>
             <id>EldoNexus</id>
-            <url>https://eldonexus.de/repository/maven-releases</url>
+            <url>https://eldonexus.de/repository/maven-public</url>
         </repository>
     </repositories>
     
@@ -30,7 +31,7 @@ Maven:
         <dependency>
             <groupId>de.chojo</groupId>
             <artifactId>cjda-util</artifactId>
-            <version>1.0.0</version>
+            <version>{version}</version>
         </dependency>
     </dependencies>
 ```
