@@ -13,7 +13,7 @@ class ConversationBuilderTest {
                         context -> {
                             var content = context.message().getContentRaw();
                             if (content.equals("1")) {
-                                return Result.failed();
+                                return Result.fail();
                             }
                             if (content.equalsIgnoreCase("2")) {
                                 return Result.finish();
@@ -21,11 +21,11 @@ class ConversationBuilderTest {
                             if (content.equals("3")) {
                                 return Result.proceed(1);
                             }
-                            return Result.failed();
+                            return Result.fail();
                         })
                 ).addStep(1, Step.of("Please enter something else",
                         context -> {
-                            if (context.message().getContentRaw().equals("hewo")) return Result.failed();
+                            if (context.message().getContentRaw().equals("hewo")) return Result.fail();
                             return Result.finish();
                         })).build();
     }
