@@ -80,13 +80,17 @@ public class ConversationService extends ListenerAdapter {
 
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event) {
-        if (button.containsKey(event.getMessageIdLong())) {
-            var dialog = button.get(event.getMessageIdLong());
+        if (!event.isAcknowledged()) {
+            event.deferEdit().queue();
+        }
+        var location = ChannelLocation.of(event.getUser(), event.getTextChannel());
+        if (button.containsKey(location)) {
+            var dialog = button.get(location);
             var result = dialog.handleInteraction(event);
             switch (result.type()) {
-                case PROCEED -> button.remove(event.getMessageIdLong());
+                case PROCEED -> button.remove(location);
                 case FINISH -> {
-                    button.remove(event.getMessageIdLong());
+                    button.remove(location);
                     dialog.close();
                     removeDialog(event.getUser(), event.getTextChannel());
                 }
