@@ -5,6 +5,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.LocalizedEmbedBuilder;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
+import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -81,7 +82,7 @@ public abstract class SimpleCommand {
 
     public abstract boolean onCommand(MessageEventWrapper eventWrapper, CommandContext context);
 
-    public abstract void onSlashCommand(SlashCommandEvent event);
+    public abstract void onSlashCommand(SlashCommandEvent event, SlashCommandContext context);
 
     public SimpleSubCommand[] getSubCommands() {
         return subCommands;

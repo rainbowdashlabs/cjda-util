@@ -3,6 +3,8 @@ package de.chojo.jdautil.conversation;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.wrapper.ChannelLocation;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,24 +49,24 @@ public class ConversationService {
         return false;
     }
 
-    public boolean dialogInProgress(MessageEventWrapper eventWrapper) {
-        return conversations.containsKey(eventWrapper.getChannelLocation());
+    public boolean dialogInProgress(User user, TextChannel channel) {
+        return conversations.containsKey(ChannelLocation.of(user, channel));
     }
 
     public boolean removeDialog(MessageEventWrapper eventWrapper) {
         return conversations.remove(eventWrapper.getChannelLocation()) != null;
     }
 
-    public void startDialog(MessageEventWrapper eventWrapper, Conversation conversation) {
-        if (dialogInProgress(eventWrapper)) {
-            var message = localizer.localize("conversation.inProgress", eventWrapper.getGuild());
-            eventWrapper.getChannel().sendMessage(message).queue();
+    public void startDialog(User user, TextChannel channel, Conversation conversation) {
+        if (dialogInProgress(user, channel)) {
+            var message = localizer.localize("conversation.inProgress", channel.getGuild());
+            channel.sendMessage(message).queue();
             return;
         }
 
         conversation.addLocalizer(localizer);
-        conversation.start(eventWrapper.getTextChannel());
-        conversations.putIfAbsent(eventWrapper.getChannelLocation(), conversation);
+        conversation.start(channel);
+        conversations.putIfAbsent(ChannelLocation.of(user, channel), conversation);
     }
 
     public Conversation getDialog(MessageEventWrapper eventWrapper) {

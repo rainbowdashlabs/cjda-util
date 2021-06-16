@@ -2,6 +2,7 @@ package de.chojo.jdautil.wrapper;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.Objects;
@@ -11,10 +12,14 @@ public class ChannelLocation {
     private final long channel;
     private final long user;
 
-    public ChannelLocation(Guild guild, MessageChannel channel, User user) {
+    private ChannelLocation(Guild guild, MessageChannel channel, User user) {
         this.guild = guild.getIdLong();
         this.channel = channel.getIdLong();
         this.user = user.getIdLong();
+    }
+
+    public static ChannelLocation of(User user, TextChannel channel) {
+        return new ChannelLocation(channel.getGuild(), channel, user);
     }
 
     @Override

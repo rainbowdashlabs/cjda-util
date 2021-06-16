@@ -11,6 +11,7 @@ import de.chojo.jdautil.parsing.Verifier;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.CommandContext;
 import de.chojo.jdautil.wrapper.MessageEventWrapper;
+import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -116,7 +117,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onSlashCommand(event);
+            command.onSlashCommand(event, new SlashCommandContext(conversationService));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);

@@ -90,7 +90,7 @@ public class CommandContext {
     }
 
     public void startDialog(MessageEventWrapper eventWrapper, Conversation conversation) {
-        conversationHandler.startDialog(eventWrapper, conversation);
+        conversationHandler.startDialog(eventWrapper.getAuthor(), eventWrapper.getTextChannel(), conversation);
     }
 
     public CommandContext subContext(String label) {
