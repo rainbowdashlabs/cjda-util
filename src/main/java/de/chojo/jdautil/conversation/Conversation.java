@@ -1,16 +1,20 @@
 package de.chojo.jdautil.conversation;
 
-import de.chojo.jdautil.conversation.elements.Context;
+import de.chojo.jdautil.conversation.elements.InteractionContext;
+import de.chojo.jdautil.conversation.elements.MessageContext;
 import de.chojo.jdautil.conversation.elements.Result;
 import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Conversation {
@@ -28,27 +32,22 @@ public class Conversation {
         step = initalStep;
     }
 
-    public boolean handleMessage(Message message) {
-        if (step.hasButtons()) return false;
-        var context = new Context(this, data, message);
+    public Result handleMessage(Message message) {
+        if (!step.hasMessage()) return Result.freeze();
+        var context = new MessageContext(this, data, message);
         var result = step.handleMessage(context);
-        return switch (result.type()) {
-            case FAILED -> {
-                sendPrompt(message.getTextChannel());
-                yield false;
-            }
+        switch (result.type()) {
+            case FAILED -> sendPrompt(message.getTextChannel());
             case PROCEED -> {
                 step = steps.get(result.next());
                 sendPrompt(message.getTextChannel());
-                yield false;
             }
-            case FINISH -> true;
-            case FREEZE -> false;
-        };
+        }
+        return result;
     }
 
     public Result handleInteraction(ButtonClickEvent event) {
-        var result = step.handleButton(event);
+        var result = step.handleButton(new InteractionContext(data, this, event));
         handleResult(result, event.getTextChannel());
         return result;
     }
@@ -60,8 +59,7 @@ public class Conversation {
                 yield false;
             }
             case PROCEED -> {
-                step = steps.get(result.next());
-                sendPrompt(channel);
+                proceed(channel, result.next());
                 yield false;
             }
             case FINISH -> true;
@@ -71,17 +69,21 @@ public class Conversation {
     }
 
     private void sendPrompt(TextChannel textChannel) {
+        sendPrompt(textChannel, 0);
+    }
+
+    private void sendPrompt(TextChannel textChannel, int delay) {
         if (step.hasButtons()) {
             textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild()))
-                    .setActionRows(step.getActions())
-                    .queue(message -> conversationService.registerButtons(message, this));
+                    .setActionRows(step.getActions(localizer, textChannel.getGuild()))
+                    .queueAfter(2, TimeUnit.SECONDS, message -> conversationService.registerButtons(message, this));
         } else {
-            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild())).queue();
+            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild())).queueAfter(delay, TimeUnit.SECONDS);
         }
     }
 
     public void start(TextChannel channel) {
-        sendPrompt(channel);
+        sendPrompt(channel, 2);
     }
 
     public void proceed(TextChannel channel, int next) {

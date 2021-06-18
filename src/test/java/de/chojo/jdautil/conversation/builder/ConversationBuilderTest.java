@@ -9,7 +9,7 @@ class ConversationBuilderTest {
     @Test
     public void creationTest() {
         var conversation = ConversationBuilder
-                .builder(Step.of("Enter something",
+                .builder(Step.message("Enter something",
                         context -> {
                             var content = context.message().getContentRaw();
                             if (content.equals("1")) {
@@ -22,12 +22,13 @@ class ConversationBuilderTest {
                                 return Result.proceed(1);
                             }
                             return Result.fail();
-                        })
-                ).addStep(1, Step.of("Please enter something else",
+                        }).build()
+                ).addStep(1, Step.message("Please enter something else",
                         context -> {
                             if (context.message().getContentRaw().equals("hewo")) return Result.fail();
                             return Result.finish();
-                        })).build();
+                        }).build())
+                .build();
     }
 
 }

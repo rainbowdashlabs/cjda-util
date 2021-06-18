@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 public class ConversationBuilder {
     private final Step initalStep;
     private final Map<Integer, Step> steps = new HashMap<>();
-    private Consumer<Conversation> onClose;
+    private Consumer<Conversation> onClose = c -> {
+    };
 
     private ConversationBuilder(Step initalStep) {
         this.initalStep = initalStep;
