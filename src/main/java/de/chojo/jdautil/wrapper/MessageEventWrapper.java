@@ -15,10 +15,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageUpdateEvent;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
-import net.dv8tion.jda.api.requests.Response;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 import javax.annotation.CheckReturnValue;
@@ -193,8 +191,8 @@ public class MessageEventWrapper {
         return textChannel;
     }
 
-    public ChannelLocation getChannelLocation() {
-        return new ChannelLocation(guild, textChannel, author);
+    public UserChannelKey getChannelLocation() {
+        return UserChannelKey.of(author, textChannel);
     }
 
     public boolean isUpdate() {

@@ -1,7 +1,7 @@
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.dialog.Conversation;
-import de.chojo.jdautil.dialog.ConversationHandler;
+import de.chojo.jdautil.conversation.Conversation;
+import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.parsing.ArgumentUtil;
 import de.chojo.jdautil.parsing.ValueParser;
 import org.jetbrains.annotations.NotNull;
@@ -15,10 +15,10 @@ import java.util.function.Function;
 public class CommandContext {
     private final String label;
     private final FlagContainer flags;
-    private final ConversationHandler conversationHandler;
+    private final ConversationService conversationHandler;
     private String[] args;
 
-    public CommandContext(String label, String[] args, ConversationHandler conversationHandler) {
+    public CommandContext(String label, String[] args, ConversationService conversationHandler) {
         this.label = label;
         this.args = args;
         flags = FlagContainer.of(args);
@@ -90,7 +90,7 @@ public class CommandContext {
     }
 
     public void startDialog(MessageEventWrapper eventWrapper, Conversation conversation) {
-        conversationHandler.startDialog(eventWrapper, conversation);
+        conversationHandler.startDialog(eventWrapper.getAuthor(), eventWrapper.getTextChannel(), conversation);
     }
 
     public CommandContext subContext(String label) {

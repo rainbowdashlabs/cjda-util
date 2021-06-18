@@ -1,5 +1,6 @@
 package de.chojo.jdautil.botlist;
 
+import de.chojo.jdautil.botlist.handler.StatusCodeHandler;
 import de.chojo.jdautil.container.Pair;
 
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public interface BotListFactory {
      */
     BotListFactory TOP_GG = key -> new BotList("top.gg", "https://top.gg/api/bots/{ID}/stats",
             Pair.of("Authorization", key),
-            200,
+            StatusCodeHandler.defaultHandler(),
             shardManager -> new HashMap<>() {{
                 put("server_count", shardManager.getGuilds().size());
             }});
@@ -23,9 +24,9 @@ public interface BotListFactory {
      */
     BotListFactory DISCORD_BOTS_GG = key -> new BotList("discord.bots.gg", "https://discord.bots.gg/api/v1/bots/{ID}/stats",
             Pair.of("Authorization", key),
-            200,
+            StatusCodeHandler.defaultHandler(),
             shardManager -> new HashMap<>() {{
-                put("guilds", shardManager.getGuilds().size());
+                put("guildCount", shardManager.getGuilds().size());
                 put("shardCount", shardManager.getShards().size());
             }});
 
@@ -34,7 +35,7 @@ public interface BotListFactory {
      */
     BotListFactory DISCORD_BOT_LIST_COM = key -> new BotList("discordbotlist.com", "https://discordbotlist.com/api/v1/bots/{ID}/stats",
             Pair.of("Authorization", key),
-            200,
+            StatusCodeHandler.defaultHandler(),
             shardManager -> new HashMap<>() {{
                 put("guilds", shardManager.getGuilds().size());
                 put("users", shardManager.getUsers().size());

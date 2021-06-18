@@ -1,7 +1,10 @@
 package de.chojo.jdautil.botlist;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.chojo.jdautil.botlist.handler.StatusCodeHandler;
 import de.chojo.jdautil.container.Pair;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
@@ -22,19 +25,21 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class BotList {
     private static final Logger log = getLogger(BotList.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper()
+            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private final String name;
     private final String submitUrl;
     private final Pair<String, String> auth;
-    private final int successCode;
+    private final StatusCodeHandler statusCodeHandler;
     private final Function<ShardManager, Map<String, Object>> dataMapper;
 
-    BotList(String name, String submitUrl, Pair<String, String> auth, int successCode, Function<ShardManager, Map<String, Object>> dataMapper) {
+    BotList(String name, String submitUrl, Pair<String, String> auth, StatusCodeHandler statusCodeHandler, Function<ShardManager, Map<String, Object>> dataMapper) {
         this.name = name;
         this.submitUrl = submitUrl;
         this.auth = auth;
-        this.successCode = successCode;
+        this.statusCodeHandler = statusCodeHandler;
         this.dataMapper = dataMapper;
     }
 
@@ -60,6 +65,7 @@ public class BotList {
                 .uri(URI.create(getUrl(shardManager.getShards().get(0).getSelfUser().getIdLong())))
                 .header(auth.first, auth.second)
                 .header("Content-Type", "application/json")
+                .header("User-Agent", "cjda-util")
                 .build();
 
         HttpResponse<String> response;
@@ -69,12 +75,11 @@ public class BotList {
             log.warn("Failed to send stats to {}!", name, e);
             return;
         }
-        if (response.statusCode() != this.successCode) {
-            log.warn("Failed to send stats to {}\nStatus code: {}\n Body:\n{}",
-                    name, response.statusCode(), response.body());
-        } else {
-            log.debug("Stats to {} send!", name);
-        }
+        statusCodeHandler.handle(this, response);
+    }
+
+    public String name() {
+        return name;
     }
 
     @Override
@@ -94,4 +99,6 @@ public class BotList {
         result = 31 * result + (submitUrl != null ? submitUrl.hashCode() : 0);
         return result;
     }
+
+
 }
