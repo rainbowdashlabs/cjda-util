@@ -1,35 +1,40 @@
 package de.chojo.jdautil.conversation.elements;
 
-import net.dv8tion.jda.api.entities.Message;
+import de.chojo.jdautil.conversation.Conversation;
 
 import java.util.Map;
 
-public class Context {
-    private Message message;
-    private Map<String, Object> data;
+public abstract class Context implements ConversationContext {
+    private final Conversation conversation;
+    private final Map<String, Object> data;
 
-    public Context(Map<String, Object> data, Message message) {
+    public Context(Conversation conversation, Map<String, Object> data) {
+        this.conversation = conversation;
         this.data = data;
-        this.message = message;
     }
 
-    public Message message() {
-        return message;
+    @Override
+    public Conversation conversation() {
+        return conversation;
     }
 
+    @Override
     public Object put(String key, Object value) {
         return data.put(key, value);
     }
 
+    @Override
     public Object putIfAbsent(String key, Object value) {
         return data.putIfAbsent(key, value);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
         return (T) data.get(key);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T getOrDefault(String key, T defaultValue) {
         return (T) data.getOrDefault(key, defaultValue);

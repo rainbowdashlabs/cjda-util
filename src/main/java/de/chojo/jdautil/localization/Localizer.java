@@ -146,6 +146,10 @@ public class Localizer implements ILocalizer {
         for (var replacement : replacements) {
             result = replacement.invoke(result);
         }
+
+        if (LOCALIZATION_CODE.matcher(result).find()) {
+            return localize(result, guild, replacements);
+        }
         return result;
     }
 

@@ -522,7 +522,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             ConversationService conversationService = null;
             if (withConversations) {
                 conversationService = new ConversationService(localizer);
-
+                shardManager.addEventListener(conversationService);
             }
             var commandListener = new CommandHub<T>(shardManager, guildMessages, guildMessagesUpdates,
                     privateMessages, privateMessagesUpdates, slashCommands, textCommands, maxUpdateAge, defaultPrefix, prefixResolver, commands,

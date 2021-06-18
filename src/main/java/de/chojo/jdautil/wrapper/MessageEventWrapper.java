@@ -191,8 +191,8 @@ public class MessageEventWrapper {
         return textChannel;
     }
 
-    public ChannelLocation getChannelLocation() {
-        return ChannelLocation.of(author, textChannel);
+    public UserChannelKey getChannelLocation() {
+        return UserChannelKey.of(author, textChannel);
     }
 
     public boolean isUpdate() {

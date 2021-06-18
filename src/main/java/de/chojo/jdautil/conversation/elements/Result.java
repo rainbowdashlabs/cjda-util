@@ -3,22 +3,35 @@ package de.chojo.jdautil.conversation.elements;
 public class Result {
     private ResultType type;
     private int next;
+    private boolean silent = false;
 
-    private Result(ResultType type, int next) {
+    private Result(ResultType type, int next, boolean silent) {
         this.type = type;
         this.next = next;
     }
 
     public static Result proceed(int next) {
-        return new Result(ResultType.PROCEED, next);
+        return new Result(ResultType.PROCEED, next, false);
     }
 
     public static Result finish() {
-        return new Result(ResultType.FINISH, 0);
+        return new Result(ResultType.FINISH, 0, false);
     }
 
-    public static Result failed() {
-        return new Result(ResultType.FAILED, 0);
+    public static Result fail() {
+        return new Result(ResultType.FAILED, 0, false);
+    }
+
+    public static Result failSilent(boolean silent) {
+        return new Result(ResultType.FAILED, 0, silent);
+    }
+
+    public static Result freeze() {
+        return new Result(ResultType.FREEZE, 0, false);
+    }
+
+    public boolean isSilent() {
+        return silent;
     }
 
     public ResultType type() {
