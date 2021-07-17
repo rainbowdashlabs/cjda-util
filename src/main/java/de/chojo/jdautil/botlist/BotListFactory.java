@@ -58,7 +58,7 @@ public interface BotListFactory {
     /**
      * Build a discordbotlist.com botlist
      */
-    BotListFactory BOTLIST_ME = (shardManager, config) -> BotlistBuilder.builder("discordbotlist.com")
+    BotListFactory BOTLIST_ME = (shardManager, config) -> BotlistBuilder.builder("botlist.me")
             .forClient(shardManager)
             .withBaseUrl("https://botlist.me")
             .withAuthentication(AuthHandler.of(config.statsToken()))
