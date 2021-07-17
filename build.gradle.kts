@@ -22,7 +22,7 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.5.2"
+version = "1.5.3"
 description = "Discord utilities for use with JDA"
 java.sourceCompatibility = JavaVersion.VERSION_15
 
