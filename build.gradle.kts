@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.apache.commons.lang.CharEncoding
+
 plugins {
     java
     `maven-publish`
@@ -22,9 +24,8 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.5.4"
+version = "1.5.5"
 description = "Discord utilities for use with JDA"
-java.sourceCompatibility = JavaVersion.VERSION_15
 
 publishing {
     val publishData = PublishData(project)
@@ -53,13 +54,24 @@ publishing {
 java {
     withSourcesJar()
     withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_15
 }
 
+tasks {
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
 
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
+    compileJava {
+        options.encoding = CharEncoding.UTF_8
+    }
+
+    javadoc {
+        options.encoding = CharEncoding.UTF_8
     }
 }
 

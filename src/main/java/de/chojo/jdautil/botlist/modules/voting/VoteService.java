@@ -53,7 +53,7 @@ public class VoteService {
         var route = "voting/" + name;
         log.info("Registering vote route {} for {}", route, botList.name());
         this.voteReceiver.post(route, ctx -> {
-            if (voteReceiver.isAuthorized(ctx)) {
+            if (!voteReceiver.isAuthorized(ctx)) {
                 ctx.status(HttpStatus.UNAUTHORIZED_401);
                 return;
             }
