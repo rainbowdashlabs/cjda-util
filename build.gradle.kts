@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.apache.commons.lang.CharEncoding
+
 plugins {
     java
     `maven-publish`
@@ -14,6 +16,7 @@ dependencies {
     api("org.apache.commons", "commons-text", "1.9")
     // Serialization
     api("com.fasterxml.jackson.core", "jackson-databind", "2.12.3")
+    api("io.javalin", "javalin", "3.13.9")
 
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
@@ -21,9 +24,8 @@ dependencies {
 }
 
 group = "de.chojo"
-version = "1.4.1"
+version = "1.5.5"
 description = "Discord utilities for use with JDA"
-java.sourceCompatibility = JavaVersion.VERSION_15
 
 publishing {
     val publishData = PublishData(project)
@@ -52,13 +54,24 @@ publishing {
 java {
     withSourcesJar()
     withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_15
 }
 
+tasks {
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("passed", "skipped", "failed")
+        }
+    }
 
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
+    compileJava {
+        options.encoding = CharEncoding.UTF_8
+    }
+
+    javadoc {
+        options.encoding = CharEncoding.UTF_8
     }
 }
 

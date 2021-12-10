@@ -1,4 +1,4 @@
-package de.chojo.jdautil.botlist.handler;
+package de.chojo.jdautil.botlist.modules.shared;
 
 import de.chojo.jdautil.botlist.BotList;
 import org.slf4j.Logger;
@@ -48,16 +48,16 @@ public class StatusCodeHandler {
     }
 
     private static void failed(BotList botList, HttpResponse<String> response, String message) {
-        log.warn("Failed to send stats to {}\nStatus code: {}\n{}",
+        log.warn("Connection to {} failed.\nStatus code: {}\n{}",
                 botList.name(), response.statusCode(), message);
     }
 
     private static void serviceFailed(BotList botList, HttpResponse<String> response, String message) {
-        log.debug("Failed to send stats to {}\nStatus code: {}\n{}",
+        log.debug("Connection to {} failed.\nStatus code: {}\n{}",
                 botList.name(), response.statusCode(), message);
     }
 
     private static void success(BotList botList) {
-        log.trace("Stats send to {}!", botList.name());
+        log.trace("Success on {}!", botList.name());
     }
 }

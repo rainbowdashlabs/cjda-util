@@ -1,12 +1,16 @@
 package de.chojo.jdautil.botlist;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.chojo.jdautil.botlist.handler.StatusCodeHandler;
-import de.chojo.jdautil.container.Pair;
-import net.dv8tion.jda.api.sharding.ShardManager;
+import de.chojo.jdautil.botlist.builder.BotlistBuilder;
+import de.chojo.jdautil.botlist.builder.stage.ClientStage;
+import de.chojo.jdautil.botlist.modules.shared.AuthHandler;
+import de.chojo.jdautil.botlist.modules.shared.RouteProvider;
+import de.chojo.jdautil.botlist.modules.shared.StatusCodeHandler;
+import de.chojo.jdautil.botlist.modules.submission.StatsMapper;
+import de.chojo.jdautil.botlist.modules.voting.poll.VoteChecker;
+import de.chojo.jdautil.botlist.modules.voting.post.VoteReceiver;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -15,8 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,30 +28,30 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class BotList {
     private static final Logger log = getLogger(BotList.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
-            .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private final ObjectMapper mapper;
+    private final HttpClient httpClient;
+    private final String baseUrl;
     private final String name;
-    private final String submitUrl;
-    private final Pair<String, String> auth;
     private final StatusCodeHandler statusCodeHandler;
-    private final Function<ShardManager, Map<String, Object>> dataMapper;
+    private final long clientId;
+    private final AuthHandler authHandler;
+    private final StatsMapper statsMapper;
+    private final VoteChecker voteChecker;
+    private final VoteReceiver<?> voteReceiver;
 
-    BotList(String name, String submitUrl, Pair<String, String> auth, StatusCodeHandler statusCodeHandler, Function<ShardManager, Map<String, Object>> dataMapper) {
+    public BotList(ObjectMapper objectMapper, HttpClient httpClient, long clientId, String name, String baseUrl,
+                   StatusCodeHandler statusCodeHandler, AuthHandler authHandler, StatsMapper statsMapper,
+                   VoteChecker voteChecker, VoteReceiver<?> voteReceiver) {
+        this.mapper = objectMapper;
+        this.httpClient = httpClient;
+        this.clientId = clientId;
         this.name = name;
-        this.submitUrl = submitUrl;
-        this.auth = auth;
+        this.baseUrl = baseUrl;
         this.statusCodeHandler = statusCodeHandler;
-        this.dataMapper = dataMapper;
-    }
-
-    public String getUrl(long id) {
-        return submitUrl.replace("{ID}", String.valueOf(id));
-    }
-
-    public String payload(ShardManager shardManager) throws JsonProcessingException {
-        return MAPPER.writeValueAsString(dataMapper.apply(shardManager));
+        this.authHandler = authHandler;
+        this.statsMapper = statsMapper;
+        this.voteChecker = voteChecker;
+        this.voteReceiver = voteReceiver;
     }
 
     /**
@@ -57,48 +60,72 @@ public class BotList {
      * @param shardManager shardmanager for statistics
      * @throws JsonProcessingException if the payload could not be parsed
      */
-    public void report(ShardManager shardManager) throws JsonProcessingException {
+    public void report(BotListData shardManager) throws JsonProcessingException {
+        if (statsMapper == null) return;
+
         log.debug("Sending Server stats to {}.", name);
 
-        var request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(payload(shardManager)))
-                .uri(URI.create(getUrl(shardManager.getShards().get(0).getSelfUser().getIdLong())))
-                .header(auth.first, auth.second)
-                .header("Content-Type", "application/json")
-                .header("User-Agent", "cjda-util")
-                .build();
+        var request = buildPOST(getUrl(statsMapper), statsMapper.data(shardManager));
 
+        request(request);
+    }
+
+    public URI getUrl(RouteProvider provider) {
+        return URI.create(baseUrl + provider.route(clientId));
+    }
+
+    public boolean hasVoted(User user) {
+        if (voteChecker == null) return false;
+        return voteChecker.hasVoted(user);
+    }
+
+    private Optional<HttpResponse<String>> request(HttpRequest request) {
         HttpResponse<String> response;
         try {
-            response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
-            log.warn("Failed to send stats to {}!", name, e);
-            return;
+            log.warn("Request to {}!", name, e);
+            return Optional.empty();
         }
         statusCodeHandler.handle(this, response);
+        return Optional.of(response);
     }
 
     public String name() {
         return name;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        var botList = (BotList) o;
-
-        if (!Objects.equals(name, botList.name)) return false;
-        return Objects.equals(submitUrl, botList.submitUrl);
+    public String baseUrl() {
+        return baseUrl;
     }
 
-    @Override
-    public int hashCode() {
-        var result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (submitUrl != null ? submitUrl.hashCode() : 0);
-        return result;
+    private HttpRequest buildPOST(URI uri, Map<String, Object> data) throws JsonProcessingException {
+        var builder = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(data)))
+                .uri(uri)
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "cjda-util");
+        return authHandler.auth(builder).build();
     }
 
+    private HttpRequest.Builder buildGET(URI uri) {
+        var builder = HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .header("Content-Type", "application/json")
+                .header("User-Agent", "cjda-util");
+        return authHandler.auth(builder);
+    }
 
+    public static ClientStage builder(String name) {
+        return BotlistBuilder.builder(name);
+    }
+
+    public VoteReceiver<?> voteReceiver() {
+        return voteReceiver;
+    }
+
+    public VoteChecker voteChecker() {
+        return voteChecker;
+    }
 }

@@ -1,29 +1,40 @@
 package de.chojo.jdautil.botlist;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.chojo.jdautil.botlist.modules.submission.SubmissionService;
+import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
+import de.chojo.jdautil.botlist.modules.voting.VoteService;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Class which can handle reporting to botlists.
  */
-public class BotlistReporter implements Runnable {
-    private static final Logger log = getLogger(BotlistReporter.class);
-    private final ShardManager shardManager;
+public class BotlistService implements Runnable {
+    private static final Logger log = getLogger(BotlistService.class);
     private final Set<BotList> botLists;
+    private final VoteService voteService;
+    private final SubmissionService submissionService;
+    private Consumer<VoteData> data;
 
-    private BotlistReporter(ShardManager shardManager, Set<BotList> botLists) {
-        this.shardManager = shardManager;
+    private BotlistService(ShardManager shardManager, Set<BotList> botLists, VoteService voteService) {
         this.botLists = botLists;
+        this.voteService = voteService;
+        this.submissionService = new SubmissionService(this, shardManager);
     }
 
     /**
@@ -38,13 +49,20 @@ public class BotlistReporter implements Runnable {
 
     @Override
     public void run() {
-        for (var botList : botLists) {
-            try {
-                botList.report(shardManager);
-            } catch (JsonProcessingException e) {
-                log.error("Could not build stats", e);
-            }
-        }
+        submissionService.submitData();
+    }
+
+    private void ignite() {
+        for (var botList : botLists) voteService.register(botList);
+    }
+
+    public List<BotList> hasVoted(User user) {
+        if (voteService == null) return Collections.emptyList();
+        return voteService.hasVoted(user);
+    }
+
+    public Set<BotList> botlists() {
+        return Collections.unmodifiableSet(botLists);
     }
 
     public static class Builder {
@@ -52,7 +70,8 @@ public class BotlistReporter implements Runnable {
         private long interval = 60;
         private TimeUnit unit = TimeUnit.of(ChronoUnit.MINUTES);
         private ScheduledExecutorService executorService;
-        Set<BotList> botLists = new HashSet<>();
+        private Set<BotList> botLists = new HashSet<>();
+        private VoteService voteService;
 
         public Builder(ShardManager shardManager) {
             this.shardManager = shardManager;
@@ -72,31 +91,41 @@ public class BotlistReporter implements Runnable {
         /**
          * Add discord.bots.gg
          *
-         * @param key auth key
+         * @param config botlist configuration
          * @return builder instance
          */
-        public Builder forTopGG(String key) {
-            return forBotlist(BotListFactory.TOP_GG.build(key));
+        public Builder forTopGG(BotListConfig config) {
+            return forBotlist(BotListFactory.TOP_GG.build(shardManager, config));
         }
 
         /**
          * Add discord.bots.gg
          *
-         * @param key auth key
+         * @param config botlist configuration
          * @return builder instance
          */
-        public Builder forDiscordBotListCOM(String key) {
-            return forBotlist(BotListFactory.DISCORD_BOT_LIST_COM.build(key));
+        public Builder forDiscordBotListCOM(BotListConfig config) {
+            return forBotlist(BotListFactory.DISCORDBOTLIST_COM.build(shardManager, config));
         }
 
         /**
          * Add discord.bots.gg
          *
-         * @param key auth key
+         * @param config botlist configuration
          * @return builder instance
          */
-        public Builder forDiscordBotsGG(String key) {
-            return forBotlist(BotListFactory.DISCORD_BOTS_GG.build(key));
+        public Builder forDiscordBotsGG(BotListConfig config) {
+            return forBotlist(BotListFactory.DISCORDBOTS_GG.build(shardManager, config));
+        }
+
+        /**
+         * Add discord.bots.gg
+         *
+         * @param config botlist configuration
+         * @return builder instance
+         */
+        public Builder forBotlistMe(BotListConfig config) {
+            return forBotlist(BotListFactory.BOTLIST_ME.build(shardManager, config));
         }
 
         /**
@@ -125,19 +154,25 @@ public class BotlistReporter implements Runnable {
             return this;
         }
 
+        public Builder withVoteService(Function<VoteService.Builder, VoteService> voteService) {
+            this.voteService = voteService.apply(VoteService.builder());
+            return this;
+        }
+
         /**
          * Build the bot list reporter and start submitting
          *
          * @return created and scheduled reporter instance
          */
-        public BotlistReporter build() {
+        public BotlistService build() {
             if (executorService == null) {
                 executorService = Executors.newSingleThreadScheduledExecutor();
             }
             log.info("Started BotlistReporter for {} lists. Sending data every {} {}", botLists.size(), interval, unit.name());
-            var botlistReporter = new BotlistReporter(shardManager, botLists);
-            executorService.scheduleAtFixedRate(botlistReporter, 1, interval, unit);
-            return botlistReporter;
+            var botlistService = new BotlistService(shardManager, botLists, voteService);
+            executorService.scheduleAtFixedRate(botlistService, 1, interval, unit);
+            botlistService.ignite();
+            return botlistService;
         }
     }
 }
