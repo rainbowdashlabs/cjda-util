@@ -2,10 +2,10 @@ package de.chojo.jdautil.localization;
 
 import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.localization.util.Replacement;
-import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -48,12 +48,11 @@ public class Localizer implements ILocalizer {
     /**
      * Get the language string of the locale code.
      *
-     * @param guild     guild for language lookup
+     * @param language  language
      * @param localetag locale code
      * @return message in the local code or the default language if key is missing.
      */
-    public String getLanguageString(Guild guild, String localetag) {
-        var language = getGuildLocale(guild);
+    public String getLanguageString(Language language, String localetag) {
         if (getLanguageResource(language).containsKey(localetag)) {
             return getLanguageResource(language).getString(localetag);
         } else {
@@ -69,6 +68,7 @@ public class Localizer implements ILocalizer {
         }
     }
 
+    @Override
     public Language getGuildLocale(Guild guild) {
         if (guild == null) {
             return defaultLanguage;
@@ -91,10 +91,10 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public String localize(String message, MessageEventWrapper wrapper, Replacement... replacements) {
+    public String localize(String message, SlashCommandEvent event, Replacement... replacements) {
         Guild guild = null;
-        if (wrapper.isGuild()) {
-            guild = wrapper.getGuild();
+        if (event.isFromGuild()) {
+            guild = event.getGuild();
         }
         return localize(message, guild, replacements);
     }
@@ -117,6 +117,22 @@ public class Localizer implements ILocalizer {
 
     @Override
     public String localize(String message, Guild guild, Replacement... replacements) {
+        var language = getGuildLocale(guild);
+        return localize(message, language, replacements);
+    }
+
+    @Override
+    public Set<Language> languages() {
+        return languages.keySet();
+    }
+
+    @Override
+    public Language defaultLanguage() {
+        return defaultLanguage;
+    }
+
+    @Override
+    public String localize(String message, Language language, Replacement... replacements) {
         if (message == null) {
             return null;
         }
@@ -126,7 +142,7 @@ public class Localizer implements ILocalizer {
             if (!SIMPLE_LOCALIZATION_CODE.matcher(message).find()) {
                 return message;
             }
-            result = getLanguageString(guild, message);
+            result = getLanguageString(language, message);
         } else {
             // find locale codes in message
             var matcher = LOCALIZATION_CODE.matcher(message);
@@ -139,7 +155,7 @@ public class Localizer implements ILocalizer {
 
             for (var match : keys) {
                 //Replace current placeholders with replacements
-                var languageString = getLanguageString(guild, match);
+                var languageString = getLanguageString(language, match);
                 result = result.replace("$" + match + "$", languageString);
             }
         }
@@ -148,7 +164,7 @@ public class Localizer implements ILocalizer {
         }
 
         if (LOCALIZATION_CODE.matcher(result).find()) {
-            return localize(result, guild, replacements);
+            return localize(result, language, replacements);
         }
         return result;
     }
@@ -159,7 +175,7 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public ContextLocalizer getContextLocalizer(MessageEventWrapper wrapper) {
+    public ContextLocalizer getContextLocalizer(SlashCommandEvent wrapper) {
         return new ContextLocalizer(this, wrapper.getGuild());
     }
 
@@ -176,71 +192,71 @@ public class Localizer implements ILocalizer {
         return defaultLanguage;
     }
 
-    public static class Builder {
-        private final Set<Language> languages = new HashSet<>();
-        private final Map<Language, ResourceBundle> resourceBundles = new HashMap<>();
-        private final Language defaultLanguage;
-        private String bundlePath = "locale";
-        private Function<Guild, Optional<String>> languageProvider;
+public static class Builder {
+    private final Set<Language> languages = new HashSet<>();
+    private final Map<Language, ResourceBundle> resourceBundles = new HashMap<>();
+    private final Language defaultLanguage;
+    private String bundlePath = "locale";
+    private Function<Guild, Optional<String>> languageProvider;
 
-        public Builder(Language defaultLanguage) {
-            this.defaultLanguage = defaultLanguage;
-            languages.add(defaultLanguage);
-            languageProvider = s -> Optional.ofNullable(defaultLanguage.getCode());
+    public Builder(Language defaultLanguage) {
+        this.defaultLanguage = defaultLanguage;
+        languages.add(defaultLanguage);
+        languageProvider = s -> Optional.ofNullable(defaultLanguage.getCode());
+    }
+
+    public Builder withBundlePath(String bundlePath) {
+        this.bundlePath = bundlePath;
+        return this;
+    }
+
+    public Builder withLanguageProvider(Function<Guild, Optional<String>> languageProvider) {
+        this.languageProvider = languageProvider;
+        return this;
+    }
+
+    public Builder addLanguage(Language... languages) {
+        this.languages.addAll(Arrays.asList(languages));
+        return this;
+    }
+
+    public Builder addLanguage(String code, String language) {
+        this.languages.add(Language.of(code, language));
+        return this;
+    }
+
+    public Localizer build() {
+        loadLanguages();
+        return new Localizer(resourceBundles, languageProvider, defaultLanguage);
+    }
+
+
+    private void loadLanguages() {
+        for (var code : languages) {
+            var locale = code.toLocale();
+            var bundle = ResourceBundle.getBundle(bundlePath, locale);
+            resourceBundles.put(code, bundle);
         }
 
-        public Builder withBundlePath(String bundlePath) {
-            this.bundlePath = bundlePath;
-            return this;
+        log.debug("Loaded {} languages!", languages.size());
+
+        Set<String> keySet = new HashSet<>();
+        for (var resourceBundle : resourceBundles.values()) {
+            keySet.addAll(resourceBundle.keySet());
         }
 
-        public Builder withLanguageProvider(Function<Guild, Optional<String>> languageProvider) {
-            this.languageProvider = languageProvider;
-            return this;
-        }
-
-        public Builder addLanguage(Language... languages) {
-            this.languages.addAll(Arrays.asList(languages));
-            return this;
-        }
-
-        public Builder addLanguage(String code, String language) {
-            this.languages.add(Language.of(code, language));
-            return this;
-        }
-
-        public Localizer build() {
-            loadLanguages();
-            return new Localizer(resourceBundles, languageProvider, defaultLanguage);
-        }
-
-
-        private void loadLanguages() {
-            for (var code : languages) {
-                var locale = code.toLocale();
-                var bundle = ResourceBundle.getBundle(bundlePath, locale);
-                resourceBundles.put(code, bundle);
-            }
-
-            log.debug("Loaded {} languages!", languages.size());
-
-            Set<String> keySet = new HashSet<>();
-            for (var resourceBundle : resourceBundles.values()) {
-                keySet.addAll(resourceBundle.keySet());
-            }
-
-            List<String> missingKeys = new ArrayList<>();
-            for (var resourceBundle : resourceBundles.values()) {
-                for (var key : keySet) {
-                    if (!resourceBundle.containsKey(key)) {
-                        missingKeys.add(key + "@" + resourceBundle.getLocale());
-                    }
+        List<String> missingKeys = new ArrayList<>();
+        for (var resourceBundle : resourceBundles.values()) {
+            for (var key : keySet) {
+                if (!resourceBundle.containsKey(key)) {
+                    missingKeys.add(key + "@" + resourceBundle.getLocale());
                 }
             }
+        }
 
-            if (!missingKeys.isEmpty()) {
-                log.warn("Found missing keys in language packs\n{}", String.join("\n", missingKeys));
-            }
+        if (!missingKeys.isEmpty()) {
+            log.warn("Found missing keys in language packs\n{}", String.join("\n", missingKeys));
         }
     }
+}
 }

@@ -80,7 +80,7 @@ public class MessageContext extends Context {
     @CheckReturnValue
     @Nonnull
     public MessageAction reply(@NotNull MessageEmbed content) {
-        return message.reply(content);
+        return message.replyEmbeds(content);
     }
 
     @Override

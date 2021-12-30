@@ -77,7 +77,7 @@ public class InteractionContext extends Context {
     @NotNull
     @Override
     public MessageAction reply(@NotNull MessageEmbed content) {
-        return interaction.getChannel().sendMessage(content);
+        return interaction.getChannel().sendMessageEmbeds(content);
     }
 
     @NotNull

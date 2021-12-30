@@ -1,7 +1,5 @@
 package de.chojo.jdautil.command;
 
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-
 public class SimpleSubCommand {
     private final String name;
     private final SimpleArgument[] args;

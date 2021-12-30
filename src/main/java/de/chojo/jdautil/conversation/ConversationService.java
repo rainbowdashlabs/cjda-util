@@ -2,12 +2,12 @@ package de.chojo.jdautil.conversation;
 
 import de.chojo.jdautil.container.Pair;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import de.chojo.jdautil.wrapper.UserChannelKey;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,29 +28,30 @@ public class ConversationService extends ListenerAdapter {
     /**
      * Invoke a dialog in this context.
      *
-     * @param eventWrapper wrapper of message Event
+     * @param event wrapper of message Event
      * @return true if a dialog was invoked.
      */
-    public boolean invoke(MessageEventWrapper eventWrapper) {
-        if (eventWrapper.isUpdate()) return false;
+    public boolean invoke(MessageReceivedEvent event) {
+        var content = event.getMessage().getContentRaw();
+        var cancel = localizer.localize("conversation.cancel", event.getGuild());
+        var exit = localizer.localize("conversation.exit", event.getGuild());
 
-        var content = eventWrapper.getMessage().getContentRaw();
-        var cancel = localizer.localize("conversation.cancel", eventWrapper.getGuild());
-        var exit = localizer.localize("conversation.exit", eventWrapper.getGuild());
+        var location = UserChannelKey.of(event.getAuthor(), event.getTextChannel());
+
         if (exit.equalsIgnoreCase(content) || cancel.equalsIgnoreCase(content)) {
-            if (dialogInProgress(eventWrapper.getAuthor(), eventWrapper.getTextChannel())) {
-                endConversation(eventWrapper.getChannelLocation(), eventWrapper.getTextChannel(), false);
+            if (dialogInProgress(event.getAuthor(), event.getTextChannel())) {
+                endConversation(location, event.getTextChannel(), false);
             }
             return true;
         }
 
-        var dialog = getDialog(eventWrapper.getChannelLocation());
+        var dialog = getDialog(location);
         if (dialog == null) return false;
 
-        var result = dialog.handleMessage(eventWrapper.getMessage());
+        var result = dialog.handleMessage(event.getMessage());
         switch (result.type()) {
-            case PROCEED -> resolveButton(eventWrapper.getChannelLocation());
-            case FINISH -> endConversation(eventWrapper.getChannelLocation(), eventWrapper.getTextChannel(), true);
+            case PROCEED -> resolveButton(location);
+            case FINISH -> endConversation(location, event.getTextChannel(), true);
         }
         return true;
     }
