@@ -107,6 +107,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         for (JDA shard : shardManager.getShards()) {
             try {
                 shard.awaitReady();
+                log.info("Shard {} is ready.", shard.getShardInfo().getShardId());
             } catch (InterruptedException e) {
                 // ignore
             }
@@ -114,25 +115,24 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
         if (useSlashGlobalCommands) {
             var baseShard = shardManager.getShards().get(0);
-            log.info("Updating global slash commands.");
-            baseShard.updateCommands().addCommands(commandData.get(localizer.defaultLanguage())).queue();
-
             log.info("Removing guild commands");
             for (JDA shard : shardManager.getShards()) {
                 for (Guild guild : shard.getGuilds()) {
-                    guild.updateCommands().addCommands().queue();
+                    guild.updateCommands().complete();
                 }
             }
+
+            log.info("Updating global slash commands.");
+            baseShard.updateCommands().addCommands(commandData.get(localizer.defaultLanguage())).complete();
             return;
         }
 
         var baseShard = shardManager.getShards().get(0);
         log.info("Removing global slash commands and using guild commands.");
-        baseShard.updateCommands().queue();
+        baseShard.updateCommands().complete();
 
         for (var shard : shardManager.getShards()) {
             for (var guild : shard.getGuilds()) {
-                log.info("Updating slash commands for guild {}({})", guild.getName(), guild.getId());
                 refreshGuildCommands(guild);
             }
         }
@@ -220,7 +220,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         @SafeVarargs
         public final Builder<T> withCommands(T... commands) {
             for (var command : commands) {
-                log.info("Registering command {}", command.command());
                 this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
                 for (var alias : command.alias()) {
                     this.commands.put(alias.toLowerCase(Locale.ROOT), command);
