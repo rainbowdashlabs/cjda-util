@@ -91,7 +91,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         for (var language : localizer.languages()) {
             log.info("Creating command data for {} language", language.getCode());
             List<CommandData> localizedCommandData = new ArrayList<>();
-            for (var command : commands.values()) {
+            for (var command : new HashSet<>(commands.values())) {
                 localizedCommandData.add(command.getCommandData(localizer, language));
             }
             commandData.put(language, localizedCommandData);
