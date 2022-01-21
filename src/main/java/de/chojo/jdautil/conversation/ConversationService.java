@@ -36,7 +36,7 @@ public class ConversationService extends ListenerAdapter {
         var cancel = localizer.localize("conversation.cancel", event.getGuild());
         var exit = localizer.localize("conversation.exit", event.getGuild());
 
-        var location = UserChannelKey.of(event.getAuthor(), event.getTextChannel());
+        var location = UserChannelKey.of(event.getAuthor(), event.getChannel());
 
         if (exit.equalsIgnoreCase(content) || cancel.equalsIgnoreCase(content)) {
             if (dialogInProgress(event.getAuthor(), event.getTextChannel())) {

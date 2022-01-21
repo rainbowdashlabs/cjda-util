@@ -1,5 +1,6 @@
 package de.chojo.jdautil.wrapper;
 
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -8,12 +9,12 @@ public class UserChannelKey {
     private final long channel;
     private final long user;
 
-    private UserChannelKey(MessageChannel channel, User user) {
+    private UserChannelKey(Channel channel, User user) {
         this.channel = channel.getIdLong();
         this.user = user.getIdLong();
     }
 
-    public static UserChannelKey of(User user, TextChannel channel) {
+    public static UserChannelKey of(User user, Channel channel) {
         return new UserChannelKey(channel, user);
     }
 
