@@ -1,8 +1,14 @@
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ */
+
 package de.chojo.jdautil.localization.util;
 
 import de.chojo.jdautil.localization.Localizer;
-import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 public class LocalizedField {
     private final MessageEmbed.Field field;
@@ -15,7 +21,7 @@ public class LocalizedField {
      * @param inline       true if inline
      * @param eventWrapper message context for language detection
      */
-    public LocalizedField(Localizer localizer, String title, String description, boolean inline, MessageEventWrapper eventWrapper) {
+    public LocalizedField(Localizer localizer, String title, String description, boolean inline, SlashCommandEvent eventWrapper) {
         field = new MessageEmbed.Field(localizer.localize(title, eventWrapper),
                 localizer.localize(description, eventWrapper),
                 inline);

@@ -1,9 +1,16 @@
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ */
+
 package de.chojo.jdautil.wrapper;
 
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.parsing.ArgumentUtil;
 import de.chojo.jdautil.parsing.ValueParser;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -89,8 +96,8 @@ public class CommandContext {
         return label;
     }
 
-    public void startDialog(MessageEventWrapper eventWrapper, Conversation conversation) {
-        conversationHandler.startDialog(eventWrapper.getAuthor(), eventWrapper.getTextChannel(), conversation);
+    public void startDialog(SlashCommandEvent eventWrapper, Conversation conversation) {
+        conversationHandler.startDialog(eventWrapper.getMember().getUser(), eventWrapper.getTextChannel(), conversation);
     }
 
     public CommandContext subContext(String label) {

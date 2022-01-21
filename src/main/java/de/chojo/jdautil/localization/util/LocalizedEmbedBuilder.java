@@ -1,11 +1,17 @@
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ */
+
 package de.chojo.jdautil.localization.util;
 
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.wrapper.MessageEventWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,40 +23,25 @@ import java.time.temporal.TemporalAccessor;
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
     private final ContextLocalizer localizer;
-    private final MessageEventWrapper messageContext;
 
     /**
      * Creates a new localized embed builder.
      *
-     * @param messageContext message context for guild and language detection
+     * @param event message context for guild and language detection
      */
-    public LocalizedEmbedBuilder(ILocalizer localizer, MessageEventWrapper messageContext) {
-        this.localizer = localizer.getContextLocalizer(messageContext == null ? null : messageContext.getGuild());
-        this.messageContext = null;
-    }
-
-    public LocalizedEmbedBuilder(MessageEventWrapper messageContext) {
-        if (!messageContext.hasLocalizer()) {
-            throw new NullPointerException("Message Event wrapper must have a localizer");
-        }
-        this.messageContext = messageContext;
-        localizer = null;
+    public LocalizedEmbedBuilder(ILocalizer localizer, SlashCommandEvent event) {
+        this.localizer = localizer.getContextLocalizer(event == null ? null : event.getGuild());
     }
 
     public LocalizedEmbedBuilder(ContextLocalizer localizer) {
         this.localizer = localizer;
-        messageContext = null;
     }
 
     public LocalizedEmbedBuilder(ILocalizer localizer, @Nullable Guild guild) {
         this.localizer = localizer.getContextLocalizer(guild);
-        messageContext = null;
     }
 
     private String localize(String message) {
-        if (localizer == null) {
-            return messageContext.localize(message);
-        }
         return localizer.localize(message);
     }
 
@@ -201,5 +192,4 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         super.clearFields();
         return this;
     }
-
 }

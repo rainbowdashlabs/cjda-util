@@ -1,6 +1,10 @@
-package de.chojo.jdautil.command;
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ */
 
-import net.dv8tion.jda.api.interactions.commands.OptionType;
+package de.chojo.jdautil.command;
 
 public class SimpleSubCommand {
     private final String name;

@@ -1,3 +1,9 @@
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ */
+
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
@@ -80,7 +86,7 @@ public class MessageContext extends Context {
     @CheckReturnValue
     @Nonnull
     public MessageAction reply(@NotNull MessageEmbed content) {
-        return message.reply(content);
+        return message.replyEmbeds(content);
     }
 
     @Override
