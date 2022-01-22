@@ -19,8 +19,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -147,7 +149,16 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void refreshGuildCommands(Guild guild) {
         log.info("Updating slash commands for guild {}({})", guild.getName(), guild.getId());
         var language = localizer.getGuildLocale(guild);
-        guild.updateCommands().addCommands(commandData.get(language)).queue();
+        guild.updateCommands().addCommands(commandData.get(language)).queue(suc ->{}, err -> {
+            if(err instanceof ErrorResponseException){
+                var response = (ErrorResponseException) err;
+                if (response.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
+                    log.debug("Missing slash command access on guild {}({})", guild.getName(), guild.getId());
+                    return;
+                }
+            }
+            log.error("Could not update guild commands", err);
+        });
     }
 
     @Override
