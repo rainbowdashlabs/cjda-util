@@ -17,6 +17,7 @@ import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -84,6 +85,13 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
     }
 
+    @Override
+    public void onGuildJoin(@NotNull GuildJoinEvent event) {
+        if (!useSlashGlobalCommands) {
+            refreshGuildCommands(event.getGuild());
+        }
+    }
+
     @SafeVarargs
     public final void registerCommands(Command... commands) {
         for (var command : commands) {
@@ -147,10 +155,11 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
     public void refreshGuildCommands(Guild guild) {
-        log.info("Updating slash commands for guild {}({})", guild.getName(), guild.getId());
         var language = localizer.getGuildLocale(guild);
-        guild.updateCommands().addCommands(commandData.get(language)).queue(suc ->{}, err -> {
-            if(err instanceof ErrorResponseException){
+        guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
+            log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
+        }, err -> {
+            if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;
                 if (response.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
                     log.debug("Missing slash command access on guild {}({})", guild.getName(), guild.getId());
