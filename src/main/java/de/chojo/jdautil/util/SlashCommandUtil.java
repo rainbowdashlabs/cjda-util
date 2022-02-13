@@ -6,13 +6,13 @@
 
 package de.chojo.jdautil.util;
 
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SlashCommandUtil {
-    public static String commandAsString(SlashCommandEvent event) {
+    public static String commandAsString(CommandInteractionPayload event) {
         List<String> components = new ArrayList<>();
         components.add(event.getName());
         if (event.getSubcommandGroup() != null) components.add(event.getSubcommandGroup());

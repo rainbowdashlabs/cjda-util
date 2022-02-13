@@ -11,7 +11,7 @@ import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public String localize(String message, SlashCommandEvent event, Replacement... replacements) {
+    public String localize(String message, CommandInteraction event, Replacement... replacements) {
         Guild guild = null;
         if (event.isFromGuild()) {
             guild = event.getGuild();
@@ -181,7 +181,7 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public ContextLocalizer getContextLocalizer(SlashCommandEvent wrapper) {
+    public ContextLocalizer getContextLocalizer(CommandInteraction wrapper) {
         return new ContextLocalizer(this, wrapper.getGuild());
     }
 

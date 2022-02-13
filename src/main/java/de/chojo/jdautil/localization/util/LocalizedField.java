@@ -8,7 +8,7 @@ package de.chojo.jdautil.localization.util;
 
 import de.chojo.jdautil.localization.Localizer;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 public class LocalizedField {
     private final MessageEmbed.Field field;
@@ -21,7 +21,7 @@ public class LocalizedField {
      * @param inline       true if inline
      * @param eventWrapper message context for language detection
      */
-    public LocalizedField(Localizer localizer, String title, String description, boolean inline, SlashCommandEvent eventWrapper) {
+    public LocalizedField(Localizer localizer, String title, String description, boolean inline, CommandInteraction eventWrapper) {
         field = new MessageEmbed.Field(localizer.localize(title, eventWrapper),
                 localizer.localize(description, eventWrapper),
                 inline);

@@ -11,7 +11,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      *
      * @param event message context for guild and language detection
      */
-    public LocalizedEmbedBuilder(ILocalizer localizer, SlashCommandEvent event) {
+    public LocalizedEmbedBuilder(ILocalizer localizer, CommandInteraction event) {
         this.localizer = localizer.getContextLocalizer(event == null ? null : event.getGuild());
     }
 
