@@ -10,7 +10,7 @@ import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.parsing.ArgumentUtil;
 import de.chojo.jdautil.parsing.ValueParser;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,7 +96,7 @@ public class CommandContext {
         return label;
     }
 
-    public void startDialog(SlashCommandEvent eventWrapper, Conversation conversation) {
+    public void startDialog(CommandInteraction eventWrapper, Conversation conversation) {
         conversationHandler.startDialog(eventWrapper.getMember().getUser(), eventWrapper.getTextChannel(), conversation);
     }
 

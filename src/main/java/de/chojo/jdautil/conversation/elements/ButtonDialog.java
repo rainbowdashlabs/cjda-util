@@ -9,8 +9,8 @@ package de.chojo.jdautil.conversation.elements;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.util.ComponentUtil;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public class ButtonDialog {
         return this;
     }
 
-    public ButtonDialog add(Component component, Function<InteractionContext, Result> onClick) {
+    public ButtonDialog add(ActionComponent component, Function<InteractionContext, Result> onClick) {
         components.put(component.getId(), new ComponenAction(component, onClick));
         return this;
     }

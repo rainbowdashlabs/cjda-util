@@ -11,13 +11,11 @@ import de.chojo.jdautil.conversation.elements.MessageContext;
 import de.chojo.jdautil.conversation.elements.Result;
 import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -52,9 +50,9 @@ public class Conversation {
         return result;
     }
 
-    public Result handleInteraction(ButtonClickEvent event) {
-        var result = step.handleButton(new InteractionContext(data, this, event));
-        handleResult(result, event.getTextChannel());
+    public Result handleInteraction(ComponentInteraction interaction) {
+        var result = step.handleButton(new InteractionContext(data, this, interaction));
+        handleResult(result, interaction.getTextChannel());
         return result;
     }
 
