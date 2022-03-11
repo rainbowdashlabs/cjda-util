@@ -89,7 +89,7 @@ public class PageService extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         event.getHook().retrieveOriginal().queue(message -> {
             var page = cache.getIfPresent(message.getIdLong());
-            if (page == null || page.canInteract(event.getUser())) return;
+            if (page == null || !page.canInteract(event.getUser())) return;
 
             var label = event.getButton().getLabel();
             if (nextLabel.equals(label) && page.hasNext()) {
