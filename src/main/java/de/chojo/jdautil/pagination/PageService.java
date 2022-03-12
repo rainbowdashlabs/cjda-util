@@ -39,7 +39,7 @@ public class PageService extends ListenerAdapter {
     private final Cache<Long, IPageBag> cache;
     private final ILocalizer localizer;
 
-    public PageService(String previousLabel, String nextLabel, String previousText, String nextText, Cache<Long, IPageBag> cache, ILocalizer localizer) {
+    private PageService(String previousLabel, String nextLabel, String previousText, String nextText, Cache<Long, IPageBag> cache, ILocalizer localizer) {
         this.previousLabel = previousLabel;
         this.nextLabel = nextLabel;
         this.previousText = previousText;
