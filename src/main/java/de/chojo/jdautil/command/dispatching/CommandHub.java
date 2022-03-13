@@ -18,6 +18,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -45,7 +47,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private static final Logger log = getLogger(CommandHub.class);
     private final ShardManager shardManager;
     private final Map<String, Command> commands;
-    private final BiFunction<SlashCommandInteractionEvent, Command, Boolean> permissionCheck;
+    private final BiFunction<GenericInteractionCreateEvent, Command, Boolean> permissionCheck;
     private final ConversationService conversationService;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
@@ -53,7 +55,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
 
     public CommandHub(ShardManager shardManager,
-                      Map<String, Command> commands, BiFunction<SlashCommandInteractionEvent, Command, Boolean> permissionCheck,
+                      Map<String, Command> commands, BiFunction<GenericInteractionCreateEvent, Command, Boolean> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler) {
         this.shardManager = shardManager;
@@ -67,6 +69,22 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
     public static <T extends SimpleCommand> Builder<T> builder(ShardManager shardManager) {
         return new Builder<>(shardManager);
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        var name = event.getName();
+        var command = getCommand(name).get();
+        if (!canExecute(event, command)) {
+            event.replyChoices().queue();
+            return;
+        }
+        try {
+            command.onTabcomplete(event, new SlashCommandContext(conversationService));
+        } catch (Throwable t) {
+            var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
+            commandErrorHandler.accept(executionContext, t);
+        }
     }
 
     @Override
@@ -180,7 +198,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
 
-    public boolean canExecute(SlashCommandInteractionEvent event, Command command) {
+    public boolean canExecute(GenericInteractionCreateEvent event, Command command) {
         return command.permission() == Permission.UNKNOWN || permissionCheck.apply(event, command);
     }
 
@@ -198,7 +216,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         private final Map<String, T> commands = new HashMap<>();
         @NotNull
         private ILocalizer localizer = ILocalizer.DEFAULT;
-        private BiFunction<SlashCommandInteractionEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
+        private BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isFromGuild()) {
                 if (command.permission() == Permission.UNKNOWN) {
                     return true;
@@ -260,7 +278,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
          * @param permissionCheck checks if a user can execute the command
          * @return builder instance
          */
-        public Builder<T> withPermissionCheck(BiFunction<SlashCommandInteractionEvent, T, Boolean> permissionCheck) {
+        public Builder<T> withPermissionCheck(BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck) {
             this.permissionCheck = permissionCheck;
             return this;
         }
