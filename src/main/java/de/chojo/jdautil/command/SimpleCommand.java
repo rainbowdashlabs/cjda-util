@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public abstract class SimpleCommand {
     private final String command;
@@ -110,13 +111,21 @@ public abstract class SimpleCommand {
     public static class ArgumentBuilder {
         List<SimpleArgument> arguments = new ArrayList<>();
 
+        @Deprecated(forRemoval = true)
         public ArgumentBuilder add(OptionType type, String name, String description, boolean required) {
             arguments.add(SimpleArgument.of(type, name, description, required));
             return this;
         }
 
         public ArgumentBuilder add(OptionType type, String name, String description) {
-            arguments.add(SimpleArgument.of(type, name, description));
+            arguments.add(SimpleArgument.builder(type, name, description).build());
+            return this;
+        }
+
+        public ArgumentBuilder add(OptionType type, String name, String description, Consumer<SimpleArgument.Builder> modify) {
+            var builder = SimpleArgument.builder(type, name, description);
+            modify.accept(builder);
+            arguments.add(builder.build());
             return this;
         }
 
@@ -139,7 +148,7 @@ public abstract class SimpleCommand {
             commandData.addSubcommands(subcommands);
         } else if (args() != null) {
             for (var arg : args()) {
-                commandData.addOption(arg.type(), arg.name(), localizer.localize(arg.description(), lang), arg.isRequired());
+                commandData.addOption(arg.type(), arg.name(), localizer.localize(arg.description(), lang), arg.isRequired(), arg.autoComplete());
             }
         }
 
