@@ -1,7 +1,7 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.command;
@@ -13,9 +13,10 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import javax.annotation.Nullable;
@@ -82,7 +83,7 @@ public abstract class SimpleCommand {
         return permission;
     }
 
-    public abstract void onSlashCommand(SlashCommandEvent event, SlashCommandContext context);
+    public abstract void onSlashCommand(SlashCommandInteractionEvent event, SlashCommandContext context);
 
     public SimpleSubCommand[] getSubCommands() {
         return subCommands;
@@ -120,7 +121,7 @@ public abstract class SimpleCommand {
     }
 
     public CommandData getCommandData(ILocalizer localizer, Language lang) {
-        var commandData = new CommandData(command, localizer.localize(description, lang));
+        var commandData = Commands.slash(command, localizer.localize(description, lang));
         if (subCommands() != null) {
             List<SubcommandData> subcommands = new ArrayList<>(subCommands().length);
             for (var subCommand : getSubCommands()) {

@@ -1,7 +1,7 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.localization;
@@ -10,7 +10,7 @@ import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.Collections;
 import java.util.Set;
@@ -28,7 +28,7 @@ public interface ILocalizer {
         }
 
         @Override
-        public ContextLocalizer getContextLocalizer(SlashCommandEvent event) {
+        public ContextLocalizer getContextLocalizer(CommandInteraction interaction) {
             return new ContextLocalizer(this, null);
         }
 
@@ -43,7 +43,7 @@ public interface ILocalizer {
         }
 
         @Override
-        public String localize(String message, SlashCommandEvent event, Replacement... replacements) {
+        public String localize(String message, CommandInteraction interaction, Replacement... replacements) {
             return message;
         }
 
@@ -77,13 +77,13 @@ public interface ILocalizer {
 
     ContextLocalizer getContextLocalizer(Guild guild);
 
-    ContextLocalizer getContextLocalizer(SlashCommandEvent event);
+    ContextLocalizer getContextLocalizer(CommandInteraction interaction);
 
     ContextLocalizer getContextLocalizer(MessageChannel channel);
 
     Language getGuildLocale(Guild guild);
 
-    String localize(String message, SlashCommandEvent event, Replacement... replacements);
+    String localize(String message, CommandInteraction interaction, Replacement... replacements);
 
     String localize(String message, MessageChannel channel, Replacement... replacements);
 

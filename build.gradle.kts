@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion:JDA:5.0.0-alpha.9")
+    api("net.dv8tion", "JDA", "5.0.0-alpha.9")
     api("org.apache.commons", "commons-text", "1.9")
     // Serialization
     api("com.fasterxml.jackson.core", "jackson-databind", "2.12.3")
@@ -31,7 +31,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.0.0a"
+version = "2.0.3-alpha.9"
 description = "Discord utilities for use with JDA"
 
 publishData {

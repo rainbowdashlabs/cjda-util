@@ -1,32 +1,32 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.function.Function;
 
 public class ComponenAction {
-    private final Component component;
+    private final ActionComponent component;
     private final Function<InteractionContext, Result> onClick;
 
-    public ComponenAction(Component component, Function<InteractionContext, Result> onClick) {
+    public ComponenAction(ActionComponent component, Function<InteractionContext, Result> onClick) {
         this.component = component;
         this.onClick = onClick;
     }
 
-    public Component component() {
+    public ActionComponent component() {
         return component;
     }
 
-    public Component getTranslatedComponent(ILocalizer localizer, Guild guild) {
+    public ActionComponent getTranslatedComponent(ILocalizer localizer, Guild guild) {
         return switch (component.getType()) {
             case BUTTON -> {
                 var button = (Button) this.component;

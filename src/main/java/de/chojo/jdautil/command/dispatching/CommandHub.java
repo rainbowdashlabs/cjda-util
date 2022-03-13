@@ -1,7 +1,7 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.command.dispatching;
@@ -17,10 +17,13 @@ import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -42,7 +45,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private static final Logger log = getLogger(CommandHub.class);
     private final ShardManager shardManager;
     private final Map<String, Command> commands;
-    private final BiFunction<SlashCommandEvent, Command, Boolean> permissionCheck;
+    private final BiFunction<SlashCommandInteractionEvent, Command, Boolean> permissionCheck;
     private final ConversationService conversationService;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
@@ -50,7 +53,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
 
     public CommandHub(ShardManager shardManager,
-                      Map<String, Command> commands, BiFunction<SlashCommandEvent, Command, Boolean> permissionCheck,
+                      Map<String, Command> commands, BiFunction<SlashCommandInteractionEvent, Command, Boolean> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler) {
         this.shardManager = shardManager;
@@ -67,7 +70,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
     @Override
-    public void onSlashCommand(@NotNull SlashCommandEvent event) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         var name = event.getName();
         var command = getCommand(name).get();
         if (!canExecute(event, command)) {
@@ -79,6 +82,13 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);
+        }
+    }
+
+    @Override
+    public void onGuildJoin(@NotNull GuildJoinEvent event) {
+        if (!useSlashGlobalCommands) {
+            refreshGuildCommands(event.getGuild());
         }
     }
 
@@ -145,9 +155,19 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
     public void refreshGuildCommands(Guild guild) {
-        log.info("Updating slash commands for guild {}({})", guild.getName(), guild.getId());
         var language = localizer.getGuildLocale(guild);
-        guild.updateCommands().addCommands(commandData.get(language)).queue();
+        guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
+            log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
+        }, err -> {
+            if (err instanceof ErrorResponseException) {
+                var response = (ErrorResponseException) err;
+                if (response.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
+                    log.debug("Missing slash command access on guild {}({})", guild.getName(), guild.getId());
+                    return;
+                }
+            }
+            log.error("Could not update guild commands", err);
+        });
     }
 
     @Override
@@ -160,7 +180,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
 
-    public boolean canExecute(SlashCommandEvent event, Command command) {
+    public boolean canExecute(SlashCommandInteractionEvent event, Command command) {
         return command.permission() == Permission.UNKNOWN || permissionCheck.apply(event, command);
     }
 
@@ -178,7 +198,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         private final Map<String, T> commands = new HashMap<>();
         @NotNull
         private ILocalizer localizer = ILocalizer.DEFAULT;
-        private BiFunction<SlashCommandEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
+        private BiFunction<SlashCommandInteractionEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isFromGuild()) {
                 if (command.permission() == Permission.UNKNOWN) {
                     return true;
@@ -240,7 +260,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
          * @param permissionCheck checks if a user can execute the command
          * @return builder instance
          */
-        public Builder<T> withPermissionCheck(BiFunction<SlashCommandEvent, T, Boolean> permissionCheck) {
+        public Builder<T> withPermissionCheck(BiFunction<SlashCommandInteractionEvent, T, Boolean> permissionCheck) {
             this.permissionCheck = permissionCheck;
             return this;
         }

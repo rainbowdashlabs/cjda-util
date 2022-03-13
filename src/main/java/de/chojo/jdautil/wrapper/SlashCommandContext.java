@@ -1,14 +1,14 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2021 EldoriaRPG Team and Contributor
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.wrapper;
 
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 public class SlashCommandContext {
     private final ConversationService conversationService;
@@ -21,7 +21,7 @@ public class SlashCommandContext {
         return conversationService;
     }
 
-    public void startDialog(SlashCommandEvent event, Conversation conversation) {
-        conversationService.startDialog(event.getUser(), event.getTextChannel(), conversation);
+    public void startDialog(CommandInteraction interaction, Conversation conversation) {
+        conversationService.startDialog(interaction.getUser(), interaction.getTextChannel(), conversation);
     }
 }
