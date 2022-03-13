@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion:JDA:5.0.0-alpha.3")
+    api("net.dv8tion:JDA:5.0.0-alpha.9")
     api("org.apache.commons", "commons-text", "1.9")
     // Serialization
     api("com.fasterxml.jackson.core", "jackson-databind", "2.12.3")
