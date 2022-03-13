@@ -21,8 +21,8 @@ dependencies {
     api("io.javalin", "javalin", "3.13.12")
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.7.1"))
-    testImplementation("org.junit.jupiter", "junit-jupiter")
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 license {
@@ -31,7 +31,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.0.3-alpha.9"
+version = "2.1.0-alpha.9"
 description = "Discord utilities for use with JDA"
 
 publishData {
