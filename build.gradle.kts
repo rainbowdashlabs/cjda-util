@@ -18,7 +18,7 @@ dependencies {
     api("org.apache.commons", "commons-text", "1.9")
     // Serialization
     api("com.fasterxml.jackson.core", "jackson-databind", "2.13.2")
-    api("io.javalin", "javalin", "3.13.9")
+    api("io.javalin", "javalin", "3.13.12")
 
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.7.1"))
