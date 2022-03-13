@@ -104,9 +104,9 @@ public class PageService extends ListenerAdapter {
 
     private ActionRow getPageButtons(Guild guild, IPageBag page) {
         return ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")),
+                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SUCCESS, "pageService:page", page.current() + 1 + "/" + page.pages()).asDisabled(),
-                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️"))
+                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
         );
     }
 

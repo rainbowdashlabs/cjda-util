@@ -27,6 +27,13 @@ public interface IPageBag {
     int current();
 
     /**
+     * Set the current index of the page. The index is zero based
+     *
+     * @param page the current page index. Zero based
+     */
+    void current(int page);
+
+    /**
      * Goes to the next page index
      */
     void scrollNext();
