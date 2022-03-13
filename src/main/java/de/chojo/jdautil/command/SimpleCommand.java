@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -87,6 +88,10 @@ public abstract class SimpleCommand {
 
     public SimpleSubCommand[] getSubCommands() {
         return subCommands;
+    }
+
+    public void onTabcomplete(CommandAutoCompleteInteractionEvent event, SlashCommandContext slashCommandContext) {
+
     }
 
     public static class SubCommandBuilder {
