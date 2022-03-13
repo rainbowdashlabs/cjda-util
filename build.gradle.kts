@@ -16,12 +16,14 @@ repositories {
 dependencies {
     api("net.dv8tion", "JDA", "5.0.0-alpha.9")
     api("org.apache.commons", "commons-text", "1.9")
+    
     // Serialization
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.12.3")
-    api("io.javalin", "javalin", "3.13.9")
     api("com.google.guava", "guava", "31.1-jre")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.13.2")
+    api("io.javalin", "javalin", "4.3.0")
+
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.7.1"))
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
