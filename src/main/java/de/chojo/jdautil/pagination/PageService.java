@@ -91,7 +91,7 @@ public class PageService extends ListenerAdapter {
             var page = cache.getIfPresent(message.getIdLong());
             if (page == null || !page.canInteract(event.getUser())) return;
 
-            var label = event.getButton().getLabel();
+            var label = event.getButton().getId();
             if (nextLabel.equals(label) && page.hasNext()) {
                 page.scrollNext();
                 sendPage(message);
@@ -104,9 +104,9 @@ public class PageService extends ListenerAdapter {
 
     private ActionRow getPageButtons(Guild guild, IPageBag page) {
         return ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
-                Button.of(ButtonStyle.SUCCESS, "pageService:page", page.current() + 1 + "/" + page.pages()).asDisabled(),
-                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
+                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext()),
+                Button.of(ButtonStyle.SECONDARY, "pageService:page", page.current() + 1 + "/" + page.pages()),
+                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious())
         );
     }
 
