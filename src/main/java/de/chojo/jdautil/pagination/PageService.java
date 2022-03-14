@@ -104,9 +104,9 @@ public class PageService extends ListenerAdapter {
 
     private ActionRow getPageButtons(Guild guild, IPageBag page) {
         return ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext()),
+                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SECONDARY, "pageService:page", page.current() + 1 + "/" + page.pages()),
-                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious())
+                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
         );
     }
 
@@ -115,6 +115,7 @@ public class PageService extends ListenerAdapter {
         optPage.ifPresent(page -> page.buildPage()
                 .thenAccept(embed -> {
                     message.editMessageEmbeds()
+                            .setEmbeds(embed)
                             .setActionRows(getPageButtons(message.isFromGuild() ? message.getGuild() : null, page))
                             .queue();
                 }));
@@ -128,8 +129,8 @@ public class PageService extends ListenerAdapter {
         private final ShardManager shardManager;
         private String previousLabel = "pageService:previous";
         private String nextLabel = "pageService:next";
-        private String previousText = "Next";
-        private String nextText = "Previous";
+        private String previousText = "Previous";
+        private String nextText = "Next";
         private Cache<Long, IPageBag> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
         private ILocalizer localizer = ILocalizer.DEFAULT;
 
