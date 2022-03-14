@@ -12,6 +12,7 @@ import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.localization.util.Language;
+import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
@@ -25,21 +26,27 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -53,11 +60,13 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final boolean useSlashGlobalCommands;
     private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
+    private final Function<Guild, List<Long>> managerRoleSupplier;
 
     public CommandHub(ShardManager shardManager,
                       Map<String, Command> commands, BiFunction<GenericInteractionCreateEvent, Command, Boolean> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
-                      boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler) {
+                      boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
+                      Function<Guild, List<Long>> managerRoleSupplier) {
         this.shardManager = shardManager;
         this.commands = commands;
         this.permissionCheck = permissionCheck;
@@ -65,6 +74,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.localizer = localizer;
         this.useSlashGlobalCommands = useSlashGlobalCommands;
         this.commandErrorHandler = commandErrorHandler;
+        this.managerRoleSupplier = managerRoleSupplier;
     }
 
     public static <T extends SimpleCommand> Builder<T> builder(ShardManager shardManager) {
@@ -176,6 +186,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         var language = localizer.getGuildLocale(guild);
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
             log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
+            buildGuildPriviledges(guild);
         }, err -> {
             if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;
@@ -210,6 +221,79 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         return Set.copyOf(commands.values());
     }
 
+    /**
+     * Refresh the guild command priviledges for all commands on all guilds
+     */
+    public void buildGuildPriviledges() {
+        for (var shard : shardManager.getShards()) {
+            log.debug("Refreshing command priviledges for {} guild on shard {}", shard.getGuilds().size(), shard.getShardInfo().getShardId());
+            for (var guild : shard.getGuilds()) {
+                buildGuildPriviledgesSilent(guild);
+            }
+        }
+    }
+
+    /**
+     * Refresh the guild command priviledges for all commands on this guild.
+     * Thius method catches any error.
+     *
+     * @param guild guild
+     */
+    public void buildGuildPriviledgesSilent(Guild guild) {
+        try {
+            buildGuildPriviledges(guild);
+        } catch (ErrorResponseException e) {
+            if (e.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
+                log.debug("Missing access on slash commands for guild {}", Guilds.prettyName(guild));
+                return;
+            }
+            log.error("Error on updating slash commands", e);
+        } catch (Exception e) {
+            log.error("Could not update guild priviledges for guild {}", Guilds.prettyName(guild), e);
+        }
+    }
+
+    /**
+     * Refresh the guild command priviledges for all commands on all guilds
+     * Use {@link #buildGuildPriviledgesSilent(Guild)} if you dont care about errors.
+     *
+     * @param guild guild
+     */
+    public void buildGuildPriviledges(Guild guild) {
+        var roles = managerRoleSupplier.apply(guild).stream()
+                .map(guild::getRoleById)
+                .filter(Objects::nonNull)
+                .limit(5)
+                .collect(Collectors.toList());
+        log.debug("Refreshing command priviledges for guild {}", Guilds.prettyName(guild));
+        if (roles.isEmpty()) {
+            log.debug("No manager role defined on guild {}. Using admin roles.", guild.getIdLong());
+            roles = guild.getRoles().stream()
+                    .filter(r -> r.hasPermission(Permission.ADMINISTRATOR))
+                    .limit(5)
+                    .collect(Collectors.toList());
+        } else {
+            log.debug("Using manager roles on {}", Guilds.prettyName(guild));
+        }
+
+        List<CommandPrivilege> privileges = new ArrayList<>();
+
+        for (var role : roles) {
+            privileges.add(CommandPrivilege.enable(role));
+        }
+
+        privileges.add(CommandPrivilege.enable(guild.retrieveOwner().complete().getUser()));
+
+        var adminCommands = guild.retrieveCommands().complete().stream().filter(c -> !c.isDefaultEnabled()).collect(Collectors.toList());
+
+        Map<String, Collection<CommandPrivilege>> commandPrivileges = new HashMap<>();
+        for (var adminCommand : adminCommands) {
+            commandPrivileges.put(adminCommand.getId(), privileges);
+        }
+
+        guild.updateCommandPrivileges(commandPrivileges).complete();
+        log.debug("Update done. Set restricted commands to {} priviledges", privileges.size());
+    }
 
     public static class Builder<T extends SimpleCommand> {
         private final ShardManager shardManager;
@@ -229,6 +313,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         private boolean useSlashGlobalCommands = true;
         private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
                 (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
+        private Function<Guild, List<Long>> managerRoleSupplier = guild -> Collections.emptyList();
 
         private Builder(ShardManager shardManager) {
             this.shardManager = shardManager;
@@ -305,6 +390,17 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
 
         /**
+         * Adds a manager role supplier which provides the manager roles for a guild.
+         *
+         * @param managerRoleSupplier handler for errors
+         * @return builder instance
+         */
+        public Builder<T> withManagerRole(Function<Guild, List<Long>> managerRoleSupplier) {
+            this.managerRoleSupplier = managerRoleSupplier;
+            return this;
+        }
+
+        /**
          * Build the command hub.
          * <p>
          * This will register the command hub as a listener.
@@ -319,7 +415,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                 conversationService = new ConversationService(localizer);
                 shardManager.addEventListener(conversationService);
             }
-            var commandListener = new CommandHub<T>(shardManager, commands, permissionCheck, conversationService, localizer, useSlashGlobalCommands, commandErrorHandler);
+            var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer, useSlashGlobalCommands, commandErrorHandler, managerRoleSupplier);
             shardManager.addEventListener(commandListener);
             commandListener.updateCommands();
             return commandListener;
