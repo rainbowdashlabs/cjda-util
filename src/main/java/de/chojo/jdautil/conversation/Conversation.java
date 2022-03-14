@@ -11,7 +11,10 @@ import de.chojo.jdautil.conversation.elements.MessageContext;
 import de.chojo.jdautil.conversation.elements.Result;
 import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.util.Channel;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
@@ -72,21 +75,22 @@ public class Conversation {
 
     }
 
-    private void sendPrompt(TextChannel textChannel) {
+    private void sendPrompt(MessageChannel textChannel) {
         sendPrompt(textChannel, 0);
     }
 
-    private void sendPrompt(TextChannel textChannel, int delay) {
+    private void sendPrompt(MessageChannel messageChannel, int delay) {
+        var guild = Channel.guildFromMessageChannel(messageChannel);
         if (step.hasButtons()) {
-            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild()))
-                    .setActionRows(step.getActions(localizer, textChannel.getGuild()))
+            messageChannel.sendMessage(localizer.localize(step.prompt(), guild))
+                    .setActionRows(step.getActions(localizer, guild))
                     .queueAfter(2, TimeUnit.SECONDS, message -> conversationService.registerButtons(message, this));
         } else {
-            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild())).queueAfter(delay, TimeUnit.SECONDS);
+            messageChannel.sendMessage(localizer.localize(step.prompt(), guild)).queueAfter(delay, TimeUnit.SECONDS);
         }
     }
 
-    public void start(TextChannel channel) {
+    public void start(MessageChannel channel) {
         sendPrompt(channel, 2);
     }
 
