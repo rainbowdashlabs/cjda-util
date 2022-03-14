@@ -11,8 +11,9 @@ import de.chojo.jdautil.conversation.elements.MessageContext;
 import de.chojo.jdautil.conversation.elements.Result;
 import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.util.Channel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 
@@ -41,10 +42,10 @@ public class Conversation {
         var context = new MessageContext(this, data, message);
         var result = step.handleMessage(context);
         switch (result.type()) {
-            case FAILED -> sendPrompt(message.getTextChannel());
+            case FAILED -> sendPrompt(message.getChannel());
             case PROCEED -> {
                 step = steps.get(result.next());
-                sendPrompt(message.getTextChannel());
+                sendPrompt(message.getChannel());
             }
         }
         return result;
@@ -52,11 +53,11 @@ public class Conversation {
 
     public Result handleInteraction(ComponentInteraction interaction) {
         var result = step.handleButton(new InteractionContext(data, this, interaction));
-        handleResult(result, interaction.getTextChannel());
+        handleResult(result, interaction.getChannel());
         return result;
     }
 
-    private boolean handleResult(Result result, TextChannel channel) {
+    private boolean handleResult(Result result, MessageChannel channel) {
         return switch (result.type()) {
             case FAILED -> {
                 sendPrompt(channel);
@@ -72,25 +73,26 @@ public class Conversation {
 
     }
 
-    private void sendPrompt(TextChannel textChannel) {
-        sendPrompt(textChannel, 0);
+    private void sendPrompt(MessageChannel channel) {
+        sendPrompt(channel, 0);
     }
 
-    private void sendPrompt(TextChannel textChannel, int delay) {
+    private void sendPrompt(MessageChannel messageChannel, int delay) {
+        var guild = Channel.guildFromMessageChannel(messageChannel);
         if (step.hasButtons()) {
-            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild()))
-                    .setActionRows(step.getActions(localizer, textChannel.getGuild()))
+            messageChannel.sendMessage(localizer.localize(step.prompt(), guild))
+                    .setActionRows(step.getActions(localizer, guild))
                     .queueAfter(2, TimeUnit.SECONDS, message -> conversationService.registerButtons(message, this));
         } else {
-            textChannel.sendMessage(localizer.localize(step.prompt(), textChannel.getGuild())).queueAfter(delay, TimeUnit.SECONDS);
+            messageChannel.sendMessage(localizer.localize(step.prompt(), guild)).queueAfter(delay, TimeUnit.SECONDS);
         }
     }
 
-    public void start(TextChannel channel) {
+    public void start(MessageChannel channel) {
         sendPrompt(channel, 2);
     }
 
-    public void proceed(TextChannel channel, int next) {
+    public void proceed(MessageChannel channel, int next) {
         step = steps.get(next);
         sendPrompt(channel);
     }

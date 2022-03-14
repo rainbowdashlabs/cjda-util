@@ -22,6 +22,6 @@ public class SlashCommandContext {
     }
 
     public void startDialog(CommandInteraction interaction, Conversation conversation) {
-        conversationService.startDialog(interaction.getUser(), interaction.getTextChannel(), conversation);
+        conversationService.startDialog(interaction, conversation);
     }
 }

@@ -298,8 +298,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                 });
             }, err -> ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
         }, err -> ErrorResponseException.ignore(ErrorResponse.UNKNOWN_USER));
-
-
     }
 
     public static class Builder<T extends SimpleCommand> {
