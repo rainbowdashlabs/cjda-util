@@ -8,13 +8,13 @@ package de.chojo.jdautil.util;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 
 import javax.annotation.Nullable;
 
 public final class Channel {
     @Nullable
     public static Guild guildFromMessageChannel(MessageChannel channel) {
-        return channel instanceof TextChannel ? ((TextChannel) channel).getGuild() : null;
+        return channel instanceof GuildMessageChannel ? ((GuildMessageChannel) channel).getGuild() : null;
     }
 }
