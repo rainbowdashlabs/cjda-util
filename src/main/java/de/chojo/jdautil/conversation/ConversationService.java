@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -80,15 +81,15 @@ public class ConversationService extends ListenerAdapter {
         });
     }
 
-    public void startDialog(GenericInteractionCreateEvent event, Conversation conversation) {
+    public void startDialog(IReplyCallback event, Conversation conversation) {
         var guild = event.isFromGuild() ? event.getGuild() : null;
         if (dialogInProgress(event.getUser(), event.getMessageChannel())) {
             var message = localizer.localize("conversation.inProgress", guild);
-            event.getMessageChannel().sendMessage(message).queue();
+            event.reply(message).queue();
             return;
         }
 
-        event.getMessageChannel().sendMessage(localizer.localize("conversation.start", guild)).queueAfter(2, TimeUnit.SECONDS, message -> {
+        event.reply(localizer.localize("conversation.start", guild)).queueAfter(2, TimeUnit.SECONDS, message -> {
             conversation.inject(event.getUser(), localizer, this);
             conversation.start(event.getMessageChannel());
             conversations.putIfAbsent(UserChannelKey.of(event.getUser(), event.getMessageChannel()), conversation);
