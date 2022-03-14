@@ -8,13 +8,16 @@ package de.chojo.jdautil.conversation;
 
 import de.chojo.jdautil.container.Pair;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.util.Channel;
 import de.chojo.jdautil.wrapper.UserChannelKey;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -38,15 +41,16 @@ public class ConversationService extends ListenerAdapter {
      * @return true if a dialog was invoked.
      */
     public boolean invoke(MessageReceivedEvent event) {
+        var guild = event.isFromGuild() ? event.getGuild() : null;
         var content = event.getMessage().getContentRaw();
-        var cancel = localizer.localize("conversation.cancel", event.getGuild());
-        var exit = localizer.localize("conversation.exit", event.getGuild());
+        var cancel = localizer.localize("conversation.cancel", guild);
+        var exit = localizer.localize("conversation.exit", guild);
 
         var location = UserChannelKey.of(event.getAuthor(), event.getChannel());
 
         if (exit.equalsIgnoreCase(content) || cancel.equalsIgnoreCase(content)) {
-            if (dialogInProgress(event.getAuthor(), event.getTextChannel())) {
-                endConversation(location, event.getTextChannel(), false);
+            if (dialogInProgress(event.getAuthor(), event.getChannel())) {
+                endConversation(location, event.getChannel(), false);
             }
             return true;
         }
@@ -57,22 +61,38 @@ public class ConversationService extends ListenerAdapter {
         var result = dialog.handleMessage(event.getMessage());
         switch (result.type()) {
             case PROCEED -> resolveButton(location);
-            case FINISH -> endConversation(location, event.getTextChannel(), true);
+            case FINISH -> endConversation(location, event.getChannel(), true);
         }
         return true;
     }
 
-    public void startDialog(User user, TextChannel channel, Conversation conversation) {
+    public void startDialog(User user, MessageChannel channel, Conversation conversation) {
+        var guild = Channel.guildFromMessageChannel(channel);
         if (dialogInProgress(user, channel)) {
-            var message = localizer.localize("conversation.inProgress", channel.getGuild());
+            var message = localizer.localize("conversation.inProgress", guild);
             channel.sendMessage(message).queue();
             return;
         }
 
-        channel.sendMessage(localizer.localize("conversation.start", channel.getGuild())).queueAfter(2, TimeUnit.SECONDS, message -> {
+        channel.sendMessage(localizer.localize("conversation.start", guild)).queueAfter(2, TimeUnit.SECONDS, message -> {
             conversation.inject(user, localizer, this);
             conversation.start(channel);
             conversations.putIfAbsent(UserChannelKey.of(user, channel), conversation);
+        });
+    }
+
+    public void startDialog(IReplyCallback event, Conversation conversation) {
+        var guild = event.isFromGuild() ? event.getGuild() : null;
+        if (dialogInProgress(event.getUser(), event.getMessageChannel())) {
+            var message = localizer.localize("conversation.inProgress", guild);
+            event.reply(message).queue();
+            return;
+        }
+
+        event.reply(localizer.localize("conversation.start", guild)).queueAfter(2, TimeUnit.SECONDS, message -> {
+            conversation.inject(event.getUser(), localizer, this);
+            conversation.start(event.getMessageChannel());
+            conversations.putIfAbsent(UserChannelKey.of(event.getUser(), event.getMessageChannel()), conversation);
         });
     }
 
@@ -80,14 +100,15 @@ public class ConversationService extends ListenerAdapter {
         return conversations.get(userChannelKey);
     }
 
-    public boolean dialogInProgress(User user, TextChannel channel) {
+    public boolean dialogInProgress(User user, MessageChannel channel) {
         return conversations.containsKey(UserChannelKey.of(user, channel));
     }
 
-    public void endConversation(UserChannelKey key, TextChannel channel, boolean finished) {
+    public void endConversation(UserChannelKey key, MessageChannel channel, boolean finished) {
         resolveButton(key);
         removeDialog(key);
-        var message = localizer.localize(finished ? "conversation.finished" : "conversation.canceled", channel.getGuild());
+        var guild = Channel.guildFromMessageChannel(channel);
+        var message = localizer.localize(finished ? "conversation.finished" : "conversation.canceled", guild);
         channel.sendMessage(message).queue();
     }
 
@@ -106,7 +127,7 @@ public class ConversationService extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (!event.isAcknowledged()) event.deferEdit().queue();
 
-        var location = UserChannelKey.of(event.getUser(), event.getTextChannel());
+        var location = UserChannelKey.of(event.getUser(), event.getMessageChannel());
         if (button.containsKey(location)) {
             var dialog = button.get(location);
             if (dialog.first != event.getMessageIdLong()) return;
@@ -115,12 +136,12 @@ public class ConversationService extends ListenerAdapter {
 
             switch (result.type()) {
                 case PROCEED -> resolveButton(location);
-                case FINISH -> endConversation(location, event.getTextChannel(), true);
+                case FINISH -> endConversation(location, event.getMessageChannel(), true);
             }
         }
     }
 
     public void registerButtons(Message message, Conversation conversation) {
-        button.put(UserChannelKey.of(conversation.owner(), message.getTextChannel()), Pair.of(message.getIdLong(), conversation));
+        button.put(UserChannelKey.of(conversation.owner(), message.getChannel()), Pair.of(message.getIdLong(), conversation));
     }
 }
