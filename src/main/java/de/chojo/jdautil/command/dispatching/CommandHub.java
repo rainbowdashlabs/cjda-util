@@ -186,7 +186,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         var language = localizer.getGuildLocale(guild);
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
             log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
-            buildGuildPriviledges(guild);
+            buildGuildPriviledgesSilent(guild);
         }, err -> {
             if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;
@@ -282,17 +282,22 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             privileges.add(CommandPrivilege.enable(role));
         }
 
-        privileges.add(CommandPrivilege.enable(guild.retrieveOwner().complete().getUser()));
+        guild.retrieveOwner().queue(owner -> {
+            privileges.add(CommandPrivilege.enable(owner.getUser()));
+            guild.retrieveCommands().queue(commands -> {
+                var adminCommands = commands.stream().filter(c -> !c.isDefaultEnabled()).collect(Collectors.toList());
+                Map<String, Collection<CommandPrivilege>> commandPrivileges = new HashMap<>();
+                for (var adminCommand : adminCommands) {
+                    commandPrivileges.put(adminCommand.getId(), privileges);
+                }
 
-        var adminCommands = guild.retrieveCommands().complete().stream().filter(c -> !c.isDefaultEnabled()).collect(Collectors.toList());
-
-        Map<String, Collection<CommandPrivilege>> commandPrivileges = new HashMap<>();
-        for (var adminCommand : adminCommands) {
-            commandPrivileges.put(adminCommand.getId(), privileges);
-        }
-
-        guild.updateCommandPrivileges(commandPrivileges).complete();
-        log.debug("Update done. Set restricted commands to {} priviledges", privileges.size());
+                guild.updateCommandPrivileges(commandPrivileges).queue(succ -> {
+                    log.debug("Update done. Set restricted commands to {} priviledges", privileges.size());
+                }, err -> {
+                    log.error("Could not update guild priviledges for guild {}", Guilds.prettyName(guild), err);
+                });
+            }, err -> ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
+        }, err -> ErrorResponseException.ignore(ErrorResponse.UNKNOWN_USER));
     }
 
     public static class Builder<T extends SimpleCommand> {
