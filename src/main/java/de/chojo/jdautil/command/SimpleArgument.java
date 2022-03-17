@@ -15,7 +15,7 @@ public class SimpleArgument {
     private final boolean required;
     private final boolean autoComplete;
 
-    private SimpleArgument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
+    SimpleArgument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
         this.type = type;
         this.name = name;
         this.description = description;
@@ -27,7 +27,7 @@ public class SimpleArgument {
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
      */
     @Deprecated(forRemoval = true)
-    public static SimpleArgument of(OptionType type, String name, String description, boolean required) {
+    public static SimpleArgument of(OptionType type, String name, String description,boolean required) {
         return new SimpleArgument(type, name, description, required, false);
     }
 
@@ -35,7 +35,7 @@ public class SimpleArgument {
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
      */
     @Deprecated(forRemoval = true)
-    public static SimpleArgument of(OptionType type, String name, String description) {
+    public static SimpleArgument of(OptionType type, String name,String description) {
         return new SimpleArgument(type, name, description, false, false);
     }
 
@@ -43,12 +43,12 @@ public class SimpleArgument {
         return name;
     }
 
-    public String description() {
-        return description;
-    }
-
     public boolean isRequired() {
         return required;
+    }
+
+    public String description() {
+        return description;
     }
 
     public OptionType type() {
@@ -59,35 +59,44 @@ public class SimpleArgument {
         return autoComplete;
     }
 
-    public static Builder builder(OptionType type, String name, String description) {
-        return new Builder(type, name, description);
+    public static SimpleArgumentBuilder builder(OptionType type, String name, String description) {
+        return new SimpleArgumentBuilder(type, name, description);
     }
 
-    public static class Builder {
-        private final OptionType type;
-        private final String name;
-        private final String description;
-        private boolean required;
-        private boolean autoComplete;
-
-        public Builder(OptionType type, String name, String description) {
-            this.type = type;
-            this.name = name;
-            this.description = description;
-        }
-
-        public Builder asRequired() {
-            required = true;
-            return this;
-        }
-
-        public Builder withAutoComplete() {
-            autoComplete = true;
-            return this;
-        }
-
-        public SimpleArgument build() {
-            return new SimpleArgument(type, name, description, required, autoComplete);
-        }
+    public static SimpleArgumentBuilder string(String name, String description) {
+        return builder(OptionType.STRING, name, description);
     }
+
+    public static SimpleArgumentBuilder integer(String name, String description) {
+        return builder(OptionType.INTEGER, name, description);
+    }
+
+    public static SimpleArgumentBuilder bool(String name, String description) {
+        return builder(OptionType.BOOLEAN, name, description);
+    }
+
+    public static SimpleArgumentBuilder user(String name, String description) {
+        return builder(OptionType.USER, name, description);
+    }
+
+    public static SimpleArgumentBuilder role(String name, String description) {
+        return builder(OptionType.ROLE, name, description);
+    }
+
+    public static SimpleArgumentBuilder attachment(String name, String description) {
+        return builder(OptionType.ATTACHMENT, name, description);
+    }
+
+    public static SimpleArgumentBuilder channel(String name, String description) {
+        return builder(OptionType.CHANNEL, name, description);
+    }
+
+    public static SimpleArgumentBuilder number(String name, String description) {
+        return builder(OptionType.NUMBER, name, description);
+    }
+
+    public static SimpleArgumentBuilder mentionable(String name, String description) {
+        return builder(OptionType.MENTIONABLE, name, description);
+    }
+
 }
