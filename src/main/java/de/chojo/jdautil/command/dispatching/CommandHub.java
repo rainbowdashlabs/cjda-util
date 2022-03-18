@@ -120,16 +120,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
     }
 
-    @SafeVarargs
-    public final void registerCommands(Command... commands) {
-        for (var command : commands) {
-            this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
-            for (var alias : command.alias()) {
-                this.commands.put(alias.toLowerCase(Locale.ROOT), command);
-            }
-        }
-    }
-
     private void updateCommands() {
         log.info("Updating slash commands.");
         for (var language : localizer.languages()) {
@@ -210,7 +200,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
 
     public boolean canExecute(GenericInteractionCreateEvent event, Command command) {
-        return command.permission() == Permission.UNKNOWN || permissionCheck.apply(event, command);
+        return !command.needsPermission() ||  permissionCheck.apply(event, command);
     }
 
     public Optional<Command> getCommand(String name) {
@@ -307,10 +297,10 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         private ILocalizer localizer = ILocalizer.DEFAULT;
         private BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
             if (eventWrapper.isFromGuild()) {
-                if (command.permission() == Permission.UNKNOWN) {
+                if (!command.needsPermission()) {
                     return true;
                 }
-                return eventWrapper.getMember().hasPermission(command.permission());
+                return eventWrapper.getMember().hasPermission(Permission.ADMINISTRATOR);
             }
             return true;
         };
@@ -355,9 +345,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         public final Builder<T> withCommands(T... commands) {
             for (var command : commands) {
                 this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
-                for (var alias : command.alias()) {
-                    this.commands.put(alias.toLowerCase(Locale.ROOT), command);
-                }
             }
             return this;
         }
