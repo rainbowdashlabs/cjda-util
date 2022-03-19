@@ -6,12 +6,12 @@
 
 package de.chojo.jdautil.command.dispatching;
 
+import de.chojo.jdautil.buttons.ButtonService;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
-import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.localization.Localizer;
 import de.chojo.jdautil.localization.util.Language;
+import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.SlashCommandContext;
@@ -34,11 +34,9 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,12 +59,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
     private final Function<Guild, List<Long>> managerRoleSupplier;
+    private final ButtonService buttons;
+    private final PageService pages;
 
     public CommandHub(ShardManager shardManager,
                       Map<String, Command> commands, BiFunction<GenericInteractionCreateEvent, Command, Boolean> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
-                      Function<Guild, List<Long>> managerRoleSupplier) {
+                      Function<Guild, List<Long>> managerRoleSupplier, ButtonService buttons, PageService pages) {
         this.shardManager = shardManager;
         this.commands = commands;
         this.permissionCheck = permissionCheck;
@@ -75,10 +75,12 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.useSlashGlobalCommands = useSlashGlobalCommands;
         this.commandErrorHandler = commandErrorHandler;
         this.managerRoleSupplier = managerRoleSupplier;
+        this.buttons = buttons;
+        this.pages = pages;
     }
 
-    public static <T extends SimpleCommand> Builder<T> builder(ShardManager shardManager) {
-        return new Builder<>(shardManager);
+    public static <T extends SimpleCommand> CommandHubBuilder<T> builder(ShardManager shardManager) {
+        return new CommandHubBuilder<>(shardManager);
     }
 
     @Override
@@ -90,7 +92,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onTabcomplete(event, new SlashCommandContext(conversationService, ILocalizer.DEFAULT.getContextLocalizer(event.getGuild())));
+            command.onTabcomplete(event, new SlashCommandContext(null, conversationService, ILocalizer.DEFAULT.getContextLocalizer(event.getGuild()), buttons, pages));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -106,7 +108,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onSlashCommand(event, new SlashCommandContext(conversationService, localizer.getContextLocalizer(event.getGuild())));
+            command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -120,7 +122,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
     }
 
-    private void updateCommands() {
+    void updateCommands() {
         log.info("Updating slash commands.");
         for (var language : localizer.languages()) {
             log.info("Creating command data for {} language", language.getCode());
@@ -200,7 +202,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
 
     public boolean canExecute(GenericInteractionCreateEvent event, Command command) {
-        return !command.needsPermission() ||  permissionCheck.apply(event, command);
+        return !command.needsPermission() || permissionCheck.apply(event, command);
     }
 
     public Optional<Command> getCommand(String name) {
@@ -290,127 +292,4 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }, err -> ErrorResponseException.ignore(ErrorResponse.UNKNOWN_USER));
     }
 
-    public static class Builder<T extends SimpleCommand> {
-        private final ShardManager shardManager;
-        private final Map<String, T> commands = new HashMap<>();
-        @NotNull
-        private ILocalizer localizer = ILocalizer.DEFAULT;
-        private BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
-            if (eventWrapper.isFromGuild()) {
-                if (!command.needsPermission()) {
-                    return true;
-                }
-                return eventWrapper.getMember().hasPermission(Permission.ADMINISTRATOR);
-            }
-            return true;
-        };
-        private boolean withConversations;
-        private boolean useSlashGlobalCommands = true;
-        private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
-                (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
-        private Function<Guild, List<Long>> managerRoleSupplier = guild -> Collections.emptyList();
-
-        private Builder(ShardManager shardManager) {
-            this.shardManager = shardManager;
-        }
-
-        /**
-         * This will make slash commands only available on these guilds
-         *
-         * @return builder instance
-         */
-        public Builder<T> useGuildCommands() {
-            useSlashGlobalCommands = false;
-            return this;
-        }
-
-        /**
-         * Adds a localizer to the command hub. This will allow to use {@link ContextLocalizer}.
-         *
-         * @param localizer localizer instance
-         * @return builder instance
-         */
-        public Builder<T> withLocalizer(Localizer localizer) {
-            this.localizer = localizer;
-            return this;
-        }
-
-        /**
-         * Register commands
-         *
-         * @param commands commands to register
-         * @return builder instance
-         */
-        @SafeVarargs
-        public final Builder<T> withCommands(T... commands) {
-            for (var command : commands) {
-                this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
-            }
-            return this;
-        }
-
-        /**
-         * Adds a permission check. This check determines if a user is allowed to execute a command.
-         *
-         * @param permissionCheck checks if a user can execute the command
-         * @return builder instance
-         */
-        public Builder<T> withPermissionCheck(BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck) {
-            this.permissionCheck = permissionCheck;
-            return this;
-        }
-
-        /**
-         * Adds a conversation system to the command hub
-         *
-         * @return builder instance
-         */
-        public Builder<T> withConversationSystem() {
-            this.withConversations = true;
-            return this;
-        }
-
-        /**
-         * Adds a command error handler to the hub, which handles uncatched exceptions. Used for loggin.
-         *
-         * @param commandErrorHandler handler for errors
-         * @return builder instance
-         */
-        public Builder<T> withCommandErrorHandler(BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler) {
-            this.commandErrorHandler = commandErrorHandler;
-            return this;
-        }
-
-        /**
-         * Adds a manager role supplier which provides the manager roles for a guild.
-         *
-         * @param managerRoleSupplier handler for errors
-         * @return builder instance
-         */
-        public Builder<T> withManagerRole(Function<Guild, List<Long>> managerRoleSupplier) {
-            this.managerRoleSupplier = managerRoleSupplier;
-            return this;
-        }
-
-        /**
-         * Build the command hub.
-         * <p>
-         * This will register the command hub as a listener.
-         * <p>
-         * This will also register slash commands, if slash commands are active.
-         *
-         * @return command hub instance
-         */
-        public CommandHub<T> build() {
-            ConversationService conversationService = null;
-            if (withConversations) {
-                conversationService = new ConversationService(localizer);
-                shardManager.addEventListener(conversationService);
-            }
-            var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer, useSlashGlobalCommands, commandErrorHandler, managerRoleSupplier);
-            shardManager.addEventListener(commandListener);
-            commandListener.updateCommands();
-            return commandListener;
-        }
-    }
 }
