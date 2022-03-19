@@ -90,7 +90,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onTabcomplete(event, new SlashCommandContext(conversationService));
+            command.onTabcomplete(event, new SlashCommandContext(conversationService, ILocalizer.DEFAULT.getContextLocalizer(event.getGuild())));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -106,7 +106,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onSlashCommand(event, new SlashCommandContext(conversationService));
+            command.onSlashCommand(event, new SlashCommandContext(conversationService, localizer.getContextLocalizer(event.getGuild())));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);
