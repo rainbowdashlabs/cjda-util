@@ -32,4 +32,8 @@ public class SlashCommandContext {
     public String localize(String message, Replacement... replacements) {
         return contextLocalizer.localize(message, replacements);
     }
+
+    public ContextLocalizer localizer() {
+        return contextLocalizer;
+    }
 }
