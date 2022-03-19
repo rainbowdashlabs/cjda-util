@@ -18,16 +18,16 @@ public class CommandMetaBuilder {
         this.description = description;
     }
 
-    public CommandMetaBuilder addArguments(SimpleArgument argument) {
+    public CommandMetaBuilder addArgument(SimpleArgument argument) {
         this.argument.add(argument);
         return this;
     }
-    public CommandMetaBuilder addArguments(SimpleArgumentBuilder argument) {
+    public CommandMetaBuilder addArgument(SimpleArgumentBuilder argument) {
         this.argument.add(argument.build());
         return this;
     }
 
-    public CommandMetaBuilder addSubCommands(String name, String description, SimpleArgument[] arguments) {
+    public CommandMetaBuilder addSubCommand(String name, String description, SimpleArgument... arguments) {
         this.subCommands.add(name, description, arguments);
         return this;
     }
