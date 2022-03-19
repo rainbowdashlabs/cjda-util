@@ -8,7 +8,8 @@ package de.chojo.jdautil.buttons;
 
 import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.pagination.PageServiceBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -55,6 +56,17 @@ public class ButtonService extends ListenerAdapter {
                 .setEphemeral(false)
                 .addActionRows(rows)
                 .flatMap(InteractionHook::retrieveOriginal)
+                .queue(mess -> cache.put(mess.getIdLong(), new ButtonContainer(List.of(entries), user)));
+    }
+
+    public void register(MessageEmbed embed, Guild guild, MessageChannel messageChannel, @Nullable User user, ButtonEntry... entries) {
+        var buttons = Arrays.stream(entries)
+                .map(ButtonEntry::button)
+                .map(button -> button.withLabel(localizer.localize(button.getLabel(), guild)))
+                .collect(Collectors.toList());
+        var rows = ActionRow.partitionOf(buttons);
+        messageChannel.sendMessageEmbeds(embed)
+                .setActionRows(rows)
                 .queue(mess -> cache.put(mess.getIdLong(), new ButtonContainer(List.of(entries), user)));
     }
 }

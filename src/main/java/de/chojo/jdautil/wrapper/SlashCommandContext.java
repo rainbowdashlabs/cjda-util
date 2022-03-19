@@ -14,11 +14,10 @@ import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.util.Replacement;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.jetbrains.annotations.Nullable;
 
 public class SlashCommandContext {
@@ -49,14 +48,21 @@ public class SlashCommandContext {
     }
 
     public void registerButtons(MessageEmbed embed, @Nullable User user, ButtonEntry... entries) {
-        if(event == null){
+        if (event == null) {
             throw new UnsupportedOperationException("buttons can be only used on interactions");
         }
         buttons.register(embed, event, user, entries);
     }
 
+    public void registerButtons(MessageEmbed embed, MessageChannel messageChannel, @Nullable User user, ButtonEntry... entries) {
+        if (event == null) {
+            throw new UnsupportedOperationException("buttons can be only used on interactions");
+        }
+        buttons.register(embed, event.getGuild(), messageChannel, user, entries);
+    }
+
     public void registerPage(IPageBag page) {
-        if(event == null){
+        if (event == null) {
             throw new UnsupportedOperationException("Pages can be only used on interactions");
         }
         pages.registerPage(event, page);
