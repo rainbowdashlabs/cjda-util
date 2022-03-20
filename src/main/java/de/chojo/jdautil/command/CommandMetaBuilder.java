@@ -6,12 +6,17 @@
 
 package de.chojo.jdautil.command;
 
+import de.chojo.jdautil.command.dispatching.CommandPermissionCheck;
+import de.chojo.jdautil.command.dispatching.ManagerRoles;
+
 public class CommandMetaBuilder {
     private String name;
     private String description;
     private ArgumentBuilder argument = SimpleCommand.argsBuilder();
     private SubCommandBuilder subCommands = SimpleCommand.subCommandBuilder();
     private boolean defaultEnabled = true;
+    private CommandPermissionCheck permissionCheck;
+    private ManagerRoles managerRoles;
 
     public CommandMetaBuilder(String name, String description) {
         this.name = name;
@@ -22,6 +27,7 @@ public class CommandMetaBuilder {
         this.argument.add(argument);
         return this;
     }
+
     public CommandMetaBuilder addArgument(SimpleArgumentBuilder argument) {
         this.argument.add(argument.build());
         return this;
@@ -37,7 +43,17 @@ public class CommandMetaBuilder {
         return this;
     }
 
+    public CommandMetaBuilder withPermissionCheck(CommandPermissionCheck permissionCheck) {
+        this.permissionCheck = permissionCheck;
+        return withPermission();
+    }
+
+    public CommandMetaBuilder withManagerRoles(ManagerRoles managerRoles) {
+        this.managerRoles = managerRoles;
+        return withPermission();
+    }
+
     public CommandMeta build() {
-        return new CommandMeta(name, description, argument.build(), subCommands.build(), defaultEnabled);
+        return new CommandMeta(name, description, argument.build(), subCommands.build(), defaultEnabled, permissionCheck, managerRoles);
     }
 }

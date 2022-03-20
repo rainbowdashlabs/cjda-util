@@ -8,6 +8,7 @@ package de.chojo.jdautil.command.dispatching;
 
 import de.chojo.jdautil.buttons.ButtonService;
 import de.chojo.jdautil.buttons.ButtonServiceBuilder;
+import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
@@ -15,21 +16,16 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -39,9 +35,9 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private final Map<String, T> commands = new HashMap<>();
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
-    private BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck = (eventWrapper, command) -> {
+    private PermissionCheck<CommandMeta> permissionCheck = (eventWrapper, command) -> {
         if (eventWrapper.isFromGuild()) {
-            if (!command.needsPermission()) {
+            if (command.defaultEnabled()) {
                 return true;
             }
             return eventWrapper.getMember().hasPermission(Permission.ADMINISTRATOR);
@@ -52,7 +48,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private boolean useSlashGlobalCommands = true;
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
-    private Function<Guild, List<Long>> managerRoleSupplier = guild -> Collections.emptyList();
+    private ManagerRoles managerRoles = guild -> Collections.emptyList();
     private PageServiceBuilder pagination;
     private ButtonServiceBuilder buttonService;
 
@@ -90,7 +86,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     @SafeVarargs
     public final CommandHubBuilder<T> withCommands(T... commands) {
         for (var command : commands) {
-            this.commands.put(command.command().toLowerCase(Locale.ROOT), command);
+            this.commands.put(command.meta().name().toLowerCase(Locale.ROOT), command);
         }
         return this;
     }
@@ -101,7 +97,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
      * @param permissionCheck checks if a user can execute the command
      * @return builder instance
      */
-    public CommandHubBuilder<T> withPermissionCheck(BiFunction<GenericInteractionCreateEvent, T, Boolean> permissionCheck) {
+    public CommandHubBuilder<T> withPermissionCheck(PermissionCheck<CommandMeta> permissionCheck) {
         this.permissionCheck = permissionCheck;
         return this;
     }
@@ -130,11 +126,11 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     /**
      * Adds a manager role supplier which provides the manager roles for a guild.
      *
-     * @param managerRoleSupplier handler for errors
+     * @param managerRoles handler for errors
      * @return builder instance
      */
-    public CommandHubBuilder<T> withManagerRole(Function<Guild, List<Long>> managerRoleSupplier) {
-        this.managerRoleSupplier = managerRoleSupplier;
+    public CommandHubBuilder<T> withManagerRole(ManagerRoles managerRoles) {
+        this.managerRoles = managerRoles;
         return this;
     }
 
@@ -176,7 +172,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             shardManager.addEventListener(pages);
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, managerRoleSupplier, buttons, pages);
+                useSlashGlobalCommands, commandErrorHandler, managerRoles, buttons, pages);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

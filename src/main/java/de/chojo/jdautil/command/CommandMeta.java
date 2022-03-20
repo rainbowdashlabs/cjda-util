@@ -6,8 +6,13 @@
 
 package de.chojo.jdautil.command;
 
+import de.chojo.jdautil.command.dispatching.CommandPermissionCheck;
+import de.chojo.jdautil.command.dispatching.ManagerRoles;
+import de.chojo.jdautil.command.dispatching.PermissionCheck;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -22,13 +27,17 @@ public class CommandMeta {
     private final SimpleArgument[] argument;
     private final SimpleSubCommand[] subCommands;
     private final boolean defaultEnabled;
+    private final CommandPermissionCheck permissionCheck;
+    private final ManagerRoles managerRoles;
 
-    CommandMeta(String name, String description, SimpleArgument[] argument, SimpleSubCommand[] subCommands, boolean defaultEnabled) {
+    CommandMeta(String name, String description, SimpleArgument[] argument, SimpleSubCommand[] subCommands, boolean defaultEnabled, CommandPermissionCheck permissionCheck, ManagerRoles managerRoles) {
         this.name = name;
         this.description = description;
         this.argument = argument;
         this.subCommands = subCommands;
         this.defaultEnabled = defaultEnabled;
+        this.permissionCheck = permissionCheck;
+        this.managerRoles = managerRoles;
     }
 
     public static CommandMetaBuilder builder(String name, String description) {
@@ -53,6 +62,14 @@ public class CommandMeta {
 
     public boolean defaultEnabled() {
         return defaultEnabled;
+    }
+
+    public boolean hasPermission(GenericInteractionCreateEvent event, PermissionCheck<CommandMeta> check) {
+        return permissionCheck == null ? check.hasPermission(event, this) : permissionCheck.hasPermission(event);
+    }
+
+    public List<Long> managerRole(Guild guild, ManagerRoles supplier) {
+        return managerRoles == null ? supplier.roles(guild) : managerRoles.roles(guild);
     }
 
     public CommandData toCommandData(ILocalizer localizer, Language lang) {

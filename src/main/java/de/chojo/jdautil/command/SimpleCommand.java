@@ -31,33 +31,61 @@ public abstract class SimpleCommand {
         return new ArgumentBuilder();
     }
 
+    public CommandMeta meta() {
+        return meta;
+    }
+
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public String command() {
         return meta.name();
     }
 
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public String description() {
         return meta.description();
     }
 
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public SimpleArgument[] args() {
         return meta.argument();
     }
 
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public SimpleSubCommand[] subCommands() {
         return meta.subCommands();
     }
 
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public boolean needsPermission() {
         return meta.defaultEnabled();
     }
 
-    public abstract void onSlashCommand(SlashCommandInteractionEvent event, SlashCommandContext context);
-
+    /**
+     * @deprecated Replaced by {@link #meta()}
+     */
+    @Deprecated(forRemoval = true)
     public SimpleSubCommand[] getSubCommands() {
         return meta.subCommands();
     }
 
-    public void onTabcomplete(CommandAutoCompleteInteractionEvent event, SlashCommandContext slashCommandContext) {
+    public abstract void onSlashCommand(SlashCommandInteractionEvent event, SlashCommandContext context);
+
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event, SlashCommandContext slashCommandContext) {
 
     }
 
