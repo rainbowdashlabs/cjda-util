@@ -94,7 +94,7 @@ public class CommandMeta {
             throw new IllegalStateException("Command " + name + " has subcommands and arguments.");
         }
 
-        commandData.setDefaultEnabled(!defaultEnabled());
+        commandData.setDefaultEnabled(defaultEnabled());
 
         return commandData;
     }
