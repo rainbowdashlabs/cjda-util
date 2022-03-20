@@ -39,11 +39,9 @@ public class ButtonService extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        event.getHook().retrieveOriginal().queue(message -> {
-            var buttonContainer = cache.getIfPresent(message.getIdLong());
-            if (buttonContainer == null || !buttonContainer.canInteract(event.getUser())) return;
-            buttonContainer.invoke(event);
-        });
+        var buttonContainer = cache.getIfPresent(event.getMessageIdLong());
+        if (buttonContainer == null || !buttonContainer.canInteract(event.getUser())) return;
+        buttonContainer.invoke(event);
     }
 
     public void register(MessageEmbed embed, IReplyCallback event, @Nullable User user, ButtonEntry... entries) {
