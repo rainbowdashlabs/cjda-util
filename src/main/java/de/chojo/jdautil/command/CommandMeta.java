@@ -74,7 +74,7 @@ public class CommandMeta {
 
     public CommandData toCommandData(ILocalizer localizer, Language lang) {
         var commandData = Commands.slash(name, localizer.localize(description, lang));
-        if (subCommands() != null) {
+        if (subCommands().length != 0) {
             List<SubcommandData> subcommands = new ArrayList<>(subCommands().length);
             for (var subCommand : subCommands()) {
                 var subCmdData = new SubcommandData(subCommand.name(), localizer.localize(subCommand.description(), lang));
@@ -84,14 +84,14 @@ public class CommandMeta {
                 subcommands.add(subCmdData);
             }
             commandData.addSubcommands(subcommands);
-        } else if (argument() != null) {
+        } else if (argument().length != 0) {
             for (var arg : argument()) {
                 commandData.addOption(arg.type(), arg.name(), localizer.localize(arg.description(), lang), arg.isRequired(), arg.autoComplete());
             }
         }
 
-        if (argument() != null && subCommands() != null) {
-            throw new IllegalStateException("Commands can't have subcommands and arguments... Sorry.");
+        if (argument().length != 0 && subCommands().length != 0) {
+            throw new IllegalStateException("Command " + name + " has subcommands and arguments.");
         }
 
         commandData.setDefaultEnabled(!defaultEnabled());
@@ -104,7 +104,7 @@ public class CommandMeta {
         if (this == o) return true;
         if (!(o instanceof CommandMeta)) return false;
 
-        CommandMeta that = (CommandMeta) o;
+        var that = (CommandMeta) o;
 
         if (defaultEnabled != that.defaultEnabled) return false;
         if (!name.equals(that.name)) return false;
@@ -117,7 +117,7 @@ public class CommandMeta {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        var result = name.hashCode();
         result = 31 * result + description.hashCode();
         result = 31 * result + Arrays.hashCode(argument);
         result = 31 * result + Arrays.hashCode(subCommands);
