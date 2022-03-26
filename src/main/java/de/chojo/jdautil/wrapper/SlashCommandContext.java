@@ -8,6 +8,7 @@ package de.chojo.jdautil.wrapper;
 
 import de.chojo.jdautil.buttons.ButtonEntry;
 import de.chojo.jdautil.buttons.ButtonService;
+import de.chojo.jdautil.command.dispatching.CommandHub;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
@@ -26,13 +27,15 @@ public class SlashCommandContext {
     private final ContextLocalizer contextLocalizer;
     private final ButtonService buttons;
     private final PageService pages;
+    private final CommandHub<?> commandHub;
 
-    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, ButtonService buttons, PageService pages) {
+    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, ButtonService buttons, PageService pages, CommandHub<?> commandHub) {
         this.event = event;
         this.conversationService = conversationService;
         this.contextLocalizer = contextLocalizer;
         this.buttons = buttons;
         this.pages = pages;
+        this.commandHub = commandHub;
     }
 
     public ConversationService conversationService() {
@@ -70,5 +73,9 @@ public class SlashCommandContext {
 
     public ContextLocalizer localizer() {
         return contextLocalizer;
+    }
+
+    public CommandHub<?> commandHub() {
+        return commandHub;
     }
 }
