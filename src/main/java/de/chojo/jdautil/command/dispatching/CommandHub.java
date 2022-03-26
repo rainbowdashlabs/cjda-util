@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.api.events.interaction.GenericAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -180,7 +179,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         var language = localizer.getGuildLocale(guild);
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
             log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
-            buildGuildPriviledgesSilent(guild);
+            buildGuildPrivilegesSilent(guild);
         }, err -> {
             if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;
@@ -216,26 +215,26 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
     /**
-     * Refresh the guild command priviledges for all commands on all guilds
+     * Refresh the guild command privileges for all commands on all guilds
      */
-    public void buildGuildPriviledges() {
+    public void buildGuildPrivileges() {
         for (var shard : shardManager.getShards()) {
-            log.debug("Refreshing command priviledges for {} guild on shard {}", shard.getGuilds().size(), shard.getShardInfo().getShardId());
+            log.debug("Refreshing command privileges for {} guild on shard {}", shard.getGuilds().size(), shard.getShardInfo().getShardId());
             for (var guild : shard.getGuilds()) {
-                buildGuildPriviledgesSilent(guild);
+                buildGuildPrivilegesSilent(guild);
             }
         }
     }
 
     /**
-     * Refresh the guild command priviledges for all commands on this guild.
+     * Refresh the guild command privileges for all commands on this guild.
      * Thius method catches any error.
      *
      * @param guild guild
      */
-    public void buildGuildPriviledgesSilent(Guild guild) {
+    public void buildGuildPrivilegesSilent(Guild guild) {
         try {
-            buildGuildPriviledges(guild);
+            buildGuildPrivileges(guild);
         } catch (ErrorResponseException e) {
             if (e.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
                 log.debug("Missing access on slash commands for guild {}", Guilds.prettyName(guild));
@@ -243,17 +242,17 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             }
             log.error("Error on updating slash commands", e);
         } catch (Exception e) {
-            log.error("Could not update guild priviledges for guild {}", Guilds.prettyName(guild), e);
+            log.error("Could not update guild privileges for guild {}", Guilds.prettyName(guild), e);
         }
     }
 
     /**
-     * Refresh the guild command priviledges for all commands on all guilds
-     * Use {@link #buildGuildPriviledgesSilent(Guild)} if you dont care about errors.
+     * Refresh the guild command privileges for all commands on all guilds
+     * Use {@link #buildGuildPrivilegesSilent(Guild)} if you dont care about errors.
      *
      * @param guild guild
      */
-    public void buildGuildPriviledges(Guild guild) {
+    public void buildGuildPrivileges(Guild guild) {
         log.debug("Refreshing command privileges for guild {}", Guilds.prettyName(guild));
         var adminRoles = guild.getRoles().stream()
                 .filter(r -> r.hasPermission(Permission.ADMINISTRATOR))
@@ -272,7 +271,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                 guild.updateCommandPrivileges(commandPrivileges).queue(succ -> {
                     log.debug("Update done. Restricted {} commands.", adminCommands.size());
                 }, err -> {
-                    log.error("Could not update guild priviledges for guild {}", Guilds.prettyName(guild), err);
+                    log.error("Could not update guild privileges for guild {}", Guilds.prettyName(guild), err);
                 });
             }, err -> ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
         }, err -> ErrorResponseException.ignore(ErrorResponse.UNKNOWN_USER));
