@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,8 +34,8 @@ public class ButtonService extends ListenerAdapter {
         this.localizer = localizer;
     }
 
-    public static ButtonServiceBuilder builder() {
-        return new ButtonServiceBuilder();
+    public static ButtonServiceBuilder builder(ShardManager shardManager) {
+        return new ButtonServiceBuilder(shardManager);
     }
 
     @Override

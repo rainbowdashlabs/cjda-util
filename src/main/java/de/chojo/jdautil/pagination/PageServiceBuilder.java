@@ -78,7 +78,7 @@ public class PageServiceBuilder {
      * @param cache cache instance
      * @return builder instance
      */
-    public PageServiceBuilder cache(Cache<Long, IPageBag> cache) {
+    public PageServiceBuilder withCache(Cache<Long, IPageBag> cache) {
         this.cache = cache;
         return this;
     }
@@ -89,7 +89,7 @@ public class PageServiceBuilder {
      * @param cache cache builder instance
      * @return builder instance
      */
-    public PageServiceBuilder cache(Consumer<CacheBuilder<Object, Object>> cache) {
+    public PageServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache) {
         var builder = CacheBuilder.newBuilder();
         cache.accept(builder);
         this.cache = builder.build();
@@ -102,7 +102,7 @@ public class PageServiceBuilder {
      * @param localizer localizer instance
      * @return builder instance
      */
-    public PageServiceBuilder localizer(ILocalizer localizer) {
+    public PageServiceBuilder withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }

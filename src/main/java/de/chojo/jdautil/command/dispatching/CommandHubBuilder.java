@@ -141,7 +141,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     }
 
     public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceBuilder> builder) {
-        buttonService = ButtonService.builder();
+        buttonService = ButtonService.builder(shardManager);
         builder.accept(buttonService);
         return this;
     }
@@ -163,13 +163,11 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         }
         ButtonService buttons = null;
         if (buttonService != null) {
-            buttons = buttonService.setLocalizer(localizer).build();
-            shardManager.addEventListener(buttons);
+            buttons = buttonService.withLocalizer(localizer).build();
         }
         PageService pages = null;
         if (pagination != null) {
-            pages = pagination.localizer(localizer).build();
-            shardManager.addEventListener(pages);
+            pages = pagination.withLocalizer(localizer).build();
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
                 useSlashGlobalCommands, commandErrorHandler, managerRoles, buttons, pages);
