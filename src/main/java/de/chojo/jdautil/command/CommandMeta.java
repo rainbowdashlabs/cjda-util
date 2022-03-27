@@ -79,7 +79,7 @@ public class CommandMeta {
             for (var subCommand : subCommands()) {
                 var subCmdData = new SubcommandData(subCommand.name(), localizer.localize(subCommand.description(), lang));
                 for (var arg : subCommand.args()) {
-                    subCmdData.addOption(arg.type(), arg.name(), localizer.localize(arg.description(), lang), arg.isRequired());
+                    subCmdData.addOption(arg.type(), arg.name(), localizer.localize(arg.description(), lang), arg.isRequired(), arg.autoComplete());
                 }
                 subcommands.add(subCmdData);
             }
