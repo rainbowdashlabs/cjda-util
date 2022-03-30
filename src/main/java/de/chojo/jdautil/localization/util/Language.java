@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class Language {
     public static final Language ENGLISH = Language.of("en_US", "English");
-    public static final Language GERMAN = Language.of("de_De", "Deutsch");
+    public static final Language GERMAN = Language.of("de_DE", "Deutsch");
 
     String code;
     String language;

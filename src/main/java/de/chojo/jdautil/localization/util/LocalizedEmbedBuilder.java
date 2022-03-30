@@ -22,6 +22,7 @@ import java.time.temporal.TemporalAccessor;
  * Wrapper for auto localization of embeds.
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
+    private static final Replacement[] NONE = new Replacement[0];
     private final ContextLocalizer localizer;
 
     /**
@@ -41,23 +42,26 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         this.localizer = localizer.getContextLocalizer(guild);
     }
 
-    private String localize(String message) {
-        return localizer.localize(message);
+    private String localize(String message, Replacement... replacements) {
+        return localizer.localize(message, replacements);
+    }
+
+    public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline, Replacement... replacements) {
+        super.addField(localize(name, replacements), localize(value, replacements), inline);
+        return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline) {
-        super.addField(localize(name), localize(value), inline);
-        return this;
+        return addField(name, value, inline, new Replacement[0]);
     }
 
     @Nonnull
     @Override
     @Deprecated
     public LocalizedEmbedBuilder addField(@Nullable MessageEmbed.Field field) {
-        super.addField(field);
-        return this;
+        return addField(field.getName(), field.getValue(), field.isInline());
     }
 
     /**
@@ -67,34 +71,55 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @return the builder after the field has been set
      */
     public LocalizedEmbedBuilder addField(LocalizedField field) {
-        return addField(field.getField());
+        super.addField(field.getField());
+        return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title) {
-        super.setTitle(localize(title));
+        return setTitle(title, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setTitle(@Nullable String title, Replacement... replacements) {
+        super.setTitle(localize(title, replacements));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url) {
-        super.setTitle(localize(title), url);
+        return setTitle(localize(title), url, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url, Replacement... replacements) {
+        super.setTitle(localize(title, replacements), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text) {
-        super.setFooter(localize(text));
+        return setFooter(text, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setFooter(@Nullable String text, Replacement... replacements) {
+        super.setFooter(localize(text, replacements));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
-        super.setFooter(localize(text), iconUrl);
+        return setFooter(text, iconUrl, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl, Replacement... replacements) {
+        super.setFooter(localize(text, replacements), iconUrl);
         return this;
     }
 
@@ -105,14 +130,23 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @return the builder after the description has been set
      */
     public LocalizedEmbedBuilder setDescription(String text) {
-        super.setDescription(localize(text));
+        return setDescription(text, NONE);
+    }
+
+    public LocalizedEmbedBuilder setDescription(String text, Replacement... replacements) {
+        super.setDescription(localize(text, replacements));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description) {
-        super.appendDescription(localize(description.toString()));
+        return appendDescription(description.toString(), NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description, Replacement... replacements) {
+        super.appendDescription(localize(description.toString(), replacements));
         return this;
     }
 
@@ -161,21 +195,36 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name) {
-        super.setAuthor(localize(name));
+        return setAuthor(name, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setAuthor(@Nullable String name, Replacement... replacements) {
+        super.setAuthor(localize(name, replacements));
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url) {
-        super.setAuthor(localize(name), url);
+        return setAuthor(name, url, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, Replacement... replacements) {
+        super.setAuthor(localize(name, replacements), url);
         return this;
     }
 
     @Nonnull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
-        super.setAuthor(localize(name), url, iconUrl);
+        return setAuthor(name, url, iconUrl, NONE);
+    }
+
+    @Nonnull
+    public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl, Replacement... replacements) {
+        super.setAuthor(localize(name, replacements), url, iconUrl);
         return this;
     }
 

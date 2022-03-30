@@ -9,6 +9,8 @@ package de.chojo.jdautil.pagination.bag;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface IPageBag {
@@ -56,6 +58,15 @@ public interface IPageBag {
      * @return true when there is a previous page
      */
     boolean hasPrevious();
+
+    /**
+     * Get additional buttons which should be added to the page
+     *
+     * @return list fo buttons
+     */
+    default List<PageButton> buttons() {
+        return Collections.emptyList();
+    }
 
     /**
      * Build the embed for the page.
