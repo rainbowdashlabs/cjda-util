@@ -7,7 +7,6 @@
 package de.chojo.jdautil.pagination;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
@@ -15,7 +14,6 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -26,24 +24,29 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class PageService extends ListenerAdapter {
+
+    private static final Logger log = getLogger(PageService.class);
+
+    private final String previousId;
+    private final String nextId;
     private final String previousLabel;
     private final String nextLabel;
-    private final String previousText;
-    private final String nextText;
     private final Cache<Long, IPageBag> cache;
     private final ILocalizer localizer;
 
-    private PageService(String previousLabel, String nextLabel, String previousText, String nextText, Cache<Long, IPageBag> cache, ILocalizer localizer) {
+    PageService(String previousId, String nextId, String previousLabel, String nextLabel, Cache<Long, IPageBag> cache, ILocalizer localizer) {
+        this.previousId = previousId;
+        this.nextId = nextId;
         this.previousLabel = previousLabel;
         this.nextLabel = nextLabel;
-        this.previousText = previousText;
-        this.nextText = nextText;
         this.cache = cache;
         this.localizer = localizer;
     }
@@ -87,145 +90,61 @@ public class PageService extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        event.getHook().retrieveOriginal().queue(message -> {
-            var page = cache.getIfPresent(message.getIdLong());
-            if (page == null || !page.canInteract(event.getUser())) return;
+        var page = cache.getIfPresent(event.getMessageIdLong());
+        if (page == null || !page.canInteract(event.getUser())) return;
 
-            var label = event.getButton().getId();
-            if (nextLabel.equals(label) && page.hasNext()) {
-                page.scrollNext();
-                sendPage(message);
-            } else if (previousLabel.equals(label) && page.hasPrevious()) {
-                page.scrollPrevious();
-                sendPage(message);
-            }
-        });
+        if (!event.isAcknowledged()) {
+            event.deferEdit().queue();
+        }
+
+        var id = event.getButton().getId();
+        if (nextId.equals(id) && page.hasNext()) {
+            page.scrollNext();
+            sendPage(event);
+        } else if (previousId.equals(id) && page.hasPrevious()) {
+            page.scrollPrevious();
+            sendPage(event);
+        } else {
+            page.buttons().stream()
+                    .filter(button -> button.button(page).getId().equals(id))
+                    .findFirst()
+                    .ifPresent(button -> button.invoke(page, event));
+        }
     }
 
-    private ActionRow getPageButtons(Guild guild, IPageBag page) {
-        return ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, previousLabel, localizer.localize(previousText, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
+    private List<ActionRow> getPageButtons(Guild guild, IPageBag page) {
+        var buttons = page.buttons().stream()
+                .map(b -> b.button(page))
+                .map(b -> b.withLabel(localizer.localize(b.getLabel(), guild)))
+                .collect(Collectors.toList());
+        var actionRows = ActionRow.partitionOf(buttons);
+        actionRows.add(ActionRow.of(
+                Button.of(ButtonStyle.SUCCESS, previousId, localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SECONDARY, "pageService:page", page.current() + 1 + "/" + page.pages()),
-                Button.of(ButtonStyle.SUCCESS, nextLabel, localizer.localize(nextText, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
-        );
+                Button.of(ButtonStyle.SUCCESS, nextId, localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
+        ));
+        return actionRows;
     }
 
-    private void sendPage(Message message) {
-        var optPage = Optional.ofNullable(cache.getIfPresent(message.getIdLong()));
-        optPage.ifPresent(page -> page.buildPage()
+    private void sendPage(ButtonInteractionEvent event) {
+        var page = cache.getIfPresent(event.getMessageIdLong());
+        page.buildPage()
                 .thenAccept(embed -> {
-                    message.editMessageEmbeds()
-                            .setEmbeds(embed)
-                            .setActionRows(getPageButtons(message.isFromGuild() ? message.getGuild() : null, page))
+                    event.getHook()
+                            .editOriginalEmbeds(embed)
+                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page))
                             .queue();
-                }));
+                }).exceptionally(err -> {
+                    log.error("Could not build page", err);
+                    event.getHook().editOriginal("Something went wrong")
+                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page))
+                            .queue();
+                    return null;
+                });
     }
 
-    public static Builder builder(ShardManager shardManager) {
-        return new Builder(shardManager);
+    public static PageServiceBuilder builder(ShardManager shardManager) {
+        return new PageServiceBuilder(shardManager);
     }
 
-    public static class Builder {
-        private final ShardManager shardManager;
-        private String previousLabel = "pageService:previous";
-        private String nextLabel = "pageService:next";
-        private String previousText = "Previous";
-        private String nextText = "Next";
-        private Cache<Long, IPageBag> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
-        private ILocalizer localizer = ILocalizer.DEFAULT;
-
-        public Builder(ShardManager shardManager) {
-            this.shardManager = shardManager;
-        }
-
-        /**
-         * Sets the button label of the previous button.
-         *
-         * @param label button label
-         * @return builder instance
-         */
-        public Builder previousLabel(String label) {
-            this.previousLabel = label;
-            return this;
-        }
-
-        /**
-         * Sets the button label of the next button.
-         *
-         * @param label button label
-         * @return builder instance
-         */
-        public Builder nextLabel(String label) {
-            this.nextLabel = label;
-            return this;
-        }
-
-        /**
-         * Sets the text of the previous button
-         *
-         * @param text text
-         * @return builder instance
-         */
-        public Builder previousText(String text) {
-            this.previousText = text;
-            return this;
-        }
-
-        /**
-         * Sets the text of the next button
-         *
-         * @param text text
-         * @return builder instance
-         */
-        public Builder nextText(String text) {
-            this.nextText = text;
-            return this;
-        }
-
-        /**
-         * Sets the cache used to cache registered pages.
-         *
-         * @param cache cache instance
-         * @return builder instance
-         */
-        public Builder cache(Cache<Long, IPageBag> cache) {
-            this.cache = cache;
-            return this;
-        }
-
-        /**
-         * Modify a new cache builder which will be used to build the underlying cache to cache registered pages.
-         *
-         * @param cache cache builder instance
-         * @return builder instance
-         */
-        public Builder cache(Consumer<CacheBuilder<Object, Object>> cache) {
-            var builder = CacheBuilder.newBuilder();
-            cache.accept(builder);
-            this.cache = builder.build();
-            return this;
-        }
-
-        /**
-         * Defined the localizer to be used to localize the {@link #previousText} and {@link #nextText}
-         *
-         * @param localizer localizer instance
-         * @return builder instance
-         */
-        public Builder localizer(ILocalizer localizer) {
-            this.localizer = localizer;
-            return this;
-        }
-
-        /**
-         * Builds and registers the service at the provided {@link ShardManager}.
-         *
-         * @return a new page service instance
-         */
-        public PageService build() {
-            var service = new PageService(previousLabel, nextLabel, previousText, nextText, cache, localizer);
-            shardManager.addEventListener(service);
-            return service;
-        }
-    }
 }
