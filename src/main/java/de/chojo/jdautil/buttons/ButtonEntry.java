@@ -20,7 +20,7 @@ public class ButtonEntry {
         this.interactionConsumer = interactionConsumer;
     }
 
-    public static ButtonEntry of(Button button, Consumer<ButtonInteraction> event){
+    public static ButtonEntry of(Button button, Consumer<ButtonInteraction> event) {
         return new ButtonEntry(button, event);
     }
 

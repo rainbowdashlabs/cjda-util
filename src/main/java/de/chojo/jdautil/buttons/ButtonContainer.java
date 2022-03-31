@@ -20,8 +20,8 @@ class ButtonContainer {
         this.ownerId = user == null ? 0 : user.getIdLong();
     }
 
-    public void invoke(ButtonInteractionEvent event) {
-        entry.stream().filter(b -> b.button().getId().equals(event.getButton().getId())).findFirst().ifPresent(b -> b.interactionConsumer().accept(event));
+    public void invoke(ButtonInteractionEvent event, String id) {
+        entry.stream().filter(b -> id.equals(b.button().getId())).findFirst().ifPresent(b -> b.interactionConsumer().accept(event));
     }
 
     public boolean canInteract(User user) {
