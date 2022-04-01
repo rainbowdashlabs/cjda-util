@@ -10,6 +10,7 @@ import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
+import de.chojo.jdautil.parsing.ValueParser;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -51,6 +51,10 @@ public class PageService extends ListenerAdapter {
         this.localizer = localizer;
     }
 
+    public static PageServiceBuilder builder(ShardManager shardManager) {
+        return new PageServiceBuilder(shardManager);
+    }
+
     /**
      * Registers a new page on a slash command event. The page will be send as a reply to this event.
      *
@@ -58,16 +62,30 @@ public class PageService extends ListenerAdapter {
      * @param page  page
      */
     public void registerPage(IReplyCallback event, IPageBag page) {
+        registerPage(event, page, false);
+    }
+
+    /**
+     * Registers a new page on a slash command event. The page will be send as a reply to this event.
+     *
+     * @param event     event
+     * @param page      page
+     * @param ephemeral define if the message should be ephemeral
+     */
+    public void registerPage(IReplyCallback event, IPageBag page, boolean ephemeral) {
         if (page.pages() == 0) {
             throw new EmptyPageBagException();
         }
 
+        var id = nextId();
+
         page.buildPage().thenAccept(embed -> {
             event.replyEmbeds(embed)
-                    .addActionRows(getPageButtons(event.getGuild(), page))
-                    .flatMap(InteractionHook::retrieveOriginal)
-                    .queue(message -> cache.put(message.getIdLong(), page));
+                    .addActionRows(getPageButtons(event.getGuild(), page, id))
+                    .setEphemeral(ephemeral)
+                    .queue();
         });
+        cache.put(id, page);
     }
 
     /**
@@ -81,29 +99,39 @@ public class PageService extends ListenerAdapter {
             throw new EmptyPageBagException();
         }
 
+        var id = nextId();
+
         page.buildPage().thenAccept(embed -> {
             channel.sendMessageEmbeds(embed)
-                    .setActionRows(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page))
-                    .queue(message -> cache.put(message.getIdLong(), page));
+                    .setActionRows(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
+                    .queue();
         });
+        cache.put(id, page);
     }
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        var page = cache.getIfPresent(event.getMessageIdLong());
+        var split = event.getComponentId().split(":", 2);
+        var pageId = ValueParser.parseLong(split[0]);
+
+        if (pageId.isEmpty() || split.length != 2) {
+            return;
+        }
+
+        var page = cache.getIfPresent(pageId.get());
         if (page == null || !page.canInteract(event.getUser())) return;
 
         if (!event.isAcknowledged()) {
             event.deferEdit().queue();
         }
 
-        var id = event.getButton().getId();
+        var id = split[1];
         if (nextId.equals(id) && page.hasNext()) {
             page.scrollNext();
-            sendPage(event);
+            sendPage(event, pageId.get());
         } else if (previousId.equals(id) && page.hasPrevious()) {
             page.scrollPrevious();
-            sendPage(event);
+            sendPage(event, pageId.get());
         } else {
             page.buttons().stream()
                     .filter(button -> button.button(page).getId().equals(id))
@@ -112,39 +140,42 @@ public class PageService extends ListenerAdapter {
         }
     }
 
-    private List<ActionRow> getPageButtons(Guild guild, IPageBag page) {
+    private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
         var buttons = page.buttons().stream()
                 .map(b -> b.button(page))
-                .map(b -> b.withLabel(localizer.localize(b.getLabel(), guild)))
+                .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
                 .collect(Collectors.toList());
         var actionRows = ActionRow.partitionOf(buttons);
         actionRows.add(ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, previousId, localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
-                Button.of(ButtonStyle.SECONDARY, "pageService:page", page.current() + 1 + "/" + page.pages()),
-                Button.of(ButtonStyle.SUCCESS, nextId, localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
+                Button.of(ButtonStyle.SUCCESS, addId(id, previousId), localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
+                Button.of(ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
+                Button.of(ButtonStyle.SUCCESS, addId(id, nextId), localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
         ));
         return actionRows;
     }
 
-    private void sendPage(ButtonInteractionEvent event) {
-        var page = cache.getIfPresent(event.getMessageIdLong());
+    private String addId(long id, String other) {
+        return String.format("%s:%s", id, other);
+    }
+
+    private void sendPage(ButtonInteractionEvent event, long pageId) {
+        var page = cache.getIfPresent(pageId);
         page.buildPage()
                 .thenAccept(embed -> {
                     event.getHook()
                             .editOriginalEmbeds(embed)
-                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page))
+                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
                             .queue();
                 }).exceptionally(err -> {
                     log.error("Could not build page", err);
                     event.getHook().editOriginal("Something went wrong")
-                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page))
+                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
                             .queue();
                     return null;
                 });
     }
 
-    public static PageServiceBuilder builder(ShardManager shardManager) {
-        return new PageServiceBuilder(shardManager);
+    public long nextId() {
+        return System.currentTimeMillis();
     }
-
 }

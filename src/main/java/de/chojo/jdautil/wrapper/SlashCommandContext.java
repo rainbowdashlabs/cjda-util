@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.buttons.ButtonEntry;
+import de.chojo.jdautil.buttons.ButtonAction;
 import de.chojo.jdautil.buttons.ButtonService;
 import de.chojo.jdautil.command.dispatching.CommandHub;
 import de.chojo.jdautil.conversation.Conversation;
@@ -15,11 +15,7 @@ import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.util.Replacement;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import org.jetbrains.annotations.Nullable;
 
 public class SlashCommandContext {
     private final IReplyCallback event;
@@ -50,18 +46,11 @@ public class SlashCommandContext {
         return contextLocalizer.localize(message, replacements);
     }
 
-    public void registerButtons(MessageEmbed embed, @Nullable User user, ButtonEntry... entries) {
+    public void registerButtons(ButtonAction interaction) {
         if (event == null) {
             throw new UnsupportedOperationException("buttons can be only used on interactions");
         }
-        buttons.register(embed, event, user, entries);
-    }
-
-    public void registerButtons(MessageEmbed embed, MessageChannel messageChannel, @Nullable User user, ButtonEntry... entries) {
-        if (event == null) {
-            throw new UnsupportedOperationException("buttons can be only used on interactions");
-        }
-        buttons.register(embed, event.getGuild(), messageChannel, user, entries);
+        buttons.register(interaction);
     }
 
     public void registerPage(IPageBag page) {
@@ -69,6 +58,12 @@ public class SlashCommandContext {
             throw new UnsupportedOperationException("Pages can be only used on interactions");
         }
         pages.registerPage(event, page);
+    }
+    public void registerPage(IPageBag page, boolean ephemeral) {
+        if (event == null) {
+            throw new UnsupportedOperationException("Pages can be only used on interactions");
+        }
+        pages.registerPage(event, page, ephemeral);
     }
 
     public ContextLocalizer localizer() {
