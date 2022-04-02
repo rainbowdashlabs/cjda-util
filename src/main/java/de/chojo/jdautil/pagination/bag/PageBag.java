@@ -60,7 +60,7 @@ public abstract class PageBag implements IPageBag {
 
     @Override
     public void current(int page) {
-        if(page < 0 || page >= pages){
+        if (page < 0 || page >= pages) {
             throw new IndexOutOfBoundsException("The page is not contained in the bag");
         }
         currentPage = page;

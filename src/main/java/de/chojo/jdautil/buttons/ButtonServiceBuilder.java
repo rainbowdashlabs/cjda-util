@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ButtonServiceBuilder {
+    private final ShardManager shardManager;
     private Cache<Long, ButtonContainer> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
     private ILocalizer localizer = ILocalizer.DEFAULT;
-    private final ShardManager shardManager;
 
     public ButtonServiceBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -27,6 +27,7 @@ public class ButtonServiceBuilder {
         this.cache = cache;
         return this;
     }
+
     public ButtonServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache) {
         var builder = CacheBuilder.newBuilder();
         cache.accept(builder);
