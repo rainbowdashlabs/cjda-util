@@ -23,6 +23,10 @@ public abstract class SimpleCommand {
         this.meta = meta;
     }
 
+    protected SimpleCommand(CommandMetaBuilder meta) {
+        this(meta.build());
+    }
+
     public static SubCommandBuilder subCommandBuilder() {
         return new SubCommandBuilder();
     }

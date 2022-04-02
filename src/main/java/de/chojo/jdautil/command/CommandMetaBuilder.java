@@ -38,6 +38,11 @@ public class CommandMetaBuilder {
         return this;
     }
 
+    public CommandMetaBuilder addSubCommand(String name, String description, ArgumentBuilder arguments) {
+        this.subCommands.add(name, description, arguments.build());
+        return this;
+    }
+
     public CommandMetaBuilder withPermission() {
         this.defaultEnabled = false;
         return this;
