@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 public interface ILocalizer {
@@ -94,4 +95,8 @@ public interface ILocalizer {
     Set<Language> languages();
 
     Language defaultLanguage();
+
+    default Optional<Language> getLanguage(String language) {
+        return languages().stream().filter(lang -> lang.isLanguage(language)).findFirst();
+    }
 }
