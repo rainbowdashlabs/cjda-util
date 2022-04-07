@@ -7,6 +7,9 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
+import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -23,10 +26,12 @@ import java.util.Map;
 
 public class InteractionContext extends Context {
     private final ComponentInteraction interaction;
+    private final ContextLocalizer localizer;
 
-    public InteractionContext(Map<String, Object> data, Conversation conversation, ComponentInteraction interaction) {
+    public InteractionContext(Map<String, Object> data, Conversation conversation, ComponentInteraction interaction, ILocalizer localizer) {
         super(conversation, data);
         this.interaction = interaction;
+        this.localizer = localizer.getContextLocalizer(interaction.getGuild());
     }
 
     @Override
@@ -100,5 +105,13 @@ public class InteractionContext extends Context {
     @Nonnull
     public Component.Type getComponentType() {
         return interaction.getComponentType();
+    }
+
+    public String localize(String message, Replacement... replacements) {
+        return localizer.localize(message, replacements);
+    }
+
+    public ContextLocalizer localizer() {
+        return localizer;
     }
 }

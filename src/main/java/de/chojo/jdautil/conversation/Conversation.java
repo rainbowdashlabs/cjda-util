@@ -52,7 +52,7 @@ public class Conversation {
     }
 
     public Result handleInteraction(ComponentInteraction interaction) {
-        var result = step.handleButton(new InteractionContext(data, this, interaction));
+        var result = step.handleButton(new InteractionContext(data, this, interaction, localizer));
         handleResult(result, interaction.getChannel());
         return result;
     }
