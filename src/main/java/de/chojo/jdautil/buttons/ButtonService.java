@@ -9,6 +9,7 @@ package de.chojo.jdautil.buttons;
 import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.parsing.ValueParser;
+import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class ButtonService extends ListenerAdapter {
     private final Cache<Long, ButtonContainer> cache;
     private final ILocalizer localizer;
+    private final SnowflakeCreator snowflakeCreator = SnowflakeCreator.builder().build();
 
     public ButtonService(Cache<Long, ButtonContainer> cache, ILocalizer localizer) {
         this.cache = cache;
@@ -48,6 +50,6 @@ public class ButtonService extends ListenerAdapter {
     }
 
     private long nextId() {
-        return System.currentTimeMillis();
+        return snowflakeCreator.nextId();
     }
 }

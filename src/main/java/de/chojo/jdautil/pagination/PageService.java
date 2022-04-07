@@ -11,6 +11,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import de.chojo.jdautil.parsing.ValueParser;
+import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
@@ -35,6 +36,7 @@ public class PageService extends ListenerAdapter {
 
     private static final Logger log = getLogger(PageService.class);
 
+    private final SnowflakeCreator snowflakeCreator = SnowflakeCreator.builder().build();
     private final String previousId;
     private final String nextId;
     private final String previousLabel;
@@ -176,6 +178,6 @@ public class PageService extends ListenerAdapter {
     }
 
     public long nextId() {
-        return System.currentTimeMillis();
+        return snowflakeCreator.nextId();
     }
 }
