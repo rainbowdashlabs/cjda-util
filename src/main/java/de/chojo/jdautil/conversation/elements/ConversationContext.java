@@ -7,6 +7,8 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
+import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -63,4 +65,8 @@ public interface ConversationContext {
 
     @SuppressWarnings("unchecked")
     <T> T getOrDefault(String key, T defaultValue);
+
+    String localize(String message, Replacement... replacements);
+
+    ContextLocalizer localizer();
 }

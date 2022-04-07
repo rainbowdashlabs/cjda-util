@@ -107,10 +107,12 @@ public class InteractionContext extends Context {
         return interaction.getComponentType();
     }
 
+    @Override
     public String localize(String message, Replacement... replacements) {
         return localizer.localize(message, replacements);
     }
 
+    @Override
     public ContextLocalizer localizer() {
         return localizer;
     }

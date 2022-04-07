@@ -39,7 +39,7 @@ public class Conversation {
 
     public Result handleMessage(Message message) {
         if (!step.hasMessage()) return Result.freeze();
-        var context = new MessageContext(this, data, message);
+        var context = new MessageContext(this, data, message, localizer);
         var result = step.handleMessage(context);
         switch (result.type()) {
             case FAILED -> sendPrompt(message.getChannel());
