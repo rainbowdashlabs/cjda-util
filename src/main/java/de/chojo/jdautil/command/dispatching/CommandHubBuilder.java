@@ -8,6 +8,7 @@ package de.chojo.jdautil.command.dispatching;
 
 import de.chojo.jdautil.buttons.ButtonService;
 import de.chojo.jdautil.buttons.ButtonServiceBuilder;
+import de.chojo.jdautil.buttons.ButtonServiceModifier;
 import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
@@ -15,6 +16,7 @@ import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
+import de.chojo.jdautil.pagination.PageServiceModifier;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
@@ -134,13 +136,13 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
-    public CommandHubBuilder<T> withPagination(Consumer<PageServiceBuilder> builder) {
+    public CommandHubBuilder<T> withPagination(Consumer<PageServiceModifier> builder) {
         pagination = PageService.builder(shardManager);
         builder.accept(pagination);
         return this;
     }
 
-    public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceBuilder> builder) {
+    public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceModifier> builder) {
         buttonService = ButtonService.builder(shardManager);
         builder.accept(buttonService);
         return this;
@@ -163,11 +165,13 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         }
         ButtonService buttons = null;
         if (buttonService != null) {
-            buttons = buttonService.withLocalizer(localizer).build();
+            buttonService.withLocalizer(localizer);
+            buttons = buttonService.build();
         }
         PageService pages = null;
         if (pagination != null) {
-            pages = pagination.withLocalizer(localizer).build();
+            pagination.withLocalizer(localizer);
+            pages = pagination.build();
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
                 useSlashGlobalCommands, commandErrorHandler, managerRoles, buttons, pages);

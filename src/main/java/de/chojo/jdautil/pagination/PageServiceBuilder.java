@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class PageServiceBuilder {
+public class PageServiceBuilder implements PageServiceModifier {
     private final ShardManager shardManager;
     private String previousLabel = "pageService:previous";
     private String nextLabel = "pageService:next";
@@ -34,7 +34,8 @@ public class PageServiceBuilder {
      * @param label button label
      * @return builder instance
      */
-    public PageServiceBuilder previousLabel(String label) {
+    @Override
+    public PageServiceModifier previousLabel(String label) {
         this.previousLabel = label;
         return this;
     }
@@ -45,7 +46,8 @@ public class PageServiceBuilder {
      * @param label button label
      * @return builder instance
      */
-    public PageServiceBuilder nextLabel(String label) {
+    @Override
+    public PageServiceModifier nextLabel(String label) {
         this.nextLabel = label;
         return this;
     }
@@ -56,7 +58,8 @@ public class PageServiceBuilder {
      * @param text text
      * @return builder instance
      */
-    public PageServiceBuilder previousText(String text) {
+    @Override
+    public PageServiceModifier previousText(String text) {
         this.previousText = text;
         return this;
     }
@@ -67,7 +70,8 @@ public class PageServiceBuilder {
      * @param text text
      * @return builder instance
      */
-    public PageServiceBuilder nextText(String text) {
+    @Override
+    public PageServiceModifier nextText(String text) {
         this.nextText = text;
         return this;
     }
@@ -78,7 +82,8 @@ public class PageServiceBuilder {
      * @param cache cache instance
      * @return builder instance
      */
-    public PageServiceBuilder withCache(Cache<Long, IPageBag> cache) {
+    @Override
+    public PageServiceModifier withCache(Cache<Long, IPageBag> cache) {
         this.cache = cache;
         return this;
     }
@@ -89,7 +94,8 @@ public class PageServiceBuilder {
      * @param cache cache builder instance
      * @return builder instance
      */
-    public PageServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache) {
+    @Override
+    public PageServiceModifier withCache(Consumer<CacheBuilder<Object, Object>> cache) {
         var builder = CacheBuilder.newBuilder();
         cache.accept(builder);
         this.cache = builder.build();
@@ -102,7 +108,8 @@ public class PageServiceBuilder {
      * @param localizer localizer instance
      * @return builder instance
      */
-    public PageServiceBuilder withLocalizer(ILocalizer localizer) {
+    @Override
+    public PageServiceModifier withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }
