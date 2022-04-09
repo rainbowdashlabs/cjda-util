@@ -261,24 +261,21 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
 
         guild.retrieveOwner().queue(owner -> {
             guild.retrieveCommands().queue(commands -> {
-                var adminCommands = commands.stream().filter(c -> !c.isDefaultEnabled()).collect(Collectors.toList());
+                var adminCommands = commands.stream().filter(c -> !c.isDefaultEnabled()).toList();
                 Map<String, Collection<CommandPrivilege>> commandPrivileges = new HashMap<>();
                 for (var adminCommand : adminCommands) {
                     var privileges = getCommandPrivileges(guild, getCommand(adminCommand.getName()).get(), adminRoles, owner);
                     commandPrivileges.put(adminCommand.getId(), privileges);
                 }
 
-                guild.updateCommandPrivileges(commandPrivileges).queue(succ -> {
-                    log.debug("Update done. Restricted {} commands.", adminCommands.size());
-                }, err -> {
-                    log.error("Could not update guild privileges for guild {}", Guilds.prettyName(guild), err);
-                });
+                guild.updateCommandPrivileges(commandPrivileges)
+                        .queue(succ -> log.debug("Update done. Restricted {} commands.", adminCommands.size()),
+                                err -> log.error("Could not update guild privileges for guild {}", Guilds.prettyName(guild), err));
             }, err -> ErrorResponseException.ignore(ErrorResponse.MISSING_ACCESS));
         }, err -> ErrorResponseException.ignore(ErrorResponse.UNKNOWN_USER));
     }
 
     private List<CommandPrivilege> getCommandPrivileges(Guild guild, Command command, List<Role> adminRoles, Member owner) {
-        log.debug("Refreshing command privileges for {} on guild {}", command.meta().name(), Guilds.prettyName(guild));
         var roles = command.meta().managerRole(guild, managerRoles).stream()
                 .map(guild::getRoleById)
                 .filter(Objects::nonNull)
