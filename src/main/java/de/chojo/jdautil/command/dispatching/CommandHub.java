@@ -129,7 +129,11 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             log.info("Creating command data for {} language", language.getCode());
             List<CommandData> localizedCommandData = new ArrayList<>();
             for (var command : new HashSet<>(commands.values())) {
-                localizedCommandData.add(command.getCommandData(localizer, language));
+                try {
+                    localizedCommandData.add(command.getCommandData(localizer, language));
+                } catch (Exception e) {
+                    throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name() + " for language " + language.getCode(), e);
+                }
             }
             commandData.put(language, localizedCommandData);
         }
