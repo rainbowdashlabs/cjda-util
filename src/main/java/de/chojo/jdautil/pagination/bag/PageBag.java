@@ -6,8 +6,6 @@
 
 package de.chojo.jdautil.pagination.bag;
 
-import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
-
 /**
  * A default page bag which circles through the pages.
  */
@@ -16,7 +14,6 @@ public abstract class PageBag implements IPageBag {
     private int currentPage = 0;
 
     public PageBag(int pages) {
-        if (pages == 0) throw new EmptyPageBagException();
         this.pages = pages;
     }
 

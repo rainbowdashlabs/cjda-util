@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.pagination.bag;
 
+import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 
@@ -20,6 +21,15 @@ public interface IPageBag {
      * @return Page count
      */
     int pages();
+
+    /**
+     * Checks if the page count is 0.
+     *
+     * @return true if {@link #pages()} returns 0
+     */
+    default boolean isEmpty() {
+        return pages() == 0;
+    }
 
     /**
      * Get the current index of the page. The index is zero based
@@ -74,6 +84,16 @@ public interface IPageBag {
      * @return A {@link CompletableFuture} providing the message embed.
      */
     CompletableFuture<MessageEmbed> buildPage();
+
+    /**
+     * Build a embed for an empty page when the bag is empty
+     *
+     * @return A {@link CompletableFuture} providing the message embed.
+     * @throws EmptyPageBagException when not overridden.
+     */
+    default CompletableFuture<MessageEmbed> buildEmptyPage() {
+        throw new EmptyPageBagException("The provided page bag is empty. Escape empty page submission or implement IPageBag#buildEmptyPage()");
+    }
 
     /**
      * Defines if a user can interact with this page or not.

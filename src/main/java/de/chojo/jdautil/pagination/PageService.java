@@ -11,6 +11,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import de.chojo.jdautil.parsing.ValueParser;
+import de.chojo.jdautil.util.Futures;
 import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -62,8 +63,9 @@ public class PageService extends ListenerAdapter {
      *
      * @param event event
      * @param page  page
+     * @throws EmptyPageBagException when {@link IPageBag#isEmpty()} is true and the method {@link IPageBag#buildEmptyPage()} is not implemented.
      */
-    public void registerPage(IReplyCallback event, IPageBag page) {
+    public void registerPage(IReplyCallback event, IPageBag page) throws EmptyPageBagException {
         registerPage(event, page, false);
     }
 
@@ -73,21 +75,28 @@ public class PageService extends ListenerAdapter {
      * @param event     event
      * @param page      page
      * @param ephemeral define if the message should be ephemeral
+     * @throws EmptyPageBagException when {@link IPageBag#isEmpty()} is true and the method {@link IPageBag#buildEmptyPage()} is not implemented.
      */
-    public void registerPage(IReplyCallback event, IPageBag page, boolean ephemeral) {
-        if (page.pages() == 0) {
-            throw new EmptyPageBagException();
+    public void registerPage(IReplyCallback event, IPageBag page, boolean ephemeral) throws EmptyPageBagException {
+        if (page.isEmpty()) {
+            page.buildEmptyPage()
+                    .whenComplete(Futures.whenComplete(
+                            embed -> event.replyEmbeds(embed)
+                                    .setEphemeral(ephemeral)
+                                    .queue(),
+                            err -> log.error("Could not build page", err)));
+            return;
         }
 
         var id = nextId();
 
-        page.buildPage().thenAccept(embed -> {
+        page.buildPage().whenComplete(Futures.whenComplete(embed -> {
             event.replyEmbeds(embed)
                     .addActionRows(getPageButtons(event.getGuild(), page, id))
                     .setEphemeral(ephemeral)
                     .queue();
-        });
-        cache.put(id, page);
+            cache.put(id, page);
+        }, err -> log.error("Could not build page", err)));
     }
 
     /**
@@ -95,20 +104,27 @@ public class PageService extends ListenerAdapter {
      *
      * @param channel channel
      * @param page    page
+     * @throws EmptyPageBagException when {@link IPageBag#isEmpty()} is true and the method {@link IPageBag#buildEmptyPage()} is not implemented.
      */
-    public void registerPage(MessageChannel channel, IPageBag page) {
-        if (page.pages() == 0) {
-            throw new EmptyPageBagException();
+    public void registerPage(MessageChannel channel, IPageBag page) throws EmptyPageBagException {
+        if (page.isEmpty()) {
+            page.buildEmptyPage().whenComplete(Futures.whenComplete(
+                    embed -> channel.sendMessageEmbeds(embed).queue(),
+                    err -> log.error("Could not build page", err)));
+            return;
         }
 
         var id = nextId();
 
-        page.buildPage().thenAccept(embed -> {
-            channel.sendMessageEmbeds(embed)
-                    .setActionRows(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
-                    .queue();
-        });
-        cache.put(id, page);
+        page.buildPage()
+                .whenComplete(Futures.whenComplete(
+                        embed -> {
+                            channel.sendMessageEmbeds(embed)
+                                    .setActionRows(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
+                                    .queue();
+                            cache.put(id, page);
+                        },
+                        err -> log.error("Could not build page", err)));
     }
 
     @Override
@@ -162,19 +178,24 @@ public class PageService extends ListenerAdapter {
 
     private void sendPage(ButtonInteractionEvent event, long pageId) {
         var page = cache.getIfPresent(pageId);
+        if (page.isEmpty()) {
+            page.buildEmptyPage().whenComplete(Futures.whenComplete(
+                    embed -> event.getHook().editOriginalEmbeds(embed).queue(),
+                    err -> log.error("Could not build page", err)));
+            return;
+        }
         page.buildPage()
-                .thenAccept(embed -> {
-                    event.getHook()
-                            .editOriginalEmbeds(embed)
-                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                            .queue();
-                }).exceptionally(err -> {
-                    log.error("Could not build page", err);
-                    event.getHook().editOriginal("Something went wrong")
-                            .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                            .queue();
-                    return null;
-                });
+                .whenComplete(Futures.whenComplete(
+                        embed -> event.getHook()
+                                .editOriginalEmbeds(embed)
+                                .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                                .queue(),
+                        err -> {
+                            log.error("Could not build page", err);
+                            event.getHook().editOriginal("Something went wrong")
+                                    .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                                    .queue();
+                        }));
     }
 
     public long nextId() {
