@@ -10,4 +10,8 @@ public class EmptyPageBagException extends RuntimeException {
     public EmptyPageBagException() {
         super("The page bag is empty");
     }
+
+    public EmptyPageBagException(String message) {
+        super(message);
+    }
 }
