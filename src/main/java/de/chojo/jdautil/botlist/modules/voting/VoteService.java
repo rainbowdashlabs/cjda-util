@@ -103,6 +103,11 @@ public class VoteService {
             return this;
         }
 
+        public Builder withVoteWeebhooks(Javalin javalin) {
+            voteReceiver = javalin;
+            return this;
+        }
+
         public Builder onVote(Consumer<VoteData> voteNotifier) {
             this.voteNotifier = voteNotifier;
             return this;
