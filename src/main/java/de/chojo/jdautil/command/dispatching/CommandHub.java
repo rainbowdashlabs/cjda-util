@@ -83,7 +83,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onAutoComplete(event, new SlashCommandContext(null, conversationService, ILocalizer.DEFAULT.getContextLocalizer(event.getGuild()), buttons, pages, this));
+            command.onAutoComplete(event, new SlashCommandContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, this));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
