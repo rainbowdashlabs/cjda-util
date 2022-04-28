@@ -50,7 +50,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private boolean useSlashGlobalCommands = true;
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
-    private ManagerRoles managerRoles = guild -> Collections.emptyList();
     private PageServiceBuilder pagination;
     private ButtonServiceBuilder buttonService;
 
@@ -125,17 +124,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
-    /**
-     * Adds a manager role supplier which provides the manager roles for a guild.
-     *
-     * @param managerRoles handler for errors
-     * @return builder instance
-     */
-    public CommandHubBuilder<T> withManagerRole(ManagerRoles managerRoles) {
-        this.managerRoles = managerRoles;
-        return this;
-    }
-
     public CommandHubBuilder<T> withPagination(Consumer<PageServiceModifier> builder) {
         pagination = PageService.builder(shardManager);
         builder.accept(pagination);
@@ -174,7 +162,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             pages = pagination.build();
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, managerRoles, buttons, pages);
+                useSlashGlobalCommands, commandErrorHandler, buttons, pages);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;
