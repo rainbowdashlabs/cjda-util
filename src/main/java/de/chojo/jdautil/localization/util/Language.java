@@ -55,4 +55,22 @@ public class Language {
                 ", language='" + language + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Language)) return false;
+
+        Language language1 = (Language) o;
+
+        if (!code.equals(language1.code)) return false;
+        return language.equals(language1.language);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = code.hashCode();
+        result = 31 * result + language.hashCode();
+        return result;
+    }
 }
