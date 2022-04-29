@@ -83,6 +83,12 @@ tasks {
     }
 
     javadoc {
+        val options = options as StandardJavadocDocletOptions
         options.encoding = CharEncoding.UTF_8
+        options.links(
+            "https://ci.dv8tion.net/job/JDA/javadoc/",
+            "https://javadoc.io/doc/io.javalin/javalin/latest/",
+            "https://javadoc.io/doc/com.google.guava/guava/latest/"
+        )
     }
 }
