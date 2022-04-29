@@ -14,6 +14,9 @@ import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.modals.service.ModalService;
+import de.chojo.jdautil.modals.service.ModalServiceBuilder;
+import de.chojo.jdautil.modals.service.ModalServiceModifier;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import de.chojo.jdautil.pagination.PageServiceModifier;
@@ -22,7 +25,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -52,6 +54,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
     private PageServiceBuilder pagination;
     private ButtonServiceBuilder buttonService;
+    private ModalServiceBuilder modalService;
 
     CommandHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -136,6 +139,12 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
+    public CommandHubBuilder<T> withModalService(Consumer<ModalServiceModifier> builder) {
+        modalService = ModalService.builder(shardManager);
+        builder.accept(modalService);
+        return this;
+    }
+
     /**
      * Build the command hub.
      * <p>
@@ -161,8 +170,13 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             pagination.withLocalizer(localizer);
             pages = pagination.build();
         }
+        ModalService modals = null;
+        if (pagination != null) {
+            pagination.withLocalizer(localizer);
+            modals = modalService.build();
+        }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, buttons, pages);
+                useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

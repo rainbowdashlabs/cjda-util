@@ -13,8 +13,11 @@ import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.util.Replacement;
+import de.chojo.jdautil.modals.handler.ModalHandler;
+import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
 public class SlashCommandContext {
@@ -23,14 +26,16 @@ public class SlashCommandContext {
     private final ContextLocalizer contextLocalizer;
     private final ButtonService buttons;
     private final PageService pages;
+    private final ModalService modalService;
     private final CommandHub<?> commandHub;
 
-    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, ButtonService buttons, PageService pages, CommandHub<?> commandHub) {
+    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, ButtonService buttons, PageService pages, ModalService modalService, CommandHub<?> commandHub) {
         this.event = event;
         this.conversationService = conversationService;
         this.contextLocalizer = contextLocalizer;
         this.buttons = buttons;
         this.pages = pages;
+        this.modalService = modalService;
         this.commandHub = commandHub;
     }
 
@@ -59,11 +64,20 @@ public class SlashCommandContext {
         }
         pages.registerPage(event, page);
     }
+
     public void registerPage(IPageBag page, boolean ephemeral) {
         if (event == null) {
             throw new UnsupportedOperationException("Pages can be only used on interactions");
         }
         pages.registerPage(event, page, ephemeral);
+    }
+
+    public void registerModal(ModalHandler modalHandler) {
+        if (event instanceof GenericCommandInteractionEvent event) {
+            modalService.registerModal(event, modalHandler);
+        } else {
+            throw new UnsupportedOperationException("The interaction is not a command interaction");
+        }
     }
 
     public ContextLocalizer localizer() {

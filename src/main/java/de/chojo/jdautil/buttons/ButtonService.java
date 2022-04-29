@@ -50,6 +50,6 @@ public class ButtonService extends ListenerAdapter {
     }
 
     private long nextId() {
-        return snowflakeCreator.nextId();
+        return snowflakeCreator.nextLong();
     }
 }
