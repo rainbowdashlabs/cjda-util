@@ -21,7 +21,7 @@ public interface ModalServiceModifier {
      * @param localizer localizer instance
      * @return builder instance
      */
-    ModalServiceBuilder setLocalizer(ILocalizer localizer);
+    ModalServiceBuilder withLocalizer(ILocalizer localizer);
 
     /**
      * Set the cache implementation for the modal service

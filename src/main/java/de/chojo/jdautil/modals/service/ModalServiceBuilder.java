@@ -25,7 +25,7 @@ public class ModalServiceBuilder implements ModalServiceModifier {
     }
 
     @Override
-    public ModalServiceBuilder setLocalizer(ILocalizer localizer) {
+    public ModalServiceBuilder withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }

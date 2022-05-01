@@ -171,8 +171,8 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             pages = pagination.build();
         }
         ModalService modals = null;
-        if (pagination != null) {
-            pagination.withLocalizer(localizer);
+        if (modalService != null) {
+            modalService.withLocalizer(localizer);
             modals = modalService.build();
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
