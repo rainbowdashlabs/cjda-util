@@ -7,7 +7,6 @@
 package de.chojo.jdautil.modals.service;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.handler.ModalHandlerBuilder;
@@ -30,6 +29,7 @@ public class ModalService extends ListenerAdapter {
 
     /**
      * Get a new builder instance for the modal service
+     *
      * @param shardManager shardmanager where the service should be registered
      * @return builder instance
      */

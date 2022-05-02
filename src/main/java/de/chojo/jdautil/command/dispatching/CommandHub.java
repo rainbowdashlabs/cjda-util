@@ -14,6 +14,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
+import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
@@ -132,9 +133,9 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
         for (var command : new HashSet<>(commands.values())) {
             if (command.meta().subCommands() != null) {
-                log.info("Registering command {} with {} subcommands", command.meta().name(), command.meta().subCommands().length);
+                log.info("Registering command {} with {} subcommands. Default enabled: {}", command.meta().name(), command.meta().subCommands().length, command.meta().defaultEnabled());
             } else {
-                log.info("Registering command {}.", command.meta().name());
+                log.info("Registering command {}. Default enabled: {}", command.meta().name(), command.meta().defaultEnabled());
             }
         }
 
@@ -175,7 +176,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void refreshGuildCommands(Guild guild) {
         var language = localizer.getGuildLocale(guild);
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
-            log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
+            log.info("Updated {} slash commands for guild {}", suc.size(), Guilds.prettyName(guild));
         }, err -> {
             if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;
