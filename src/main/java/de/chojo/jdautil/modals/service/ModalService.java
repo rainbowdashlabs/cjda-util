@@ -19,9 +19,9 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
 public class ModalService extends ListenerAdapter {
-    ILocalizer localizer;
-    SnowflakeCreator snowflakeCreator = SnowflakeCreator.builder().build();
-    Cache<String, ModalHandler> handlers;
+    private final ILocalizer localizer;
+    private final SnowflakeCreator snowflakeCreator = SnowflakeCreator.builder().build();
+    private final Cache<String, ModalHandler> handlers;
 
     public ModalService(ILocalizer localizer, Cache<String, ModalHandler> handlers) {
         this.localizer = localizer;

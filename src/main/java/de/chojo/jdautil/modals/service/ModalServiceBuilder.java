@@ -12,11 +12,12 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.modals.handler.ModalHandler;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ModalServiceBuilder implements ModalServiceModifier {
-    private ILocalizer localizer;
-    private Cache<String, ModalHandler> handlers;
+    private ILocalizer localizer = ILocalizer.DEFAULT;
+    private Cache<String, ModalHandler> handlers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
     private final ShardManager shardManager;
 
 
