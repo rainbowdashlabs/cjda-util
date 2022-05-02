@@ -7,7 +7,6 @@
 package de.chojo.jdautil.modals.handler;
 
 import de.chojo.jdautil.localization.ContextLocalizer;
-import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;

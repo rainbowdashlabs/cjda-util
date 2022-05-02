@@ -10,6 +10,7 @@ import de.chojo.jdautil.localization.ContextLocalizer;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -17,7 +18,7 @@ public class TextInputHandler {
     TextInput.Builder input;
     Consumer<ModalMapping> mapping;
 
-    TextInputHandler(TextInput.Builder input, Consumer<ModalMapping> mapping) {
+    TextInputHandler(@NotNull TextInput.Builder input, @NotNull Consumer<ModalMapping> mapping) {
         this.input = input;
         this.mapping = mapping;
     }
