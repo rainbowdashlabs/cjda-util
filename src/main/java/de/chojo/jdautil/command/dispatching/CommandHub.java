@@ -12,7 +12,9 @@ import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
+import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
+import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
@@ -53,12 +55,13 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
     private final ButtonService buttons;
     private final PageService pages;
+    private final ModalService modalService;
 
     public CommandHub(ShardManager shardManager,
                       Map<String, Command> commands, PermissionCheck<CommandMeta> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
-                      ButtonService buttons, PageService pages) {
+                      ButtonService buttons, PageService pages, ModalService modalService) {
         this.shardManager = shardManager;
         this.commands = commands;
         this.permissionCheck = permissionCheck;
@@ -68,6 +71,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.commandErrorHandler = commandErrorHandler;
         this.buttons = buttons;
         this.pages = pages;
+        this.modalService = modalService;
     }
 
     public static <T extends SimpleCommand> CommandHubBuilder<T> builder(ShardManager shardManager) {
@@ -83,7 +87,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onAutoComplete(event, new SlashCommandContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, this));
+            command.onAutoComplete(event, new SlashCommandContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -99,7 +103,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             return;
         }
         try {
-            command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, this));
+            command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
             var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -129,9 +133,9 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
         for (var command : new HashSet<>(commands.values())) {
             if (command.meta().subCommands() != null) {
-                log.info("Registering command {} with {} subcommands", command.meta().name(), command.meta().subCommands().length);
+                log.info("Registering command {} with {} subcommands. Default enabled: {}", command.meta().name(), command.meta().subCommands().length, command.meta().defaultEnabled());
             } else {
-                log.info("Registering command {}.", command.meta().name());
+                log.info("Registering command {}. Default enabled: {}", command.meta().name(), command.meta().defaultEnabled());
             }
         }
 
@@ -172,7 +176,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void refreshGuildCommands(Guild guild) {
         var language = localizer.getGuildLocale(guild);
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
-            log.info("Updated {} slash commands for guild {}({})", suc.size(), guild.getName(), guild.getId());
+            log.info("Updated {} slash commands for guild {}", suc.size(), Guilds.prettyName(guild));
         }, err -> {
             if (err instanceof ErrorResponseException) {
                 var response = (ErrorResponseException) err;

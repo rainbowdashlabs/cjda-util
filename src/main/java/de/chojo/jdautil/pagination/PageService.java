@@ -199,6 +199,6 @@ public class PageService extends ListenerAdapter {
     }
 
     public long nextId() {
-        return snowflakeCreator.nextId();
+        return snowflakeCreator.nextLong();
     }
 }

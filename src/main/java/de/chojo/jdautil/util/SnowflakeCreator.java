@@ -38,7 +38,16 @@ public class SnowflakeCreator {
      *
      * @return a unique snowflake for the current time
      */
-    public synchronized long nextId() {
+    public String nextString(){
+        return String.valueOf(nextLong());
+    }
+
+    /**
+     * Get a new unique snowflake.
+     *
+     * @return a unique snowflake for the current time
+     */
+    public synchronized long nextLong() {
         var current = timestamp();
 
         if (current < lastTimestamp) throw new IllegalStateException("Invalid System Clock!");
