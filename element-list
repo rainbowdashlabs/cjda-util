@@ -19,6 +19,8 @@ de.chojo.jdautil.conversation.elements
 de.chojo.jdautil.functions
 de.chojo.jdautil.localization
 de.chojo.jdautil.localization.util
+de.chojo.jdautil.modals.handler
+de.chojo.jdautil.modals.service
 de.chojo.jdautil.pagination
 de.chojo.jdautil.pagination.bag
 de.chojo.jdautil.pagination.exceptions
