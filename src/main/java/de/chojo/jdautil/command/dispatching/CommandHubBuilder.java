@@ -48,8 +48,12 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         }
         return true;
     };
+
+    private Consumer<CommandResult<T>> postCommandHook = r -> {
+    };
     private boolean withConversations;
     private boolean useSlashGlobalCommands = true;
+    @Deprecated
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
     private PageServiceBuilder pagination;
@@ -127,6 +131,17 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
+    /**
+     * Adds a post command hook to the hub, which gets executed after every successful or unsuccessful command execution.
+     *
+     * @param postCommandHook handler
+     * @return builder instance
+     */
+    public CommandHubBuilder<T> withPostCommandHook(Consumer<CommandResult<T>> postCommandHook) {
+        this.postCommandHook = postCommandHook;
+        return this;
+    }
+
     public CommandHubBuilder<T> withPagination(Consumer<PageServiceModifier> builder) {
         pagination = PageService.builder(shardManager);
         builder.accept(pagination);
@@ -176,7 +191,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             modals = modalService.build();
         }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals);
+                useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -51,17 +52,19 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final ConversationService conversationService;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
+    @Deprecated
     private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
     private final ButtonService buttons;
     private final PageService pages;
     private final ModalService modalService;
+    private final Consumer<CommandResult<Command>> postCommandHook;
 
     public CommandHub(ShardManager shardManager,
                       Map<String, Command> commands, PermissionCheck<CommandMeta> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
-                      ButtonService buttons, PageService pages, ModalService modalService) {
+                      ButtonService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<Command>> postCommandHook) {
         this.shardManager = shardManager;
         this.commands = commands;
         this.permissionCheck = permissionCheck;
@@ -72,7 +75,9 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         this.buttons = buttons;
         this.pages = pages;
         this.modalService = modalService;
+        this.postCommandHook = postCommandHook;
     }
+
 
     public static <T extends SimpleCommand> CommandHubBuilder<T> builder(ShardManager shardManager) {
         return new CommandHubBuilder<>(shardManager);
@@ -102,12 +107,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             event.reply("🚫").setEphemeral(true).queue();
             return;
         }
+        var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
             command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
-            var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
             commandErrorHandler.accept(executionContext, t);
+            return;
         }
+        postCommandHook.accept(CommandResult.success(event, executionContext));
     }
 
     @Override
@@ -178,8 +185,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
             log.info("Updated {} slash commands for guild {}", suc.size(), Guilds.prettyName(guild));
         }, err -> {
-            if (err instanceof ErrorResponseException) {
-                var response = (ErrorResponseException) err;
+            if (err instanceof ErrorResponseException response) {
                 if (response.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
                     log.debug("Missing slash command access on guild {}({})", guild.getName(), guild.getId());
                     return;
