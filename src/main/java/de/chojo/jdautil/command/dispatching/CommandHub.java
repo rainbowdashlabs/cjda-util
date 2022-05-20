@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.buttons.ButtonService;
+import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
@@ -55,7 +55,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     @Deprecated
     private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
-    private final ButtonService buttons;
+    private final MenuService buttons;
     private final PageService pages;
     private final ModalService modalService;
     private final Consumer<CommandResult<Command>> postCommandHook;
@@ -64,7 +64,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
                       Map<String, Command> commands, PermissionCheck<CommandMeta> permissionCheck,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
-                      ButtonService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<Command>> postCommandHook) {
+                      MenuService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<Command>> postCommandHook) {
         this.shardManager = shardManager;
         this.commands = commands;
         this.permissionCheck = permissionCheck;

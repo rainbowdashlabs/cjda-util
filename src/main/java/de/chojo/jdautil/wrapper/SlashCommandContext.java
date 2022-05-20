@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.buttons.ButtonAction;
-import de.chojo.jdautil.buttons.ButtonService;
+import de.chojo.jdautil.menus.MenuAction;
+import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.command.dispatching.CommandHub;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
@@ -24,16 +24,16 @@ public class SlashCommandContext {
     private final IReplyCallback event;
     private final ConversationService conversationService;
     private final ContextLocalizer contextLocalizer;
-    private final ButtonService buttons;
+    private final MenuService menus;
     private final PageService pages;
     private final ModalService modalService;
     private final CommandHub<?> commandHub;
 
-    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, ButtonService buttons, PageService pages, ModalService modalService, CommandHub<?> commandHub) {
+    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, CommandHub<?> commandHub) {
         this.event = event;
         this.conversationService = conversationService;
         this.contextLocalizer = contextLocalizer;
-        this.buttons = buttons;
+        this.menus = menus;
         this.pages = pages;
         this.modalService = modalService;
         this.commandHub = commandHub;
@@ -51,11 +51,11 @@ public class SlashCommandContext {
         return contextLocalizer.localize(message, replacements);
     }
 
-    public void registerButtons(ButtonAction interaction) {
+    public void registerMenu(MenuAction interaction) {
         if (event == null) {
-            throw new UnsupportedOperationException("buttons can be only used on interactions");
+            throw new UnsupportedOperationException("menus can be only used on interactions");
         }
-        buttons.register(interaction);
+        menus.register(interaction);
     }
 
     public void registerPage(IPageBag page) {

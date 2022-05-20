@@ -4,9 +4,10 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.buttons;
+package de.chojo.jdautil.menus;
 
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.menus.entries.MenuEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ButtonAction {
+public class MenuAction {
     private final MessageEmbed embed;
     @Nullable
     private final IReplyCallback callback;
@@ -27,25 +28,24 @@ public class ButtonAction {
     private final boolean ephemeral;
     @Nullable
     private final User user;
-    private final List<ButtonEntry> buttons;
+    private final List<de.chojo.jdautil.menus.entries.MenuEntry<?,?>> components;
     @Nullable
     private final Guild guild;
 
-    public ButtonAction(MessageEmbed embed, IReplyCallback callback, MessageChannel channel, Guild guild, boolean ephemeral, User user, List<ButtonEntry> buttons) {
+    public MenuAction(MessageEmbed embed, IReplyCallback callback, MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?,?>> components) {
         this.embed = embed;
         this.callback = callback;
         this.channel = channel;
         this.ephemeral = ephemeral;
         this.user = user;
-        this.buttons = buttons;
+        this.components = components;
         this.guild = guild;
     }
 
     public void send(ILocalizer localizer, long id) {
-        var buttons = this.buttons.stream()
-                .map(ButtonEntry::button)
-                .map(button -> button.withLabel(localizer.localize(button.getLabel(), guild)))
-                .map(button -> button.withId(String.format("%s:%s", id, button.getId())))
+        var buttons = this.components.stream()
+                .filter(MenuEntry::visible)
+                .map(e -> e.component(id, localizer.getContextLocalizer(guild)))
                 .collect(Collectors.toList());
 
         var rows = ActionRow.partitionOf(buttons);
@@ -55,6 +55,7 @@ public class ButtonAction {
                     .setActionRows(rows)
                     .queue();
         }
+
         if (callback != null) {
             callback.replyEmbeds(embed)
                     .setEphemeral(ephemeral)
@@ -67,15 +68,19 @@ public class ButtonAction {
         return user;
     }
 
-    public List<ButtonEntry> buttons() {
-        return buttons;
+    public List<MenuEntry<?,?>> components() {
+        return components;
     }
 
-    public static ButtonActionBuilder forChannel(MessageEmbed embed, MessageChannel channel){
-        return new ButtonActionBuilder(embed, channel);
+    public static MenuActionBuilder forChannel(MessageEmbed embed, MessageChannel channel){
+        return new MenuActionBuilder(embed, channel);
     }
 
-    public static ButtonActionBuilder forCallback(MessageEmbed embed, IReplyCallback callback){
-        return new ButtonActionBuilder(embed, callback);
+    public static MenuActionBuilder forCallback(MessageEmbed embed, IReplyCallback callback){
+        return new MenuActionBuilder(embed, callback);
+    }
+
+    public Guild guild() {
+        return guild;
     }
 }
