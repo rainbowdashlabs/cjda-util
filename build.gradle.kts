@@ -34,7 +34,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.4.2+alpha.11"
+version = "2.4.3+alpha.11"
 description = "Discord utilities for use with JDA"
 
 publishData {
@@ -67,7 +67,9 @@ java {
     withSourcesJar()
     withJavadocJar()
 
-    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain{
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 tasks {
