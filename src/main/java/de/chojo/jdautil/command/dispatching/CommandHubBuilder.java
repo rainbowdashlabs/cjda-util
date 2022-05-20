@@ -57,7 +57,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
     private PageServiceBuilder pagination;
-    private MenuServiceBuilder buttonService;
+    private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
 
     CommandHubBuilder(ShardManager shardManager) {
@@ -148,9 +148,9 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
-    public CommandHubBuilder<T> withButtonService(Consumer<MenuServiceModifier> builder) {
-        buttonService = MenuService.builder(shardManager);
-        builder.accept(buttonService);
+    public CommandHubBuilder<T> withMenuService(Consumer<MenuServiceModifier> builder) {
+        menuService = MenuService.builder(shardManager);
+        builder.accept(menuService);
         return this;
     }
 
@@ -176,9 +176,9 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             shardManager.addEventListener(conversationService);
         }
         MenuService buttons = null;
-        if (buttonService != null) {
-            buttonService.withLocalizer(localizer);
-            buttons = buttonService.build();
+        if (menuService != null) {
+            menuService.withLocalizer(localizer);
+            buttons = menuService.build();
         }
         PageService pages = null;
         if (pagination != null) {
