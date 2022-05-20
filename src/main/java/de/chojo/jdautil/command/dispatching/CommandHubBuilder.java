@@ -6,9 +6,9 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.buttons.ButtonService;
-import de.chojo.jdautil.buttons.ButtonServiceBuilder;
-import de.chojo.jdautil.buttons.ButtonServiceModifier;
+import de.chojo.jdautil.menus.MenuService;
+import de.chojo.jdautil.menus.MenuServiceBuilder;
+import de.chojo.jdautil.menus.MenuServiceModifier;
 import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
@@ -57,7 +57,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
     private PageServiceBuilder pagination;
-    private ButtonServiceBuilder buttonService;
+    private MenuServiceBuilder buttonService;
     private ModalServiceBuilder modalService;
 
     CommandHubBuilder(ShardManager shardManager) {
@@ -148,8 +148,8 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         return this;
     }
 
-    public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceModifier> builder) {
-        buttonService = ButtonService.builder(shardManager);
+    public CommandHubBuilder<T> withButtonService(Consumer<MenuServiceModifier> builder) {
+        buttonService = MenuService.builder(shardManager);
         builder.accept(buttonService);
         return this;
     }
@@ -175,7 +175,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             conversationService = new ConversationService(localizer);
             shardManager.addEventListener(conversationService);
         }
-        ButtonService buttons = null;
+        MenuService buttons = null;
         if (buttonService != null) {
             buttonService.withLocalizer(localizer);
             buttons = buttonService.build();

@@ -16,7 +16,6 @@ public class CommandMetaBuilder {
     private SubCommandBuilder subCommands = SimpleCommand.subCommandBuilder();
     private boolean defaultEnabled = true;
     private CommandPermissionCheck permissionCheck;
-    private ManagerRoles managerRoles;
 
     public CommandMetaBuilder(String name, String description) {
         this.name = name;
@@ -53,12 +52,7 @@ public class CommandMetaBuilder {
         return withPermission();
     }
 
-    public CommandMetaBuilder withManagerRoles(ManagerRoles managerRoles) {
-        this.managerRoles = managerRoles;
-        return withPermission();
-    }
-
     public CommandMeta build() {
-        return new CommandMeta(name, description, argument.build(), subCommands.build(), defaultEnabled, permissionCheck, managerRoles);
+        return new CommandMeta(name, description, argument.build(), subCommands.build(), defaultEnabled, permissionCheck);
     }
 }
