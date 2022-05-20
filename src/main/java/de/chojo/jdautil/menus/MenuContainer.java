@@ -20,13 +20,13 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import java.util.List;
 import java.util.Optional;
 
-class MenuContainer {
+public class MenuContainer {
     private final long id;
     private final ContextLocalizer localizer;
     private final List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> entries;
     private final long ownerId;
 
-    public MenuContainer(long id, ContextLocalizer localizer, List<MenuEntry<?, ?>> entries, User user) {
+    MenuContainer(long id, ContextLocalizer localizer, List<MenuEntry<?, ?>> entries, User user) {
         this.id = id;
         this.localizer = localizer;
         this.entries = entries;
