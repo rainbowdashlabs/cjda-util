@@ -14,6 +14,9 @@ import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.modals.service.ModalService;
+import de.chojo.jdautil.modals.service.ModalServiceBuilder;
+import de.chojo.jdautil.modals.service.ModalServiceModifier;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import de.chojo.jdautil.pagination.PageServiceModifier;
@@ -22,7 +25,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -46,13 +48,17 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         }
         return true;
     };
+
+    private Consumer<CommandResult<T>> postCommandHook = r -> {
+    };
     private boolean withConversations;
     private boolean useSlashGlobalCommands = true;
+    @Deprecated
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
-    private ManagerRoles managerRoles = guild -> Collections.emptyList();
     private PageServiceBuilder pagination;
     private ButtonServiceBuilder buttonService;
+    private ModalServiceBuilder modalService;
 
     CommandHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -126,13 +132,13 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     }
 
     /**
-     * Adds a manager role supplier which provides the manager roles for a guild.
+     * Adds a post command hook to the hub, which gets executed after every successful or unsuccessful command execution.
      *
-     * @param managerRoles handler for errors
+     * @param postCommandHook handler
      * @return builder instance
      */
-    public CommandHubBuilder<T> withManagerRole(ManagerRoles managerRoles) {
-        this.managerRoles = managerRoles;
+    public CommandHubBuilder<T> withPostCommandHook(Consumer<CommandResult<T>> postCommandHook) {
+        this.postCommandHook = postCommandHook;
         return this;
     }
 
@@ -145,6 +151,12 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceModifier> builder) {
         buttonService = ButtonService.builder(shardManager);
         builder.accept(buttonService);
+        return this;
+    }
+
+    public CommandHubBuilder<T> withModalService(Consumer<ModalServiceModifier> builder) {
+        modalService = ModalService.builder(shardManager);
+        builder.accept(modalService);
         return this;
     }
 
@@ -173,8 +185,13 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             pagination.withLocalizer(localizer);
             pages = pagination.build();
         }
+        ModalService modals = null;
+        if (modalService != null) {
+            modalService.withLocalizer(localizer);
+            modals = modalService.build();
+        }
         var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, managerRoles, buttons, pages);
+                useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

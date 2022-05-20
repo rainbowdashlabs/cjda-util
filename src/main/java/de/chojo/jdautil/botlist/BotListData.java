@@ -6,35 +6,27 @@
 
 package de.chojo.jdautil.botlist;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
-public class BotListData {
-    private final long guilds;
-    private final long user;
-    private final int shards;
+import java.util.List;
 
-    public BotListData(long guilds, long user, int shards) {
-        this.guilds = guilds;
-        this.user = user;
-        this.shards = shards;
-    }
+public record BotListData(long guilds, long user, int shardId, int shards) {
 
-    public static BotListData of(ShardManager shardManager) {
+    public static BotListData total(ShardManager shardManager) {
         var guilds = shardManager.getGuildCache().size();
         var user = shardManager.getUserCache().size();
         var shards = shardManager.getShards().size();
-        return new BotListData(guilds, user, shards);
+
+        return new BotListData(guilds, user, shards, shards);
+    }
+    public static List<BotListData> ofShards(ShardManager shardManager) {
+        return shardManager.getShards().stream().map(BotListData::ofShard).toList();
     }
 
-    public long guilds() {
-        return guilds;
-    }
-
-    public long user() {
-        return user;
-    }
-
-    public int shards() {
-        return shards;
+    public static BotListData ofShard(JDA shard) {
+        var guilds = shard.getGuildCache().size();
+        var user = shard.getUserCache().size();
+        return new BotListData(guilds, user, shard.getShardInfo().getShardId(), shard.getShardInfo().getShardTotal());
     }
 }

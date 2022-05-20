@@ -25,12 +25,23 @@ public class SubmissionService {
     }
 
     public void submitData() {
-        var data = BotListData.of(shardManager);
+        var shardData = BotListData.ofShards(shardManager);
+        var total = BotListData.total(shardManager);
         for (var botlist : botlistService.botlists()) {
-            try {
-                botlist.report(data);
-            } catch (JsonProcessingException e) {
-                log.error("Could not build stats", e);
+            if (!botlist.isShardStats()) {
+                try {
+                    botlist.report(total);
+                } catch (JsonProcessingException e) {
+                    log.error("Could not build stats", e);
+                }
+                return;
+            }
+            for (var data : shardData) {
+                try {
+                    botlist.report(data);
+                } catch (JsonProcessingException e) {
+                    log.error("Could not build stats", e);
+                }
             }
         }
     }

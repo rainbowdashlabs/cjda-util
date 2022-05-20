@@ -45,9 +45,11 @@ public class BotList {
     private final VoteChecker voteChecker;
     private final VoteReceiver<?> voteReceiver;
 
+    private final boolean shardStats;
+
     public BotList(ObjectMapper objectMapper, HttpClient httpClient, long clientId, String name, String baseUrl,
                    StatusCodeHandler statusCodeHandler, AuthHandler authHandler, StatsMapper statsMapper,
-                   VoteChecker voteChecker, VoteReceiver<?> voteReceiver) {
+                   VoteChecker voteChecker, VoteReceiver<?> voteReceiver, boolean shardStats) {
         this.mapper = objectMapper;
         this.httpClient = httpClient;
         this.clientId = clientId;
@@ -58,6 +60,7 @@ public class BotList {
         this.statsMapper = statsMapper;
         this.voteChecker = voteChecker;
         this.voteReceiver = voteReceiver;
+        this.shardStats = shardStats;
     }
 
     /**
@@ -133,5 +136,9 @@ public class BotList {
 
     public VoteChecker voteChecker() {
         return voteChecker;
+    }
+
+    public boolean isShardStats() {
+        return shardStats;
     }
 }

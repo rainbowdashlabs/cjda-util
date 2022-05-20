@@ -15,10 +15,10 @@ class SnowflakeCreatorTest {
 
     @Test
     public void create() {
-        Assertions.assertNotEquals(CREATOR.nextId(), CREATOR.nextId(), "Creator yielded same ids");
-        System.out.println(CREATOR.nextId());
+        Assertions.assertNotEquals(CREATOR.nextLong(), CREATOR.nextLong(), "Creator yielded same ids");
+        System.out.println(CREATOR.nextLong());
         var creator2 = SnowflakeCreator.builder().build();
-        Assertions.assertNotEquals(CREATOR.nextId(), creator2.nextId());
+        Assertions.assertNotEquals(CREATOR.nextLong(), creator2.nextLong());
     }
 
     @Test
@@ -27,7 +27,7 @@ class SnowflakeCreatorTest {
         var refRuntime = ids / 4095.0 * 1.1;
         var start = System.currentTimeMillis();
         for (var i = 0; i < ids; i++) {
-            CREATOR.nextId();
+            CREATOR.nextLong();
         }
 
         var runtime = System.currentTimeMillis() - start;
