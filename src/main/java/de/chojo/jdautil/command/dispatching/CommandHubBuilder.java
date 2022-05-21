@@ -6,9 +6,9 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.buttons.ButtonService;
-import de.chojo.jdautil.buttons.ButtonServiceBuilder;
-import de.chojo.jdautil.buttons.ButtonServiceModifier;
+import de.chojo.jdautil.menus.MenuService;
+import de.chojo.jdautil.menus.MenuServiceBuilder;
+import de.chojo.jdautil.menus.MenuServiceModifier;
 import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
@@ -57,7 +57,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
     private PageServiceBuilder pagination;
-    private ButtonServiceBuilder buttonService;
+    private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
 
     CommandHubBuilder(ShardManager shardManager) {
@@ -147,16 +147,29 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(pagination);
         return this;
     }
+    public CommandHubBuilder<T> withDefaultPagination() {
+        pagination = PageService.builder(shardManager);
+        return this;
+    }
 
-    public CommandHubBuilder<T> withButtonService(Consumer<ButtonServiceModifier> builder) {
-        buttonService = ButtonService.builder(shardManager);
-        builder.accept(buttonService);
+    public CommandHubBuilder<T> withMenuService(Consumer<MenuServiceModifier> builder) {
+        menuService = MenuService.builder(shardManager);
+        builder.accept(menuService);
+        return this;
+    }
+    public CommandHubBuilder<T> withDefaultMenuService() {
+        menuService = MenuService.builder(shardManager);
         return this;
     }
 
     public CommandHubBuilder<T> withModalService(Consumer<ModalServiceModifier> builder) {
         modalService = ModalService.builder(shardManager);
         builder.accept(modalService);
+        return this;
+    }
+
+    public CommandHubBuilder<T> withDefaultModalService() {
+        modalService = ModalService.builder(shardManager);
         return this;
     }
 
@@ -175,10 +188,10 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             conversationService = new ConversationService(localizer);
             shardManager.addEventListener(conversationService);
         }
-        ButtonService buttons = null;
-        if (buttonService != null) {
-            buttonService.withLocalizer(localizer);
-            buttons = buttonService.build();
+        MenuService buttons = null;
+        if (menuService != null) {
+            menuService.withLocalizer(localizer);
+            buttons = menuService.build();
         }
         PageService pages = null;
         if (pagination != null) {

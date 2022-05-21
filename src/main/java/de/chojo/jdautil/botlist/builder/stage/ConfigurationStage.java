@@ -7,6 +7,7 @@
 package de.chojo.jdautil.botlist.builder.stage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.chojo.jdautil.botlist.builder.BotlistBuilder;
 import de.chojo.jdautil.botlist.modules.shared.StatusCodeHandler;
 import de.chojo.jdautil.botlist.modules.submission.StatsMapper;
 import de.chojo.jdautil.botlist.modules.voting.poll.VoteChecker;
@@ -63,4 +64,11 @@ public interface ConfigurationStage extends Buildable {
      * @return builder instance
      */
     ConfigurationStage withVoteReceiver(VoteReceiver<?> voteReceiver);
+
+    /**
+     * Report the start per shard or a total for all connected shards
+     * @param shardStats true if stats should be reported per shard. Default {@code true}
+     * @return builder instance
+     */
+    ConfigurationStage useShardStats(boolean shardStats);
 }

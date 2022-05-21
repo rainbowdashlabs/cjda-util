@@ -27,6 +27,8 @@ public interface BotListFactory {
                     "bots/{ID}/stats",
                     (data, map) -> map
                             .add("server_count", data.guilds())
+                            .add("shard_id", data.shardId())
+                            .add("shard_count", data.shards())
             ))
             .withVoteReceiver(VoteReceiverFactory.TOP_GG.build(config.voteToken()))
             .build();
@@ -43,6 +45,7 @@ public interface BotListFactory {
                     (data, map) -> map
                             .add("guildCount", data.guilds())
                             .add("shardCount", data.shards())
+                            .add("shardId", data.shardId())
             ))
             .build();
 
@@ -57,6 +60,7 @@ public interface BotListFactory {
                     "api/v1/bots/{id}/stats", (shard, map) -> map
                             .add("guilds", shard.guilds())
                             .add("users", shard.user())
+                            .add("shard_id", shard.shardId())
             ))
             .withVoteReceiver(VoteReceiverFactory.DISCORDBOTLIST_COM.build(config.voteToken()))
             .build();
@@ -74,6 +78,7 @@ public interface BotListFactory {
                             .add("server_count", shard.guilds())
                             .add("shard_count", shard.shards())
             ))
+            .useShardStats(false)
             .withVoteReceiver(VoteReceiverFactory.BOTLIST_ME.build(config.statsToken()))
             .build();
 
