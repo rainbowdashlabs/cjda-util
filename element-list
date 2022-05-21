@@ -8,7 +8,6 @@ de.chojo.jdautil.botlist.modules.voting.poll
 de.chojo.jdautil.botlist.modules.voting.post
 de.chojo.jdautil.botlist.modules.voting.post.payload
 de.chojo.jdautil.buffer
-de.chojo.jdautil.buttons
 de.chojo.jdautil.command
 de.chojo.jdautil.command.dispatching
 de.chojo.jdautil.consumer
@@ -19,6 +18,8 @@ de.chojo.jdautil.conversation.elements
 de.chojo.jdautil.functions
 de.chojo.jdautil.localization
 de.chojo.jdautil.localization.util
+de.chojo.jdautil.menus
+de.chojo.jdautil.menus.entries
 de.chojo.jdautil.modals.handler
 de.chojo.jdautil.modals.service
 de.chojo.jdautil.pagination
