@@ -147,14 +147,28 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(pagination);
         return this;
     }
+    public CommandHubBuilder<T> withDefaultPagination() {
+        pagination = PageService.builder(shardManager);
+        return this;
+    }
 
     public CommandHubBuilder<T> withMenuService(Consumer<MenuServiceModifier> builder) {
         menuService = MenuService.builder(shardManager);
         builder.accept(menuService);
         return this;
     }
+    public CommandHubBuilder<T> withDefaultMenuService() {
+        menuService = MenuService.builder(shardManager);
+        return this;
+    }
 
     public CommandHubBuilder<T> withModalService(Consumer<ModalServiceModifier> builder) {
+        modalService = ModalService.builder(shardManager);
+        builder.accept(modalService);
+        return this;
+    }
+
+    public CommandHubBuilder<T> withDefaultModalService(Consumer<ModalServiceModifier> builder) {
         modalService = ModalService.builder(shardManager);
         builder.accept(modalService);
         return this;
