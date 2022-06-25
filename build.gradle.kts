@@ -4,7 +4,7 @@ plugins {
     java
     `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.0.4"
+    id("de.chojo.publishdata") version "1.0.5"
     id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -21,7 +21,7 @@ dependencies {
     // Serialization
     api("com.google.guava", "guava", "31.1-jre")
     api("com.fasterxml.jackson.core", "jackson-databind", "2.13.3")
-    api("io.javalin", "javalin", "4.6.0")
+    api("io.javalin", "javalin", "4.6.3")
 
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
@@ -34,7 +34,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.5.0+alpha.12"
+version = "2.5.1+alpha.12"
 description = "Discord utilities for use with JDA"
 
 publishData {

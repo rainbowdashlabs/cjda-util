@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -32,9 +31,7 @@ public final class Completion {
      * @return list of strings
      */
     public static List<Command.Choice> complete(String value, String... inputs) {
-        return ArrayUtil.startingWithInArray(value, inputs)
-                .map(e -> new Command.Choice(e, e))
-                .collect(Collectors.toCollection(ArrayList::new));
+        return complete(value, Arrays.stream(inputs).toList());
     }
 
     /**
@@ -45,10 +42,11 @@ public final class Completion {
      * @return list of strings
      */
     public static List<Command.Choice> complete(String value, Stream<String> inputs) {
-        if (value.isEmpty()) return inputs.map(Choice::toChoice).toList();
+        if (value.isEmpty()) return inputs.map(Choice::toChoice).limit(25).toList();
         var lowerValue = value.toLowerCase(Locale.ROOT);
         return inputs.filter(i -> i.toLowerCase().startsWith(lowerValue))
                 .map(Choice::toChoice)
+                .limit(25)
                 .toList();
     }
 

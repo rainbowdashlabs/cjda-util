@@ -8,6 +8,7 @@ package de.chojo.jdautil.util;
 
 import net.dv8tion.jda.api.interactions.commands.Command;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -46,5 +47,34 @@ public class Choice {
 
     public static Command.Choice toChoice(double value) {
         return new Command.Choice(String.valueOf(value), value);
+    }
+
+    public static ChoiceBuilder builder() {
+        return new ChoiceBuilder();
+    }
+
+    public static class ChoiceBuilder {
+        private final List<Command.Choice> choices = new ArrayList<>();
+
+        private ChoiceBuilder add(Command.Choice choice) {
+            choices.add(choice);
+            return this;
+        }
+
+        public ChoiceBuilder add(String name, String value) {
+            return add(new Command.Choice(name, value));
+        }
+
+        public ChoiceBuilder add(String name, int value) {
+            return add(new Command.Choice(name, value));
+        }
+
+        public ChoiceBuilder add(String name, long value) {
+            return add(new Command.Choice(name, value));
+        }
+
+        public List<Command.Choice> build() {
+            return choices;
+        }
     }
 }
