@@ -6,14 +6,13 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.menus.MenuService;
-import de.chojo.jdautil.menus.MenuServiceBuilder;
-import de.chojo.jdautil.menus.MenuServiceModifier;
-import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.menus.MenuService;
+import de.chojo.jdautil.menus.MenuServiceBuilder;
+import de.chojo.jdautil.menus.MenuServiceModifier;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.modals.service.ModalServiceBuilder;
 import de.chojo.jdautil.modals.service.ModalServiceModifier;
@@ -126,6 +125,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(pagination);
         return this;
     }
+
     public CommandHubBuilder<T> withDefaultPagination() {
         pagination = PageService.builder(shardManager);
         return this;
@@ -136,6 +136,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(menuService);
         return this;
     }
+
     public CommandHubBuilder<T> withDefaultMenuService() {
         menuService = MenuService.builder(shardManager);
         return this;

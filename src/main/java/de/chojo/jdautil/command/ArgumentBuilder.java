@@ -6,14 +6,11 @@
 
 package de.chojo.jdautil.command;
 
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ArgumentBuilder {
-    List<SimpleArgument> arguments = new ArrayList<>();
+    private final List<SimpleArgument> arguments = new ArrayList<>();
 
     public ArgumentBuilder add(SimpleArgument argument) {
         arguments.add(argument);

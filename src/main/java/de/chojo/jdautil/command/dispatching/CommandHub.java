@@ -6,12 +6,11 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.menus.MenuService;
-import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
+import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
@@ -20,7 +19,6 @@ import de.chojo.jdautil.wrapper.SlashCommandContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
