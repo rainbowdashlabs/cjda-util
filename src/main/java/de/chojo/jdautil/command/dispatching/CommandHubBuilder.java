@@ -6,21 +6,19 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.menus.MenuService;
-import de.chojo.jdautil.menus.MenuServiceBuilder;
-import de.chojo.jdautil.menus.MenuServiceModifier;
-import de.chojo.jdautil.command.CommandMeta;
 import de.chojo.jdautil.command.SimpleCommand;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.menus.MenuService;
+import de.chojo.jdautil.menus.MenuServiceBuilder;
+import de.chojo.jdautil.menus.MenuServiceModifier;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.modals.service.ModalServiceBuilder;
 import de.chojo.jdautil.modals.service.ModalServiceModifier;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import de.chojo.jdautil.pagination.PageServiceModifier;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -39,15 +37,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private final Map<String, T> commands = new HashMap<>();
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
-    private PermissionCheck<CommandMeta> permissionCheck = (eventWrapper, command) -> {
-        if (eventWrapper.isFromGuild()) {
-            if (command.defaultEnabled()) {
-                return true;
-            }
-            return eventWrapper.getMember().hasPermission(Permission.ADMINISTRATOR);
-        }
-        return true;
-    };
 
     private Consumer<CommandResult<T>> postCommandHook = r -> {
     };
@@ -100,17 +89,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     }
 
     /**
-     * Adds a permission check. This check determines if a user is allowed to execute a command.
-     *
-     * @param permissionCheck checks if a user can execute the command
-     * @return builder instance
-     */
-    public CommandHubBuilder<T> withPermissionCheck(PermissionCheck<CommandMeta> permissionCheck) {
-        this.permissionCheck = permissionCheck;
-        return this;
-    }
-
-    /**
      * Adds a conversation system to the command hub
      *
      * @return builder instance
@@ -147,6 +125,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(pagination);
         return this;
     }
+
     public CommandHubBuilder<T> withDefaultPagination() {
         pagination = PageService.builder(shardManager);
         return this;
@@ -157,6 +136,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         builder.accept(menuService);
         return this;
     }
+
     public CommandHubBuilder<T> withDefaultMenuService() {
         menuService = MenuService.builder(shardManager);
         return this;
@@ -203,7 +183,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             modalService.withLocalizer(localizer);
             modals = modalService.build();
         }
-        var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
+        var commandListener = new CommandHub<>(shardManager, commands, conversationService, localizer,
                 useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
