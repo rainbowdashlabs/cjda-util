@@ -27,7 +27,7 @@ public class SimpleArgument {
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
      */
     @Deprecated(forRemoval = true)
-    public static SimpleArgument of(OptionType type, String name, String description,boolean required) {
+    public static SimpleArgument of(OptionType type, String name, String description, boolean required) {
         return new SimpleArgument(type, name, description, required, false);
     }
 
@@ -35,28 +35,8 @@ public class SimpleArgument {
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
      */
     @Deprecated(forRemoval = true)
-    public static SimpleArgument of(OptionType type, String name,String description) {
+    public static SimpleArgument of(OptionType type, String name, String description) {
         return new SimpleArgument(type, name, description, false, false);
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public String description() {
-        return description;
-    }
-
-    public OptionType type() {
-        return type;
-    }
-
-    public boolean autoComplete() {
-        return autoComplete;
     }
 
     public static SimpleArgumentBuilder builder(OptionType type, String name, String description) {
@@ -97,6 +77,26 @@ public class SimpleArgument {
 
     public static SimpleArgumentBuilder mentionable(String name, String description) {
         return builder(OptionType.MENTIONABLE, name, description);
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public OptionType type() {
+        return type;
+    }
+
+    public boolean autoComplete() {
+        return autoComplete;
     }
 
 }

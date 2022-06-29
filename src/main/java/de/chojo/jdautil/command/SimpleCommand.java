@@ -75,14 +75,6 @@ public abstract class SimpleCommand {
      * @deprecated Replaced by {@link #meta()}
      */
     @Deprecated(forRemoval = true)
-    public boolean needsPermission() {
-        return meta.defaultEnabled();
-    }
-
-    /**
-     * @deprecated Replaced by {@link #meta()}
-     */
-    @Deprecated(forRemoval = true)
     public SimpleSubCommand[] getSubCommands() {
         return meta.subCommands();
     }
