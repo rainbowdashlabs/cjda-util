@@ -6,11 +6,9 @@
 
 package de.chojo.jdautil.command;
 
-import de.chojo.jdautil.command.dispatching.CommandPermissionCheck;
-import de.chojo.jdautil.command.dispatching.PermissionCheck;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
@@ -24,16 +22,16 @@ public class CommandMeta {
     private final String description;
     private final SimpleArgument[] argument;
     private final SimpleSubCommand[] subCommands;
-    private final boolean defaultEnabled;
-    private final CommandPermissionCheck permissionCheck;
+    private final DefaultMemberPermissions permission;
+    private final boolean guildOnly;
 
-    CommandMeta(String name, String description, SimpleArgument[] argument, SimpleSubCommand[] subCommands, boolean defaultEnabled, CommandPermissionCheck permissionCheck) {
+    CommandMeta(String name, String description, SimpleArgument[] argument, SimpleSubCommand[] subCommands, DefaultMemberPermissions permission, boolean guildOnly) {
         this.name = name;
         this.description = description;
         this.argument = argument;
         this.subCommands = subCommands;
-        this.defaultEnabled = defaultEnabled;
-        this.permissionCheck = permissionCheck;
+        this.permission = permission;
+        this.guildOnly = guildOnly;
     }
 
     public static CommandMetaBuilder builder(String name, String description) {
@@ -54,14 +52,6 @@ public class CommandMeta {
 
     public SimpleSubCommand[] subCommands() {
         return subCommands;
-    }
-
-    public boolean defaultEnabled() {
-        return defaultEnabled;
-    }
-
-    public boolean hasPermission(GenericInteractionCreateEvent event, PermissionCheck<CommandMeta> check) {
-        return permissionCheck == null ? check.hasPermission(event, this) : permissionCheck.hasPermission(event);
     }
 
     public CommandData toCommandData(ILocalizer localizer, Language lang) {
@@ -86,9 +76,14 @@ public class CommandMeta {
             throw new IllegalStateException("Command " + name + " has subcommands and arguments.");
         }
 
-        commandData.setDefaultEnabled(defaultEnabled());
+        commandData.setDefaultPermissions(permission());
+        commandData.setGuildOnly(guildOnly);
 
         return commandData;
+    }
+
+    private DefaultMemberPermissions permission() {
+        return permission;
     }
 
     @Override
@@ -96,24 +91,26 @@ public class CommandMeta {
         if (this == o) return true;
         if (!(o instanceof CommandMeta)) return false;
 
-        var that = (CommandMeta) o;
+        CommandMeta that = (CommandMeta) o;
 
-        if (defaultEnabled != that.defaultEnabled) return false;
+        if (guildOnly != that.guildOnly) return false;
         if (!name.equals(that.name)) return false;
         if (!description.equals(that.description)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(argument, that.argument)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(subCommands, that.subCommands);
+        if (!Arrays.equals(subCommands, that.subCommands)) return false;
+        return permission.equals(that.permission);
     }
 
     @Override
     public int hashCode() {
-        var result = name.hashCode();
+        int result = name.hashCode();
         result = 31 * result + description.hashCode();
         result = 31 * result + Arrays.hashCode(argument);
         result = 31 * result + Arrays.hashCode(subCommands);
-        result = 31 * result + (defaultEnabled ? 1 : 0);
+        result = 31 * result + permission.hashCode();
+        result = 31 * result + (guildOnly ? 1 : 0);
         return result;
     }
 }

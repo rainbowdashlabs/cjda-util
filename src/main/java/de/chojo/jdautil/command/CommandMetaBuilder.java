@@ -6,16 +6,16 @@
 
 package de.chojo.jdautil.command;
 
-import de.chojo.jdautil.command.dispatching.CommandPermissionCheck;
-import de.chojo.jdautil.command.dispatching.ManagerRoles;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
 public class CommandMetaBuilder {
     private String name;
     private String description;
     private ArgumentBuilder argument = SimpleCommand.argsBuilder();
     private SubCommandBuilder subCommands = SimpleCommand.subCommandBuilder();
-    private boolean defaultEnabled = true;
-    private CommandPermissionCheck permissionCheck;
+    private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
+    private boolean guildOnly;
 
     public CommandMetaBuilder(String name, String description) {
         this.name = name;
@@ -42,17 +42,41 @@ public class CommandMetaBuilder {
         return this;
     }
 
-    public CommandMetaBuilder withPermission() {
-        this.defaultEnabled = false;
+    public CommandMetaBuilder withPermission(Permission... permissions) {
+        this.permission = DefaultMemberPermissions.enabledFor(permissions);
         return this;
     }
 
-    public CommandMetaBuilder withPermissionCheck(CommandPermissionCheck permissionCheck) {
-        this.permissionCheck = permissionCheck;
-        return withPermission();
+    /**
+     * Marks a command as public command.
+     * <p>
+     * This is the default value.
+     *
+     * @return builder
+     */
+    public CommandMetaBuilder publicCommand() {
+        this.permission = DefaultMemberPermissions.ENABLED;
+        return this;
+    }
+
+    /**
+     * Marks a command as admin command.
+     * <p>
+     * The command will only be accessable for administrators of a guild.
+     *
+     * @return builder
+     */
+    public CommandMetaBuilder adminCommand() {
+        this.permission = DefaultMemberPermissions.DISABLED;
+        return this;
+    }
+
+    public CommandMetaBuilder guildOnly() {
+        this.guildOnly = true;
+        return this;
     }
 
     public CommandMeta build() {
-        return new CommandMeta(name, description, argument.build(), subCommands.build(), defaultEnabled, permissionCheck);
+        return new CommandMeta(name, description, argument.build(), subCommands.build(), permission, guildOnly);
     }
 }

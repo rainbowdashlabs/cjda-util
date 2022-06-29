@@ -20,7 +20,6 @@ import de.chojo.jdautil.modals.service.ModalServiceModifier;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import de.chojo.jdautil.pagination.PageServiceModifier;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -39,15 +38,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private final Map<String, T> commands = new HashMap<>();
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
-    private PermissionCheck<CommandMeta> permissionCheck = (eventWrapper, command) -> {
-        if (eventWrapper.isFromGuild()) {
-            if (command.defaultEnabled()) {
-                return true;
-            }
-            return eventWrapper.getMember().hasPermission(Permission.ADMINISTRATOR);
-        }
-        return true;
-    };
 
     private Consumer<CommandResult<T>> postCommandHook = r -> {
     };
@@ -96,17 +86,6 @@ public class CommandHubBuilder<T extends SimpleCommand> {
         for (var command : commands) {
             this.commands.put(command.meta().name().toLowerCase(Locale.ROOT), command);
         }
-        return this;
-    }
-
-    /**
-     * Adds a permission check. This check determines if a user is allowed to execute a command.
-     *
-     * @param permissionCheck checks if a user can execute the command
-     * @return builder instance
-     */
-    public CommandHubBuilder<T> withPermissionCheck(PermissionCheck<CommandMeta> permissionCheck) {
-        this.permissionCheck = permissionCheck;
         return this;
     }
 
@@ -203,7 +182,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
             modalService.withLocalizer(localizer);
             modals = modalService.build();
         }
-        var commandListener = new CommandHub<>(shardManager, commands, permissionCheck, conversationService, localizer,
+        var commandListener = new CommandHub<>(shardManager, commands, conversationService, localizer,
                 useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();

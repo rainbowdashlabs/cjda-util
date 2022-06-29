@@ -48,7 +48,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private static final Logger log = getLogger(CommandHub.class);
     private final ShardManager shardManager;
     private final Map<String, Command> commands;
-    private final PermissionCheck<CommandMeta> permissionCheck;
     private final ConversationService conversationService;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
@@ -61,13 +60,12 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     private final Consumer<CommandResult<Command>> postCommandHook;
 
     public CommandHub(ShardManager shardManager,
-                      Map<String, Command> commands, PermissionCheck<CommandMeta> permissionCheck,
+                      Map<String, Command> commands,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
                       MenuService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<Command>> postCommandHook) {
         this.shardManager = shardManager;
         this.commands = commands;
-        this.permissionCheck = permissionCheck;
         this.conversationService = conversationService;
         this.localizer = localizer;
         this.useSlashGlobalCommands = useSlashGlobalCommands;
@@ -87,10 +85,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
         var name = event.getName();
         var command = getCommand(name).get();
-        if (!canExecute(event, command)) {
-            event.replyChoices().queue();
-            return;
-        }
         try {
             command.onAutoComplete(event, new SlashCommandContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
@@ -103,10 +97,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         var name = event.getName();
         var command = getCommand(name).get();
-        if (!canExecute(event, command)) {
-            event.reply("🚫").setEphemeral(true).queue();
-            return;
-        }
         var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
             command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
@@ -140,9 +130,9 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
         for (var command : new HashSet<>(commands.values())) {
             if (command.meta().subCommands() != null) {
-                log.info("Registering command {} with {} subcommands. Default enabled: {}", command.meta().name(), command.meta().subCommands().length, command.meta().defaultEnabled());
+                log.info("Registering command {} with {} subcommands.", command.meta().name(), command.meta().subCommands().length);
             } else {
-                log.info("Registering command {}. Default enabled: {}", command.meta().name(), command.meta().defaultEnabled());
+                log.info("Registering command {}.", command.meta().name());
             }
         }
 
@@ -202,11 +192,6 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         if (conversationService != null) {
             conversationService.invoke(event);
         }
-    }
-
-
-    public boolean canExecute(GenericInteractionCreateEvent event, Command command) {
-        return command.meta().defaultEnabled() || command.meta().hasPermission(event, permissionCheck);
     }
 
     public Optional<Command> getCommand(String name) {
