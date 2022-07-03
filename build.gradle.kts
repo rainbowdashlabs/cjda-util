@@ -21,7 +21,11 @@ dependencies {
     // Serialization
     api("com.google.guava", "guava", "31.1-jre")
     api("com.fasterxml.jackson.core", "jackson-databind", "2.13.3")
+
+    // web api
     api("io.javalin", "javalin", "4.6.3")
+    api("io.javalin", "javalin-openapi", "4.6.3")
+
 
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
@@ -34,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.6.0+alpha.13"
+version = "2.6.1+alpha.13"
 description = "Discord utilities for use with JDA"
 
 publishData {

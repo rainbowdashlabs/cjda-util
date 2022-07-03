@@ -9,7 +9,7 @@ package de.chojo.jdautil.botlist.modules.voting.post.payload;
 import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 
 public class DiscordbotlistCom implements VoteDataAdapter {
-    private long id;
+    public long id;
 
     @Override
     public VoteData toVotaData() {

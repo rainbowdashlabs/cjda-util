@@ -7,8 +7,8 @@
   ],
   "packageRules": [
     {
-      "groupName": "log4j",
-      "matchPackagePrefixes": ["org.apache.logging.log4j"]
+      "groupName": "javalin",
+      "matchPackagePrefixes": ["io.javalin"]
     }
   ],
   "reviewers": [
