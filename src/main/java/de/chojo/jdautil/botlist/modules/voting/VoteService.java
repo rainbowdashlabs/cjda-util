@@ -12,7 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.chojo.jdautil.botlist.BotList;
 import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
+import de.chojo.jdautil.botlist.modules.voting.post.VoteReceiver;
 import io.javalin.Javalin;
+import io.javalin.http.ContentType;
+import io.javalin.http.Handler;
+import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -28,7 +33,7 @@ public class VoteService {
     private static final Logger log = getLogger(VoteService.class);
     private final Javalin voteReceiver;
     private final Consumer<VoteData> voteNotifier;
-    ObjectMapper objectMapper = new ObjectMapper()
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -58,16 +63,29 @@ public class VoteService {
         var name = botList.name().toLowerCase(Locale.ROOT).replace(".", "");
         var route = "voting/" + name;
         log.info("Registering vote route {} for {}", route, botList.name());
-        this.voteReceiver.post(route, ctx -> {
-            if (!voteReceiver.isAuthorized(ctx)) {
-                ctx.status(HttpStatus.UNAUTHORIZED_401);
-                return;
-            }
-            var data = objectMapper.readValue(ctx.body(), voteReceiver.payload());
-            var voteData = voteReceiver.mapToVoteData(data);
-            voted(voteData);
-            ctx.status(HttpStatus.OK_200);
-        });
+        this.voteReceiver.post(route, getHandler(botList, voteReceiver));
+    }
+
+    private Handler getHandler(BotList botList, VoteReceiver<?> voteReceiver) {
+        return OpenApiBuilder.documented(
+                OpenApiBuilder.document()
+                        .operation(op -> {
+                            op.summary("Submit a vote for " + botList.name());
+                        })
+                        .body(voteReceiver.payload(), ContentType.JSON)
+                        .header(voteReceiver.auth().name(), String.class)
+                        .result("200")
+                        .result("401", String.class, p -> p.setDescription("When the token in " + voteReceiver.auth().name() + " is invalid.")),
+                ctx -> {
+                    if (!voteReceiver.isAuthorized(ctx)) {
+                        ctx.status(HttpStatus.UNAUTHORIZED_401);
+                        return;
+                    }
+                    var data = OBJECT_MAPPER.readValue(ctx.body(), voteReceiver.payload());
+                    var voteData = voteReceiver.mapToVoteData(data);
+                    voted(voteData);
+                    ctx.status(HttpStatus.OK_200);
+                });
     }
 
     /**
