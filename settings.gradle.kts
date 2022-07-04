@@ -2,7 +2,6 @@ rootProject.name = "cjda-util"
 
 pluginManagement{
     repositories{
-        mavenLocal()
         gradlePluginPortal()
         maven{
             name = "EldoNexus"
