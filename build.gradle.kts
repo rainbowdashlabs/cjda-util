@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion", "JDA", "5.0.0-alpha.13")
+    api("net.dv8tion", "JDA", "5.0.0-alpha.15")
     api("org.apache.commons", "commons-text", "1.9")
     api("club.minnced", "discord-webhooks", "0.8.2")
 
