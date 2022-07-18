@@ -4,14 +4,14 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.command;
+package de.chojo.jdautil.command.slash;
 
-public class SimpleSubCommand {
+public class SubSlash {
     private final String name;
-    private final SimpleArgument[] args;
+    private final Argument[] args;
     private final String description;
 
-    public SimpleSubCommand(String name, SimpleArgument[] args, String description) {
+    public SubSlash(String name, Argument[] args, String description) {
         this.name = name;
         this.args = args;
         this.description = description;
@@ -21,7 +21,7 @@ public class SimpleSubCommand {
         return name;
     }
 
-    public SimpleArgument[] args() {
+    public Argument[] args() {
         return args;
     }
 

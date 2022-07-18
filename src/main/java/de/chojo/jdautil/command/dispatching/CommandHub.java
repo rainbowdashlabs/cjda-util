@@ -6,7 +6,8 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.command.SimpleCommand;
+import de.chojo.jdautil.command.message.Message;
+import de.chojo.jdautil.command.slash.Slash;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
@@ -15,11 +16,12 @@ import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
-import de.chojo.jdautil.wrapper.SlashCommandContext;
+import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -42,28 +44,29 @@ import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
+public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> extends ListenerAdapter {
     private static final Logger log = getLogger(CommandHub.class);
     private final ShardManager shardManager;
-    private final Map<String, Command> commands;
+    private final Map<String, SlashImpl> slash;
+    private final Map<String, MessageImpl> messages;
     private final ConversationService conversationService;
     private final ILocalizer localizer;
     private final boolean useSlashGlobalCommands;
     @Deprecated
-    private final BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler;
+    private final BiConsumer<InteractionContext, Throwable> commandErrorHandler;
     private final Map<Language, List<CommandData>> commandData = new HashMap<>();
     private final MenuService buttons;
     private final PageService pages;
     private final ModalService modalService;
-    private final Consumer<CommandResult<Command>> postCommandHook;
+    private final Consumer<CommandResult<SlashImpl>> postCommandHook;
 
     public CommandHub(ShardManager shardManager,
-                      Map<String, Command> commands,
+                      Map<String, SlashImpl> slash,
                       ConversationService conversationService, ILocalizer localizer,
-                      boolean useSlashGlobalCommands, BiConsumer<CommandExecutionContext<Command>, Throwable> commandErrorHandler,
-                      MenuService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<Command>> postCommandHook) {
+                      boolean useSlashGlobalCommands, BiConsumer<InteractionContext, Throwable> commandErrorHandler,
+                      MenuService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<SlashImpl>> postCommandHook) {
         this.shardManager = shardManager;
-        this.commands = commands;
+        this.slash = slash;
         this.conversationService = conversationService;
         this.localizer = localizer;
         this.useSlashGlobalCommands = useSlashGlobalCommands;
@@ -75,18 +78,32 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     }
 
 
-    public static <T extends SimpleCommand> CommandHubBuilder<T> builder(ShardManager shardManager) {
+    public static <T extends Slash> CommandHubBuilder<T> builder(ShardManager shardManager) {
         return new CommandHubBuilder<>(shardManager);
+    }
+
+    @Override
+    public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
+        var name = event.getName();
+        var message = getMessage(name).get();
+        var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+        try {
+            message.onMessage(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+        } catch (Throwable t) {
+            commandErrorHandler.accept(executionContext, t);
+            return;
+        }
+        postCommandHook.accept(CommandResult.success(event, executionContext));
     }
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
         var name = event.getName();
-        var command = getCommand(name).get();
+        var command = getSlash(name).get();
         try {
-            command.onAutoComplete(event, new SlashCommandContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+            command.onAutoComplete(event, new EventContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
-            var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
+            var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
         }
     }
@@ -94,10 +111,10 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         var name = event.getName();
-        var command = getCommand(name).get();
-        var executionContext = new CommandExecutionContext<>(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+        var command = getSlash(name).get();
+        var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            command.onSlashCommand(event, new SlashCommandContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+            command.onSlashCommand(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -117,7 +134,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         for (var language : localizer.languages()) {
             log.info("Creating command data for {} language", language.getCode());
             List<CommandData> localizedCommandData = new ArrayList<>();
-            for (var command : new HashSet<>(commands.values())) {
+            for (var command : getSlash()) {
                 try {
                     localizedCommandData.add(command.getCommandData(localizer, language));
                 } catch (Exception e) {
@@ -126,7 +143,7 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
             }
             commandData.put(language, localizedCommandData);
         }
-        for (var command : new HashSet<>(commands.values())) {
+        for (var command : new HashSet<>(slash.values())) {
             if (command.meta().subCommands() != null) {
                 log.info("Registering command {} with {} subcommands.", command.meta().name(), command.meta().subCommands().length);
             } else {
@@ -192,11 +209,14 @@ public class CommandHub<Command extends SimpleCommand> extends ListenerAdapter {
         }
     }
 
-    public Optional<Command> getCommand(String name) {
-        return Optional.ofNullable(commands.get(name.toLowerCase()));
+    public Optional<SlashImpl> getSlash(String name) {
+        return Optional.ofNullable(slash.get(name.toLowerCase()));
+    }
+    public Optional<MessageImpl> getMessage(String name) {
+        return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
 
-    public Set<Command> getCommands() {
-        return Set.copyOf(commands.values());
+    public Set<SlashImpl> getSlash() {
+        return Set.copyOf(slash.values());
     }
 }

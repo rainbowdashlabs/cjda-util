@@ -4,8 +4,10 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.command;
+package de.chojo.jdautil.command.slash;
 
+import de.chojo.jdautil.command.base.CommandDataProvider;
+import de.chojo.jdautil.command.base.Meta;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
@@ -17,25 +19,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommandMeta {
+public class SlashMeta implements CommandDataProvider, Meta {
     private final String name;
     private final String description;
-    private final SimpleArgument[] argument;
-    private final SimpleSubCommand[] subCommands;
+    private final Argument[] argument;
+    private final SubSlash[] subSlashes;
     private final DefaultMemberPermissions permission;
     private final boolean guildOnly;
 
-    CommandMeta(String name, String description, SimpleArgument[] argument, SimpleSubCommand[] subCommands, DefaultMemberPermissions permission, boolean guildOnly) {
+    SlashMeta(String name, String description, Argument[] argument, SubSlash[] subSlashes, DefaultMemberPermissions permission, boolean guildOnly) {
         this.name = name;
         this.description = description;
         this.argument = argument;
-        this.subCommands = subCommands;
+        this.subSlashes = subSlashes;
         this.permission = permission;
         this.guildOnly = guildOnly;
     }
 
-    public static CommandMetaBuilder builder(String name, String description) {
-        return new CommandMetaBuilder(name, description);
+    public static SlashMetaBuilder builder(String name, String description) {
+        return new SlashMetaBuilder(name, description);
     }
 
     public String name() {
@@ -46,12 +48,12 @@ public class CommandMeta {
         return description;
     }
 
-    public SimpleArgument[] argument() {
+    public Argument[] argument() {
         return argument;
     }
 
-    public SimpleSubCommand[] subCommands() {
-        return subCommands;
+    public SubSlash[] subCommands() {
+        return subSlashes;
     }
 
     public CommandData toCommandData(ILocalizer localizer, Language lang) {
@@ -89,9 +91,9 @@ public class CommandMeta {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CommandMeta)) return false;
+        if (!(o instanceof SlashMeta)) return false;
 
-        CommandMeta that = (CommandMeta) o;
+        SlashMeta that = (SlashMeta) o;
 
         if (guildOnly != that.guildOnly) return false;
         if (!name.equals(that.name)) return false;
@@ -99,7 +101,7 @@ public class CommandMeta {
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(argument, that.argument)) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(subCommands, that.subCommands)) return false;
+        if (!Arrays.equals(subSlashes, that.subSlashes)) return false;
         return permission.equals(that.permission);
     }
 
@@ -108,7 +110,7 @@ public class CommandMeta {
         int result = name.hashCode();
         result = 31 * result + description.hashCode();
         result = 31 * result + Arrays.hashCode(argument);
-        result = 31 * result + Arrays.hashCode(subCommands);
+        result = 31 * result + Arrays.hashCode(subSlashes);
         result = 31 * result + permission.hashCode();
         result = 31 * result + (guildOnly ? 1 : 0);
         return result;

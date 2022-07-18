@@ -6,7 +6,8 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.command.SimpleCommand;
+import de.chojo.jdautil.command.base.Interaction;
+import de.chojo.jdautil.command.slash.Slash;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -31,7 +32,7 @@ import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class CommandHubBuilder<T extends SimpleCommand> {
+public class CommandHubBuilder<T extends Slash> {
     private static final Logger log = getLogger(CommandHubBuilder.class);
     private final ShardManager shardManager;
     private final Map<String, T> commands = new HashMap<>();
@@ -43,8 +44,8 @@ public class CommandHubBuilder<T extends SimpleCommand> {
     private boolean withConversations;
     private boolean useSlashGlobalCommands = true;
     @Deprecated
-    private BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler =
-            (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.command(), context.args(), err);
+    private BiConsumer<InteractionContext, Throwable> commandErrorHandler =
+            (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.interaction(), context.args(), err);
     private PageServiceBuilder pagination;
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
@@ -104,7 +105,7 @@ public class CommandHubBuilder<T extends SimpleCommand> {
      * @param commandErrorHandler handler for errors
      * @return builder instance
      */
-    public CommandHubBuilder<T> withCommandErrorHandler(BiConsumer<CommandExecutionContext<T>, Throwable> commandErrorHandler) {
+    public CommandHubBuilder<T> withCommandErrorHandler(BiConsumer<InteractionContext, Throwable> commandErrorHandler) {
         this.commandErrorHandler = commandErrorHandler;
         return this;
     }

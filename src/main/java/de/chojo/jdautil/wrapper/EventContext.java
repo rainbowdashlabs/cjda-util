@@ -20,16 +20,16 @@ import de.chojo.jdautil.pagination.bag.IPageBag;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
-public class SlashCommandContext {
+public class EventContext {
     private final IReplyCallback event;
     private final ConversationService conversationService;
     private final ContextLocalizer contextLocalizer;
     private final MenuService menus;
     private final PageService pages;
     private final ModalService modalService;
-    private final CommandHub<?> commandHub;
+    private final CommandHub<?,?> commandHub;
 
-    public SlashCommandContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, CommandHub<?> commandHub) {
+    public EventContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, CommandHub<?,?> commandHub) {
         this.event = event;
         this.conversationService = conversationService;
         this.contextLocalizer = contextLocalizer;
@@ -84,7 +84,7 @@ public class SlashCommandContext {
         return contextLocalizer;
     }
 
-    public CommandHub<?> commandHub() {
+    public CommandHub<?,?> commandHub() {
         return commandHub;
     }
 }

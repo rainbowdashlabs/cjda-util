@@ -6,25 +6,25 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.command.SimpleCommand;
+import de.chojo.jdautil.command.base.Interaction;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
-public class CommandExecutionContext<Command extends SimpleCommand> {
-    private Command command;
+public class InteractionContext {
+    private Interaction interaction;
     private String args;
     private Guild guild;
     private MessageChannel channel;
 
-    public CommandExecutionContext(Command command, String args, Guild guild, MessageChannel channel) {
-        this.command = command;
+    public InteractionContext(Interaction interaction, String args, Guild guild, MessageChannel channel) {
+        this.interaction = interaction;
         this.args = args;
         this.guild = guild;
         this.channel = channel;
     }
 
-    public Command command() {
-        return command;
+    public Interaction interaction() {
+        return interaction;
     }
 
     public String args() {

@@ -4,11 +4,12 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.command;
+package de.chojo.jdautil.command.slash;
 
+import de.chojo.jdautil.command.base.Interaction;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.Language;
-import de.chojo.jdautil.wrapper.SlashCommandContext;
+import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -16,26 +17,27 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-public abstract class SimpleCommand {
-    private final CommandMeta meta;
+public abstract class Slash implements Interaction {
+    private final SlashMeta meta;
 
-    protected SimpleCommand(CommandMeta meta) {
+    protected Slash(SlashMeta meta) {
         this.meta = meta;
     }
 
-    protected SimpleCommand(CommandMetaBuilder meta) {
+    protected Slash(SlashMetaBuilder meta) {
         this(meta.build());
     }
 
-    public static SubCommandBuilder subCommandBuilder() {
-        return new SubCommandBuilder();
+    public static SubSlashBuilder subCommandBuilder() {
+        return new SubSlashBuilder();
     }
 
-    public static ArgumentBuilder argsBuilder() {
-        return new ArgumentBuilder();
+    public static ArgumentsBuilder argsBuilder() {
+        return new ArgumentsBuilder();
     }
 
-    public CommandMeta meta() {
+    @Override
+    public SlashMeta meta() {
         return meta;
     }
 
@@ -59,7 +61,7 @@ public abstract class SimpleCommand {
      * @deprecated Replaced by {@link #meta()}
      */
     @Deprecated(forRemoval = true)
-    public SimpleArgument[] args() {
+    public Argument[] args() {
         return meta.argument();
     }
 
@@ -67,7 +69,7 @@ public abstract class SimpleCommand {
      * @deprecated Replaced by {@link #meta()}
      */
     @Deprecated(forRemoval = true)
-    public SimpleSubCommand[] subCommands() {
+    public SubSlash[] subCommands() {
         return meta.subCommands();
     }
 
@@ -75,13 +77,13 @@ public abstract class SimpleCommand {
      * @deprecated Replaced by {@link #meta()}
      */
     @Deprecated(forRemoval = true)
-    public SimpleSubCommand[] getSubCommands() {
+    public SubSlash[] getSubCommands() {
         return meta.subCommands();
     }
 
-    public abstract void onSlashCommand(SlashCommandInteractionEvent event, SlashCommandContext context);
+    public abstract void onSlashCommand(SlashCommandInteractionEvent event, EventContext context);
 
-    public void onAutoComplete(CommandAutoCompleteInteractionEvent event, SlashCommandContext slashCommandContext) {
+    public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext eventContext) {
 
     }
 
@@ -100,9 +102,9 @@ public abstract class SimpleCommand {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SimpleCommand)) return false;
+        if (!(o instanceof Slash)) return false;
 
-        SimpleCommand that = (SimpleCommand) o;
+        Slash that = (Slash) o;
 
         return meta.equals(that.meta);
     }
