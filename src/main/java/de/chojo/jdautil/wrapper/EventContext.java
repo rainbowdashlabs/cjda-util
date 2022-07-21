@@ -8,7 +8,7 @@ package de.chojo.jdautil.wrapper;
 
 import de.chojo.jdautil.menus.MenuAction;
 import de.chojo.jdautil.menus.MenuService;
-import de.chojo.jdautil.command.dispatching.CommandHub;
+import de.chojo.jdautil.interactions.dispatching.InteractionHub;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
@@ -27,16 +27,16 @@ public class EventContext {
     private final MenuService menus;
     private final PageService pages;
     private final ModalService modalService;
-    private final CommandHub<?,?> commandHub;
+    private final InteractionHub<?,?,?> interactionHub;
 
-    public EventContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, CommandHub<?,?> commandHub) {
+    public EventContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?,?,?> interactionHub) {
         this.event = event;
         this.conversationService = conversationService;
         this.contextLocalizer = contextLocalizer;
         this.menus = menus;
         this.pages = pages;
         this.modalService = modalService;
-        this.commandHub = commandHub;
+        this.interactionHub = interactionHub;
     }
 
     public ConversationService conversationService() {
@@ -84,7 +84,7 @@ public class EventContext {
         return contextLocalizer;
     }
 
-    public CommandHub<?,?> commandHub() {
-        return commandHub;
+    public InteractionHub<?,?,?> commandHub() {
+        return interactionHub;
     }
 }
