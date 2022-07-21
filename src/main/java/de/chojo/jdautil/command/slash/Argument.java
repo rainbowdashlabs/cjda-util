@@ -7,6 +7,7 @@
 package de.chojo.jdautil.command.slash;
 
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class Argument {
     private final OptionType type;
@@ -99,4 +100,7 @@ public class Argument {
         return autoComplete;
     }
 
+    public OptionData data() {
+        return new OptionData(type, name, description, isRequired(), autoComplete());
+    }
 }

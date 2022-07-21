@@ -4,28 +4,24 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.command.slash;
+package de.chojo.jdautil.command.slash.structure.meta;
 
-public class SubSlash {
+import de.chojo.jdautil.command.base.Meta;
+
+public class RouteMeta implements Meta {
     private final String name;
-    private final Argument[] args;
     private final String description;
 
-    public SubSlash(String name, Argument[] args, String description) {
+    public RouteMeta(String name, String description) {
         this.name = name;
-        this.args = args;
         this.description = description;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public Argument[] args() {
-        return args;
     }
 
     public String description() {
         return description;
+    }
+
+    public String name() {
+        return name;
     }
 }

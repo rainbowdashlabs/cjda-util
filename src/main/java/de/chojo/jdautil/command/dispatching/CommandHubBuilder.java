@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.command.dispatching;
 
-import de.chojo.jdautil.command.base.Interaction;
-import de.chojo.jdautil.command.slash.Slash;
+import de.chojo.jdautil.command.message.Message;
+import de.chojo.jdautil.command.slash.structure.Command;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -32,10 +32,11 @@ import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class CommandHubBuilder<T extends Slash> {
+public class CommandHubBuilder<T extends Command, M extends Message> {
     private static final Logger log = getLogger(CommandHubBuilder.class);
     private final ShardManager shardManager;
     private final Map<String, T> commands = new HashMap<>();
+    private final Map<String, M> messages = new HashMap<>();
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
 
@@ -59,7 +60,7 @@ public class CommandHubBuilder<T extends Slash> {
      *
      * @return builder instance
      */
-    public CommandHubBuilder<T> useGuildCommands() {
+    public CommandHubBuilder<T, M> useGuildCommands() {
         useSlashGlobalCommands = false;
         return this;
     }
@@ -70,21 +71,35 @@ public class CommandHubBuilder<T extends Slash> {
      * @param localizer localizer instance
      * @return builder instance
      */
-    public CommandHubBuilder<T> withLocalizer(ILocalizer localizer) {
+    public CommandHubBuilder<T, M> withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }
 
     /**
-     * Register commands
+     * Register slash interactions
      *
      * @param commands commands to register
      * @return builder instance
      */
     @SafeVarargs
-    public final CommandHubBuilder<T> withCommands(T... commands) {
+    public final CommandHubBuilder<T, M> withCommands(T... commands) {
         for (var command : commands) {
             this.commands.put(command.meta().name().toLowerCase(Locale.ROOT), command);
+        }
+        return this;
+    }
+
+    /**
+     * Register message interactions
+     *
+     * @param messages commands to register
+     * @return builder instance
+     */
+    @SafeVarargs
+    public final CommandHubBuilder<T, M> withMessages(M... messages) {
+        for (var message : messages) {
+            this.messages.put(message.meta().name().toLowerCase(Locale.ROOT), message);
         }
         return this;
     }
@@ -94,7 +109,7 @@ public class CommandHubBuilder<T extends Slash> {
      *
      * @return builder instance
      */
-    public CommandHubBuilder<T> withConversationSystem() {
+    public CommandHubBuilder<T, M> withConversationSystem() {
         this.withConversations = true;
         return this;
     }
@@ -105,7 +120,7 @@ public class CommandHubBuilder<T extends Slash> {
      * @param commandErrorHandler handler for errors
      * @return builder instance
      */
-    public CommandHubBuilder<T> withCommandErrorHandler(BiConsumer<InteractionContext, Throwable> commandErrorHandler) {
+    public CommandHubBuilder<T, M> withCommandErrorHandler(BiConsumer<InteractionContext, Throwable> commandErrorHandler) {
         this.commandErrorHandler = commandErrorHandler;
         return this;
     }
@@ -116,40 +131,40 @@ public class CommandHubBuilder<T extends Slash> {
      * @param postCommandHook handler
      * @return builder instance
      */
-    public CommandHubBuilder<T> withPostCommandHook(Consumer<CommandResult<T>> postCommandHook) {
+    public CommandHubBuilder<T, M> withPostCommandHook(Consumer<CommandResult<T>> postCommandHook) {
         this.postCommandHook = postCommandHook;
         return this;
     }
 
-    public CommandHubBuilder<T> withPagination(Consumer<PageServiceModifier> builder) {
+    public CommandHubBuilder<T, M> withPagination(Consumer<PageServiceModifier> builder) {
         pagination = PageService.builder(shardManager);
         builder.accept(pagination);
         return this;
     }
 
-    public CommandHubBuilder<T> withDefaultPagination() {
+    public CommandHubBuilder<T, M> withDefaultPagination() {
         pagination = PageService.builder(shardManager);
         return this;
     }
 
-    public CommandHubBuilder<T> withMenuService(Consumer<MenuServiceModifier> builder) {
+    public CommandHubBuilder<T, M> withMenuService(Consumer<MenuServiceModifier> builder) {
         menuService = MenuService.builder(shardManager);
         builder.accept(menuService);
         return this;
     }
 
-    public CommandHubBuilder<T> withDefaultMenuService() {
+    public CommandHubBuilder<T, M> withDefaultMenuService() {
         menuService = MenuService.builder(shardManager);
         return this;
     }
 
-    public CommandHubBuilder<T> withModalService(Consumer<ModalServiceModifier> builder) {
+    public CommandHubBuilder<T, M> withModalService(Consumer<ModalServiceModifier> builder) {
         modalService = ModalService.builder(shardManager);
         builder.accept(modalService);
         return this;
     }
 
-    public CommandHubBuilder<T> withDefaultModalService() {
+    public CommandHubBuilder<T, M> withDefaultModalService() {
         modalService = ModalService.builder(shardManager);
         return this;
     }
@@ -163,7 +178,7 @@ public class CommandHubBuilder<T extends Slash> {
      *
      * @return command hub instance
      */
-    public CommandHub<T> build() {
+    public CommandHub<T, M> build() {
         ConversationService conversationService = null;
         if (withConversations) {
             conversationService = new ConversationService(localizer);
@@ -184,7 +199,7 @@ public class CommandHubBuilder<T extends Slash> {
             modalService.withLocalizer(localizer);
             modals = modalService.build();
         }
-        var commandListener = new CommandHub<>(shardManager, commands, conversationService, localizer,
+        var commandListener = new CommandHub<>(shardManager, commands, messages, conversationService, localizer,
                 useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();

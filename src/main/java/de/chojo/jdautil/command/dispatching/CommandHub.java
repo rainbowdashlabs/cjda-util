@@ -7,10 +7,9 @@
 package de.chojo.jdautil.command.dispatching;
 
 import de.chojo.jdautil.command.message.Message;
-import de.chojo.jdautil.command.slash.Slash;
+import de.chojo.jdautil.command.slash.structure.Command;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +42,7 @@ import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> extends ListenerAdapter {
+public class CommandHub<SlashImpl extends Command, MessageImpl extends Message> extends ListenerAdapter {
     private static final Logger log = getLogger(CommandHub.class);
     private final ShardManager shardManager;
     private final Map<String, SlashImpl> slash;
@@ -54,19 +52,19 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
     private final boolean useSlashGlobalCommands;
     @Deprecated
     private final BiConsumer<InteractionContext, Throwable> commandErrorHandler;
-    private final Map<Language, List<CommandData>> commandData = new HashMap<>();
     private final MenuService buttons;
     private final PageService pages;
     private final ModalService modalService;
     private final Consumer<CommandResult<SlashImpl>> postCommandHook;
 
     public CommandHub(ShardManager shardManager,
-                      Map<String, SlashImpl> slash,
+                      Map<String, SlashImpl> slash, Map<String, MessageImpl> messages,
                       ConversationService conversationService, ILocalizer localizer,
                       boolean useSlashGlobalCommands, BiConsumer<InteractionContext, Throwable> commandErrorHandler,
                       MenuService buttons, PageService pages, ModalService modalService, Consumer<CommandResult<SlashImpl>> postCommandHook) {
         this.shardManager = shardManager;
         this.slash = slash;
+        this.messages = messages;
         this.conversationService = conversationService;
         this.localizer = localizer;
         this.useSlashGlobalCommands = useSlashGlobalCommands;
@@ -78,7 +76,7 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
     }
 
 
-    public static <T extends Slash> CommandHubBuilder<T> builder(ShardManager shardManager) {
+    public static <T extends Command, M extends Message> CommandHubBuilder<T, M> builder(ShardManager shardManager) {
         return new CommandHubBuilder<>(shardManager);
     }
 
@@ -89,6 +87,20 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
         var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
             message.onMessage(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+        } catch (Throwable t) {
+            commandErrorHandler.accept(executionContext, t);
+            return;
+        }
+        postCommandHook.accept(CommandResult.success(event, executionContext));
+    }
+
+    @Override
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        var name = event.getName();
+        var command = getSlash(name).get();
+        var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+        try {
+            command.onSlashCommand(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -109,20 +121,6 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
     }
 
     @Override
-    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        var name = event.getName();
-        var command = getSlash(name).get();
-        var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
-        try {
-            command.onSlashCommand(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
-        } catch (Throwable t) {
-            commandErrorHandler.accept(executionContext, t);
-            return;
-        }
-        postCommandHook.accept(CommandResult.success(event, executionContext));
-    }
-
-    @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         if (!useSlashGlobalCommands) {
             refreshGuildCommands(event.getGuild());
@@ -131,24 +129,23 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
 
     void updateCommands() {
         log.info("Updating slash commands.");
-        for (var language : localizer.languages()) {
-            log.info("Creating command data for {} language", language.getCode());
-            List<CommandData> localizedCommandData = new ArrayList<>();
-            for (var command : getSlash()) {
-                try {
-                    localizedCommandData.add(command.getCommandData(localizer, language));
-                } catch (Exception e) {
-                    throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name() + " for language " + language.getCode(), e);
-                }
+        List<CommandData> commandData = new ArrayList<>();
+        for (var command : getSlash()) {
+            try {
+                commandData.add(command.toCommandData(localizer));
+            } catch (Exception e) {
+                throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
             }
-            commandData.put(language, localizedCommandData);
+        }
+        for (var message : getMessage()) {
+            try {
+                commandData.add(message.toCommandData(localizer));
+            } catch (Exception e) {
+                throw new IllegalStateException("Bot command deployment failed in command " + message.meta().name(), e);
+            }
         }
         for (var command : new HashSet<>(slash.values())) {
-            if (command.meta().subCommands() != null) {
-                log.info("Registering command {} with {} subcommands.", command.meta().name(), command.meta().subCommands().length);
-            } else {
-                log.info("Registering command {}.", command.meta().name());
-            }
+            log.info("Registering command {}.", command.meta().name());
         }
 
         for (JDA shard : shardManager.getShards()) {
@@ -170,7 +167,7 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
             }
 
             log.info("Updating global slash commands.");
-            baseShard.updateCommands().addCommands(commandData.get(localizer.defaultLanguage())).complete();
+            baseShard.updateCommands().addCommands(commandData).complete();
             return;
         }
 
@@ -185,19 +182,9 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
         }
     }
 
+    @Deprecated(forRemoval = true)
     public void refreshGuildCommands(Guild guild) {
-        var language = localizer.getGuildLocale(guild);
-        guild.updateCommands().addCommands(commandData.get(language)).queue(suc -> {
-            log.info("Updated {} slash commands for guild {}", suc.size(), Guilds.prettyName(guild));
-        }, err -> {
-            if (err instanceof ErrorResponseException response) {
-                if (response.getErrorResponse() == ErrorResponse.MISSING_ACCESS) {
-                    log.debug("Missing slash command access on guild {}({})", guild.getName(), guild.getId());
-                    return;
-                }
-            }
-            log.error("Could not update guild commands", err);
-        });
+        // decomissioned in favour of command localization.
     }
 
     @Override
@@ -212,11 +199,16 @@ public class CommandHub<SlashImpl extends Slash, MessageImpl extends Message> ex
     public Optional<SlashImpl> getSlash(String name) {
         return Optional.ofNullable(slash.get(name.toLowerCase()));
     }
+
     public Optional<MessageImpl> getMessage(String name) {
         return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
 
     public Set<SlashImpl> getSlash() {
         return Set.copyOf(slash.values());
+    }
+
+    public Set<MessageImpl> getMessage() {
+        return Set.copyOf(messages.values());
     }
 }

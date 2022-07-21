@@ -6,20 +6,23 @@
 
 package de.chojo.jdautil.localization;
 
-import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public interface ILocalizer {
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
-        public String localize(String message, Language language, Replacement... replacements) {
+        public String localize(String message, DiscordLocale language, Replacement... replacements) {
             return message;
         }
 
@@ -39,7 +42,7 @@ public interface ILocalizer {
         }
 
         @Override
-        public Language getGuildLocale(Guild guild) {
+        public DiscordLocale getGuildLocale(Guild guild) {
             return defaultLanguage();
         }
 
@@ -64,17 +67,17 @@ public interface ILocalizer {
         }
 
         @Override
-        public Set<Language> languages() {
-            return Collections.singleton(Language.ENGLISH);
+        public Set<DiscordLocale> languages() {
+            return Collections.singleton(DiscordLocale.ENGLISH_US);
         }
 
         @Override
-        public Language defaultLanguage() {
-            return Language.ENGLISH;
+        public DiscordLocale defaultLanguage() {
+            return DiscordLocale.ENGLISH_US;
         }
     };
 
-    String localize(String message, Language language, Replacement... replacements);
+    String localize(String message, DiscordLocale language, Replacement... replacements);
 
     ContextLocalizer getContextLocalizer(Guild guild);
 
@@ -82,21 +85,24 @@ public interface ILocalizer {
 
     ContextLocalizer getContextLocalizer(MessageChannel channel);
 
-    Language getGuildLocale(Guild guild);
+    DiscordLocale getGuildLocale(Guild guild);
 
     String localize(String message, CommandInteraction interaction, Replacement... replacements);
 
     String localize(String message, MessageChannel channel, Replacement... replacements);
 
     String localize(String message, Replacement... replacements);
+    default @NotNull Map<DiscordLocale, String> localizationMap(String message){
+        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize(message, lang)));
+    }
 
     String localize(String message, Guild guild, Replacement... replacements);
 
-    Set<Language> languages();
+    Set<DiscordLocale> languages();
 
-    Language defaultLanguage();
+    DiscordLocale defaultLanguage();
 
-    default Optional<Language> getLanguage(String language) {
-        return languages().stream().filter(lang -> lang.isLanguage(language)).findFirst();
+    default Optional<DiscordLocale> getLanguage(String language) {
+        return languages().stream().filter(lang -> lang.getLocale().equalsIgnoreCase(language)).findFirst();
     }
 }

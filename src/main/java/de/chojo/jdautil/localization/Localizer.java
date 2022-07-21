@@ -6,11 +6,11 @@
 
 package de.chojo.jdautil.localization;
 
-import de.chojo.jdautil.localization.util.Language;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.slf4j.Logger;
 
@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -33,21 +34,21 @@ public class Localizer implements ILocalizer {
     private static final Pattern LOCALIZATION_CODE = Pattern.compile("\\$([a-zA-Z.]+?)\\$");
     private static final Pattern SIMPLE_LOCALIZATION_CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
     private static final Logger log = getLogger(Localizer.class);
-    private final Map<Language, ResourceBundle> languages;
+    private final Map<DiscordLocale, ResourceBundle> languages;
     private final Function<Guild, Optional<String>> languageProvider;
-    private final Language defaultLanguage;
+    private final DiscordLocale defaultLanguage;
 
-    public Localizer(Map<Language, ResourceBundle> languages, Function<Guild, Optional<String>> languageProvider, Language defaultLanguage) {
+    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<String>> languageProvider, DiscordLocale defaultLanguage) {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
     }
 
-    public static Builder builder(Language defaultLanguage) {
+    public static Builder builder(DiscordLocale defaultLanguage) {
         return new Builder(defaultLanguage);
     }
 
-    private ResourceBundle getLanguageResource(Language localeCode) {
+    private ResourceBundle getLanguageResource(DiscordLocale localeCode) {
         return languages.getOrDefault(localeCode, languages.get(defaultLanguage));
     }
 
@@ -58,7 +59,7 @@ public class Localizer implements ILocalizer {
      * @param localetag locale code
      * @return message in the local code or the default language if key is missing.
      */
-    public String getLanguageString(Language language, String localetag) {
+    public String getLanguageString(DiscordLocale language, String localetag) {
         if (getLanguageResource(language).containsKey(localetag)) {
             return getLanguageResource(language).getString(localetag);
         } else {
@@ -75,24 +76,24 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public Language getGuildLocale(Guild guild) {
+    public DiscordLocale getGuildLocale(Guild guild) {
         if (guild == null) {
             return defaultLanguage;
         }
-        var apply = languageProvider.apply(guild).orElse(defaultLanguage.getCode());
+        var apply = languageProvider.apply(guild).orElse(defaultLanguage.getLocale());
         return getLanguage(apply).orElse(defaultLanguage);
     }
 
-    public Optional<Language> getLanguage(String code) {
+    public Optional<DiscordLocale> getLanguage(String code) {
         for (var language : languages.keySet()) {
-            if (language.isLanguage(code)) {
+            if (language.getLocale().equalsIgnoreCase(code)) {
                 return Optional.of(language);
             }
         }
         return Optional.empty();
     }
 
-    public Set<Language> getLanguages() {
+    public Set<DiscordLocale> getLanguages() {
         return languages.keySet();
     }
 
@@ -128,17 +129,17 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public Set<Language> languages() {
+    public Set<DiscordLocale> languages() {
         return languages.keySet();
     }
 
     @Override
-    public Language defaultLanguage() {
+    public DiscordLocale defaultLanguage() {
         return defaultLanguage;
     }
 
     @Override
-    public String localize(String message, Language language, Replacement... replacements) {
+    public String localize(String message, DiscordLocale language, Replacement... replacements) {
         if (message == null) {
             return null;
         }
@@ -194,75 +195,75 @@ public class Localizer implements ILocalizer {
         }
     }
 
-    public Language getDefaultLanguage() {
+    public DiscordLocale getDefaultLanguage() {
         return defaultLanguage;
     }
 
-public static class Builder {
-    private final Set<Language> languages = new HashSet<>();
-    private final Map<Language, ResourceBundle> resourceBundles = new HashMap<>();
-    private final Language defaultLanguage;
-    private String bundlePath = "locale";
-    private Function<Guild, Optional<String>> languageProvider;
+    public static class Builder {
+        private final Set<DiscordLocale> languages = new HashSet<>();
+        private final Map<DiscordLocale, ResourceBundle> resourceBundles = new HashMap<>();
+        private final DiscordLocale defaultLanguage;
+        private String bundlePath = "locale";
+        private Function<Guild, Optional<String>> languageProvider;
 
-    public Builder(Language defaultLanguage) {
-        this.defaultLanguage = defaultLanguage;
-        languages.add(defaultLanguage);
-        languageProvider = s -> Optional.ofNullable(defaultLanguage.getCode());
-    }
-
-    public Builder withBundlePath(String bundlePath) {
-        this.bundlePath = bundlePath;
-        return this;
-    }
-
-    public Builder withLanguageProvider(Function<Guild, Optional<String>> languageProvider) {
-        this.languageProvider = languageProvider;
-        return this;
-    }
-
-    public Builder addLanguage(Language... languages) {
-        this.languages.addAll(Arrays.asList(languages));
-        return this;
-    }
-
-    public Builder addLanguage(String code, String language) {
-        this.languages.add(Language.of(code, language));
-        return this;
-    }
-
-    public Localizer build() {
-        loadLanguages();
-        return new Localizer(resourceBundles, languageProvider, defaultLanguage);
-    }
-
-
-    private void loadLanguages() {
-        for (var code : languages) {
-            var locale = code.toLocale();
-            var bundle = ResourceBundle.getBundle(bundlePath, locale);
-            resourceBundles.put(code, bundle);
+        public Builder(DiscordLocale defaultLanguage) {
+            this.defaultLanguage = defaultLanguage;
+            languages.add(defaultLanguage);
+            languageProvider = s -> Optional.ofNullable(defaultLanguage.getLocale());
         }
 
-        log.debug("Loaded {} languages!", languages.size());
-
-        Set<String> keySet = new HashSet<>();
-        for (var resourceBundle : resourceBundles.values()) {
-            keySet.addAll(resourceBundle.keySet());
+        public Builder withBundlePath(String bundlePath) {
+            this.bundlePath = bundlePath;
+            return this;
         }
 
-        List<String> missingKeys = new ArrayList<>();
-        for (var resourceBundle : resourceBundles.values()) {
-            for (var key : keySet) {
-                if (!resourceBundle.containsKey(key)) {
-                    missingKeys.add(key + "@" + resourceBundle.getLocale());
+        public Builder withLanguageProvider(Function<Guild, Optional<String>> languageProvider) {
+            this.languageProvider = languageProvider;
+            return this;
+        }
+
+        public Builder addLanguage(DiscordLocale... languages) {
+            this.languages.addAll(Arrays.asList(languages));
+            return this;
+        }
+
+        public Builder addLanguage(DiscordLocale discordLocale) {
+            this.languages.add(discordLocale);
+            return this;
+        }
+
+        public Localizer build() {
+            loadLanguages();
+            return new Localizer(resourceBundles, languageProvider, defaultLanguage);
+        }
+
+
+        private void loadLanguages() {
+            for (var code : languages) {
+                var locale = new Locale(code.getLocale().replace("-", "_"));
+                var bundle = ResourceBundle.getBundle(bundlePath, locale);
+                resourceBundles.put(code, bundle);
+            }
+
+            log.debug("Loaded {} languages!", languages.size());
+
+            Set<String> keySet = new HashSet<>();
+            for (var resourceBundle : resourceBundles.values()) {
+                keySet.addAll(resourceBundle.keySet());
+            }
+
+            List<String> missingKeys = new ArrayList<>();
+            for (var resourceBundle : resourceBundles.values()) {
+                for (var key : keySet) {
+                    if (!resourceBundle.containsKey(key)) {
+                        missingKeys.add(key + "@" + resourceBundle.getLocale());
+                    }
                 }
             }
-        }
 
-        if (!missingKeys.isEmpty()) {
-            log.warn("Found missing keys in language packs\n{}", String.join("\n", missingKeys));
+            if (!missingKeys.isEmpty()) {
+                log.warn("Found missing keys in language packs\n{}", String.join("\n", missingKeys));
+            }
         }
     }
-}
 }

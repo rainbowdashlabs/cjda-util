@@ -1,28 +1,36 @@
+/*
+ *     SPDX-License-Identifier: AGPL-3.0-only
+ *
+ *     Copyright (C) 2022 RainbowDashLabs and Contributor
+ */
+
 package de.chojo.jdautil.command.message;
 
-import de.chojo.jdautil.command.base.CommandDataProvider;
-import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.localization.util.Language;
+import de.chojo.jdautil.command.base.Meta;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class MessageMeta implements CommandDataProvider {
+public class MessageMeta implements Meta {
 
     private final String name;
     private final boolean guildOnly;
-    private final DefaultMemberPermissions defaultMemberPermissions;
+    private final DefaultMemberPermissions permission;
 
-    public MessageMeta(String name, boolean guildOnly, DefaultMemberPermissions defaultMemberPermissions) {
+    public MessageMeta(String name, boolean guildOnly, DefaultMemberPermissions permission) {
         this.name = name;
         this.guildOnly = guildOnly;
-        this.defaultMemberPermissions = defaultMemberPermissions;
+        this.permission = permission;
     }
 
     @Override
-    public CommandData toCommandData(ILocalizer localizer, Language lang) {
-        return Commands.message("")
-                .setGuildOnly(guildOnly)
-                .setDefaultPermissions(defaultMemberPermissions);
+    public String name() {
+        return name;
+    }
+
+    public boolean isGuildOnly() {
+        return guildOnly;
+    }
+
+    public DefaultMemberPermissions permission() {
+        return permission;
     }
 }
