@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.Map;
@@ -20,7 +21,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public interface ILocalizer extends LocalizationFunction {
+    Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
         public String localize(String message, DiscordLocale language, Replacement... replacements) {
@@ -97,12 +101,25 @@ public interface ILocalizer extends LocalizationFunction {
     @NotNull
     @Override
     default Map<DiscordLocale, String> apply(@NotNull String localizationKey) {
-        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize(localizationKey, lang)));
+        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked(localizationKey, lang)));
+    }
+
+    @NotNull
+    private String localizeChecked(String key, DiscordLocale locale) {
+        var localize = localize(key, locale);
+        if (localize == null) {
+            log.warn("Result for key {}@{} is null.", key, locale);
+            return "null";
+        }
+        if (localize.isBlank()) {
+            log.warn("Result for key {}@{} is empty.", key, locale);
+        }
+        return localize;
     }
 
     @NotNull
     default LocalizationFunction prefixedLocalizer(String prefix) {
-        return key -> languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize("%s.%s".formatted(prefix, key), lang)));
+        return key -> languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
     String localize(String message, Guild guild, Replacement... replacements);

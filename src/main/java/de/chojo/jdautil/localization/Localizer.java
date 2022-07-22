@@ -147,9 +147,10 @@ public class Localizer implements ILocalizer {
         // If the matcher doesn't find any key we assume its a simple message.
         if (!LOCALIZATION_CODE.matcher(message).find()) {
             if (!SIMPLE_LOCALIZATION_CODE.matcher(message).find()) {
-                return message;
+                result = message;
+            } else {
+                result = getLanguageString(language, message);
             }
-            result = getLanguageString(language, message);
         } else {
             // find locale codes in message
             var matcher = LOCALIZATION_CODE.matcher(message);
@@ -173,6 +174,11 @@ public class Localizer implements ILocalizer {
         if (LOCALIZATION_CODE.matcher(result).find()) {
             return localize(result, language, replacements);
         }
+
+        if (result.isBlank()) {
+            log.warn("Result for key {}@{} is empty.", message, language);
+        }
+
         return result;
     }
 
