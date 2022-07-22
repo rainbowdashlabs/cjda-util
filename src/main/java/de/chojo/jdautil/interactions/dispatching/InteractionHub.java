@@ -17,6 +17,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
+import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.JDA;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,12 +62,15 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final ModalService modalService;
     private final Consumer<InteractionResult<C>> postCommandHook;
     private final Function<InteractionMeta, List<Long>> guildCommandMapper;
+    private final boolean cleanGuildCommands;
+    private final boolean testMode;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
-                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook, Function<InteractionMeta, List<Long>> guildCommandMapper) {
+                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook,
+                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode) {
         this.shardManager = shardManager;
         this.slash = slash;
         this.messages = messages;
@@ -78,6 +83,8 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         this.modalService = modalService;
         this.postCommandHook = postCommandHook;
         this.guildCommandMapper = guildCommandMapper;
+        this.cleanGuildCommands = cleanGuildCommands;
+        this.testMode = testMode;
     }
 
 
@@ -180,23 +187,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var guildCommands = getGuildData();
         var global = getGlobalData();
 
-        for (var command : global) {
-            log.info("Registering command {}.", command.getName());
-        }
-
-        if (!global.isEmpty()) {
-            var baseShard = shardManager.getShards().get(0);
-            try {
-                baseShard.awaitReady();
-            } catch (InterruptedException e) {
-                // ignore
-            }
-
-            log.info("Updating global slash commands.");
-            baseShard.updateCommands().addCommands(global).complete();
-            return;
-        }
-
+        // Wait for shards to be ready
         for (JDA shard : shardManager.getShards()) {
             try {
                 shard.awaitReady();
@@ -206,13 +197,49 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
             }
         }
 
-        for (var entry : guildCommands.entrySet()) {
-            var guild = shardManager.getGuildById(entry.getKey());
-            if (guild == null) {
-                log.warn("Guild {} not found. Can't deploy commands.", entry.getKey());
-                continue;
+        for (var command : global) {
+            log.info("Registering command {}.", command.getName());
+        }
+
+        if (testMode) {
+            // All commands with global scope will be published directly on the guilds
+            // Commands which are on private scope will still only be published on the defined guilds.
+            log.warn("interactions hub is running in test mode. All interactions will be published on guilds and not globally");
+            for (var guild : shardManager.getGuilds()) {
+                var deploy = global;
+                if (guildCommands.containsKey(guild.getIdLong())) {
+                    log.debug("Adding {} private commands on {}", guildCommands.get(guild.getIdLong()).size(), Guilds.prettyName(guild));
+                    deploy = new ArrayList<>(deploy);
+                    deploy.addAll(guildCommands.get(guild.getIdLong()));
+                }
+                log.debug("Published {} command on {}.", deploy.size(), Guilds.prettyName(guild));
+                guild.updateCommands().addCommands(deploy).queue();
             }
-            guild.updateCommands().addCommands(entry.getValue()).queue();
+            log.debug("Global slash commands were unregistered.");
+            shardManager.getShards().get(0).updateCommands().queue();
+            return;
+        }
+
+        var baseShard = shardManager.getShards().get(0);
+        log.info("Updating global slash commands.");
+        baseShard.updateCommands().addCommands(global).complete();
+
+        if (cleanGuildCommands) {
+            log.warn("Clean guild command deployment requested. Updating commands for all guilds.");
+            for (var guild : shardManager.getGuilds()) {
+                log.debug("Cleaning and updating guild commands for {}.", Guilds.prettyName(guild));
+                guild.updateCommands().addCommands(guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList())).queue();
+            }
+        } else {
+            for (var entry : guildCommands.entrySet()) {
+                var guild = shardManager.getGuildById(entry.getKey());
+                if (guild == null) {
+                    log.warn("Guild {} not found. Can't deploy commands.", entry.getKey());
+                    continue;
+                }
+                log.debug("Updating {} guild commands for {}.", entry.getValue().size(), Guilds.prettyName(guild));
+                guild.updateCommands().addCommands(entry.getValue()).queue();
+            }
         }
     }
 

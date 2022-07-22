@@ -59,6 +59,8 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
+    private boolean cleanGuildCommands;
+    private boolean testMode;
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -67,6 +69,48 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     public InteractionHubBuilder<T, M, U> withGuildCommandMapper(Function<InteractionMeta, List<Long>> commandMapper) {
         this.guildCommandMapper = commandMapper;
         return this;
+    }
+
+    /**
+     * Clean all guild commands by redeploying commands to all guilds.
+     *
+     * @return builder instance
+     */
+    public InteractionHubBuilder<T, M, U> cleanGuildCommands() {
+        return cleanGuildCommands(true);
+    }
+
+    /**
+     * Clean all guild commands by redeploying commands to all guilds.
+     *
+     * @param cleanGuildCommands true to clean
+     * @return builder instance
+     */
+    public InteractionHubBuilder<T, M, U> cleanGuildCommands(boolean cleanGuildCommands) {
+        this.cleanGuildCommands = cleanGuildCommands;
+        return this;
+    }
+
+    /**
+     * Setting the hub to test mode.
+     * This will cause all global interactions to be deployed on a guild level instead and removing global interactions.
+     *
+     * @param testMode true to activate
+     * @return builder instance
+     */
+    public InteractionHubBuilder<T, M, U> testMode(boolean testMode) {
+        this.testMode = testMode;
+        return this;
+    }
+
+    /**
+     * Setting the hub to test mode.
+     * This will cause all global interactions to be deployed on a guild level instead and removing global interactions.
+     *
+     * @return builder instance
+     */
+    public InteractionHubBuilder<T, M, U> testMode() {
+        return testMode(true);
     }
 
     /**
@@ -260,7 +304,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
             modals = modalService.build();
         }
         var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper);
+                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands, testMode);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;
