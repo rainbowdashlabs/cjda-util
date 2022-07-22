@@ -6,6 +6,6 @@
 
 package de.chojo.jdautil.interactions.base;
 
-public interface Interaction {
-    InteractionMeta meta();
+public enum InteractionScope {
+    PRIVATE, GLOBAL
 }

@@ -6,22 +6,10 @@
 
 package de.chojo.jdautil.interactions.slash.structure.meta;
 
-import de.chojo.jdautil.interactions.base.Meta;
+import de.chojo.jdautil.interactions.base.SimpleMeta;
 
-public class RouteMeta implements Meta {
-    private final String name;
-    private final String description;
-
+public class RouteMeta extends SimpleMeta {
     public RouteMeta(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
-
-    public String description() {
-        return description;
-    }
-
-    public String name() {
-        return name;
+        super(name, description);
     }
 }

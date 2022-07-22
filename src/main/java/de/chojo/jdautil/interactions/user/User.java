@@ -8,6 +8,7 @@ package de.chojo.jdautil.interactions.user;
 
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.Interaction;
+import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.Meta;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.wrapper.EventContext;
@@ -16,16 +17,16 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class User implements Interaction, UserHandler, CommandDataProvider {
-    private final UserMeta meta;
+    private final InteractionMeta meta;
     private final UserHandler handler;
 
-    public User(UserMeta meta, UserHandler handler) {
+    public User(InteractionMeta meta, UserHandler handler) {
         this.meta = meta;
         this.handler = handler;
     }
 
     @Override
-    public Meta meta() {
+    public InteractionMeta meta() {
         return meta;
     }
 
@@ -39,6 +40,6 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
         return Commands.user(meta.name())
                 .setGuildOnly(meta.isGuildOnly())
                 .setDefaultPermissions(meta.permission())
-                .setLocalizationFunction(localizer::localizationMap);
+                .setLocalizationFunction(localizer.prefixedLocalizer("command"));
     }
 }

@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
+import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.slash.SlashHandler;
 import net.dv8tion.jda.api.Permission;
 
@@ -34,4 +35,14 @@ public interface RootMetaBuilder extends ExtendableRootBuilder {
     RootMetaBuilder adminCommand();
 
     RootMetaBuilder guildOnly();
+
+    RootMetaBuilder scope(InteractionScope scope);
+
+    default RootMetaBuilder globalCommand() {
+        return scope(InteractionScope.GLOBAL);
+    }
+
+    default RootMetaBuilder privateCommand() {
+        return scope(InteractionScope.PRIVATE);
+    }
 }

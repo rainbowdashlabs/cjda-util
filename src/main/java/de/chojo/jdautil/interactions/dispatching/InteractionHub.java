@@ -7,6 +7,9 @@
 package de.chojo.jdautil.interactions.dispatching;
 
 import de.chojo.jdautil.conversation.ConversationService;
+import de.chojo.jdautil.interactions.base.CommandDataProvider;
+import de.chojo.jdautil.interactions.base.InteractionMeta;
+import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.structure.Command;
 import de.chojo.jdautil.interactions.user.User;
@@ -30,13 +33,15 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -48,31 +53,31 @@ public class InteractionHub<C extends Command, M extends Message, U extends User
     private final Map<String, U> users;
     private final ConversationService conversationService;
     private final ILocalizer localizer;
-    private final boolean useSlashGlobalCommands;
     @Deprecated
     private final BiConsumer<InteractionContext, Throwable> commandErrorHandler;
     private final MenuService buttons;
     private final PageService pages;
     private final ModalService modalService;
     private final Consumer<InteractionResult<C>> postCommandHook;
+    private final Function<InteractionMeta, List<Long>> guildCommandMapper;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
-                          boolean useSlashGlobalCommands, BiConsumer<InteractionContext, Throwable> commandErrorHandler,
-                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook) {
+                          BiConsumer<InteractionContext, Throwable> commandErrorHandler,
+                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook, Function<InteractionMeta, List<Long>> guildCommandMapper) {
         this.shardManager = shardManager;
         this.slash = slash;
         this.messages = messages;
         this.users = users;
         this.conversationService = conversationService;
         this.localizer = localizer;
-        this.useSlashGlobalCommands = useSlashGlobalCommands;
         this.commandErrorHandler = commandErrorHandler;
         this.buttons = buttons;
         this.pages = pages;
         this.modalService = modalService;
         this.postCommandHook = postCommandHook;
+        this.guildCommandMapper = guildCommandMapper;
     }
 
 
@@ -122,37 +127,74 @@ public class InteractionHub<C extends Command, M extends Message, U extends User
 
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        if (!useSlashGlobalCommands) {
-            refreshGuildCommands(event.getGuild());
-        }
+        refreshGuildCommands(event.getGuild());
     }
 
-    void updateCommands() {
-        log.info("Updating slash commands.");
-        List<CommandData> commandData = new ArrayList<>();
-        for (var command : getSlash()) {
+    private void buildGuildData(Collection<? extends CommandDataProvider> interactions, Map<Long, List<CommandData>> guildCommands) {
+        for (var command : interactions) {
             try {
-                commandData.add(command.toCommandData(localizer));
+                var data = command.toCommandData(localizer);
+                if (command.meta().scope() == InteractionScope.PRIVATE) {
+                    for (var guildId : guildCommandMapper.apply(command.meta())) {
+                        guildCommands.computeIfAbsent(guildId, k -> new ArrayList<>()).add(data);
+                    }
+                }
             } catch (Exception e) {
                 throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
             }
         }
-        for (var message : getMessage()) {
+    }
+
+    private void buildGlobalData(Collection<? extends CommandDataProvider> interactions, List<CommandData> global) {
+        for (var command : interactions) {
             try {
-                commandData.add(message.toCommandData(localizer));
+                var data = command.toCommandData(localizer);
+                if (command.meta().scope() == InteractionScope.GLOBAL) {
+                    global.add(data);
+                }
             } catch (Exception e) {
-                throw new IllegalStateException("Bot command deployment failed in command " + message.meta().name(), e);
+                throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
             }
         }
-        for (var message : getUser()) {
-            try {
-                commandData.add(message.toCommandData(localizer));
-            } catch (Exception e) {
-                throw new IllegalStateException("Bot command deployment failed in command " + message.meta().name(), e);
-            }
+    }
+
+    private List<CommandData> getGlobalData() {
+        List<CommandData> global = new ArrayList<>();
+        buildGlobalData(getSlash(), global);
+        buildGlobalData(getMessage(), global);
+        buildGlobalData(getUser(), global);
+        return global;
+    }
+
+    private Map<Long, List<CommandData>> getGuildData() {
+        Map<Long, List<CommandData>> guildCommands = new HashMap<>();
+        buildGuildData(getSlash(), guildCommands);
+        buildGuildData(getMessage(), guildCommands);
+        buildGuildData(getUser(), guildCommands);
+        return guildCommands;
+    }
+
+
+    void updateCommands() {
+        log.info("Updating slash commands.");
+        var guildCommands = getGuildData();
+        var global = getGlobalData();
+
+        for (var command : global) {
+            log.info("Registering command {}.", command.getName());
         }
-        for (var command : new HashSet<>(slash.values())) {
-            log.info("Registering command {}.", command.meta().name());
+
+        if (!global.isEmpty()) {
+            var baseShard = shardManager.getShards().get(0);
+            try {
+                baseShard.awaitReady();
+            } catch (InterruptedException e) {
+                // ignore
+            }
+
+            log.info("Updating global slash commands.");
+            baseShard.updateCommands().addCommands(global).complete();
+            return;
         }
 
         for (JDA shard : shardManager.getShards()) {
@@ -164,34 +206,21 @@ public class InteractionHub<C extends Command, M extends Message, U extends User
             }
         }
 
-        if (useSlashGlobalCommands) {
-            var baseShard = shardManager.getShards().get(0);
-            log.info("Removing guild commands");
-            for (JDA shard : shardManager.getShards()) {
-                for (Guild guild : shard.getGuilds()) {
-                    guild.updateCommands().complete();
-                }
+        for (var entry : guildCommands.entrySet()) {
+            var guild = shardManager.getGuildById(entry.getKey());
+            if (guild == null) {
+                log.warn("Guild {} not found. Can't deploy commands.", entry.getKey());
+                continue;
             }
-
-            log.info("Updating global slash commands.");
-            baseShard.updateCommands().addCommands(commandData).complete();
-            return;
-        }
-
-        var baseShard = shardManager.getShards().get(0);
-        log.info("Removing global slash commands and using guild commands.");
-        baseShard.updateCommands().complete();
-
-        for (var shard : shardManager.getShards()) {
-            for (var guild : shard.getGuilds()) {
-                refreshGuildCommands(guild);
-            }
+            guild.updateCommands().addCommands(entry.getValue()).queue();
         }
     }
 
     @Deprecated(forRemoval = true)
     public void refreshGuildCommands(Guild guild) {
-        // decomissioned in favour of command localization.
+        var guildData = getGuildData();
+        if (!guildData.containsKey(guild.getIdLong())) return;
+        guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).queue();
     }
 
     @Override
@@ -211,14 +240,15 @@ public class InteractionHub<C extends Command, M extends Message, U extends User
         return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
 
-    public Set<C> getSlash() {
+    public Collection<C> getSlash() {
         return Set.copyOf(slash.values());
     }
-    public Set<U> getUser() {
+
+    public Collection<U> getUser() {
         return Set.copyOf(users.values());
     }
 
-    public Set<M> getMessage() {
+    public Collection<M> getMessage() {
         return Set.copyOf(messages.values());
     }
 }

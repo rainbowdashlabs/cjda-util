@@ -6,10 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure;
 
-import de.chojo.jdautil.interactions.base.Interaction;
-import de.chojo.jdautil.interactions.base.Meta;
+import de.chojo.jdautil.interactions.base.SimpleMeta;
 import de.chojo.jdautil.interactions.slash.SlashHandler;
-import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,10 +19,10 @@ import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public interface Route<T extends RouteMeta> extends SlashHandler, Interaction {
+public interface Route<T extends SimpleMeta> extends SlashHandler {
     Logger log = getLogger(Route.class);
 
-    Meta meta();
+    T meta();
 
     default boolean isRoute(String name) {
         return name.equalsIgnoreCase(meta().name());

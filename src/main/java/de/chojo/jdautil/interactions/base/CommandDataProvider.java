@@ -9,6 +9,6 @@ package de.chojo.jdautil.interactions.base;
 import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-public interface CommandDataProvider {
+public interface CommandDataProvider extends Interaction {
     CommandData toCommandData(ILocalizer localizer);
 }

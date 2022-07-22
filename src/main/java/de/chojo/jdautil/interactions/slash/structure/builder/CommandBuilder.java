@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
+import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.ArgumentBuilder;
 import de.chojo.jdautil.interactions.slash.SlashHandler;
@@ -36,9 +37,10 @@ public class CommandBuilder implements RootArgumentBuilder, ExtendableRootBuilde
     private final List<Group> groups = new ArrayList<>();
     private final List<SubCommand> leaves = new ArrayList<>();
     private final List<Argument> arguments = new ArrayList<>();
-    private DefaultMemberPermissions permission;
+    private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
     private boolean guildOnly;
     private SlashHandler handler;
+    private InteractionScope scope = InteractionScope.GLOBAL;
 
     public CommandBuilder(String name, String description) {
         this.name = name;
@@ -110,8 +112,13 @@ public class CommandBuilder implements RootArgumentBuilder, ExtendableRootBuilde
     }
 
     @Override
+    public RootMetaBuilder scope(InteractionScope scope) {
+        return null;
+    }
+
+    @Override
     public Command build() {
-        var meta = new CommandMeta(name, description, permission, guildOnly);
+        var meta = new CommandMeta(name, description, guildOnly, permission, scope);
         return new Command(meta, handler, groups, leaves, arguments);
     }
 }

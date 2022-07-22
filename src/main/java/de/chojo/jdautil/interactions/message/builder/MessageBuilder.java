@@ -6,24 +6,16 @@
 
 package de.chojo.jdautil.interactions.message.builder;
 
+import de.chojo.jdautil.interactions.base.InteractionMeta;
+import de.chojo.jdautil.interactions.base.InteractionMetaBuilder;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.message.MessageHandler;
-import de.chojo.jdautil.interactions.message.MessageMeta;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-
-public class MessageBuilder implements PartialMessageBuilder {
-    private final String name;
-    private boolean guildOnly;
-    private DefaultMemberPermissions permissions = DefaultMemberPermissions.ENABLED;
+public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> implements PartialMessageBuilder {
     private MessageHandler handler;
 
     private MessageBuilder(String name) {
-        this.name = name;
+        super(name);
     }
 
     public static PartialMessageBuilder of(String name) {
@@ -36,19 +28,7 @@ public class MessageBuilder implements PartialMessageBuilder {
         return this;
     }
 
-    public MessageBuilder withPermission(Permission permission, Permission... permissions) {
-        var collect = Arrays.stream(permissions).collect(Collectors.toCollection(HashSet::new));
-        collect.add(permission);
-        this.permissions = DefaultMemberPermissions.enabledFor(collect);
-        return this;
-    }
-
-    public MessageBuilder guildOnly(boolean guildOnly) {
-        this.guildOnly = guildOnly;
-        return this;
-    }
-
     public Message build() {
-        return new Message(new MessageMeta(name, guildOnly, permissions), handler);
+        return new Message(new InteractionMeta(name(), isGuildOnly(), permission(), scope()), handler);
     }
 }

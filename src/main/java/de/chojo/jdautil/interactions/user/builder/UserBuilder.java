@@ -6,24 +6,16 @@
 
 package de.chojo.jdautil.interactions.user.builder;
 
+import de.chojo.jdautil.interactions.base.InteractionMeta;
+import de.chojo.jdautil.interactions.base.InteractionMetaBuilder;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.interactions.user.UserHandler;
-import de.chojo.jdautil.interactions.user.UserMeta;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-
-public class UserBuilder implements PartialUserBuilder {
-    private final String name;
-    private boolean guildOnly;
-    private DefaultMemberPermissions permissions = DefaultMemberPermissions.ENABLED;
+public class UserBuilder extends InteractionMetaBuilder<UserBuilder> implements PartialUserBuilder {
     private UserHandler handler;
 
     private UserBuilder(String name) {
-        this.name = name;
+        super(name);
     }
 
     public static PartialUserBuilder of(String name) {
@@ -36,19 +28,7 @@ public class UserBuilder implements PartialUserBuilder {
         return this;
     }
 
-    public UserBuilder withPermission(Permission permission, Permission... permissions) {
-        var collect = Arrays.stream(permissions).collect(Collectors.toCollection(HashSet::new));
-        collect.add(permission);
-        this.permissions = DefaultMemberPermissions.enabledFor(collect);
-        return this;
-    }
-
-    public UserBuilder guildOnly(boolean guildOnly) {
-        this.guildOnly = guildOnly;
-        return this;
-    }
-
     public User build() {
-        return new User(new UserMeta(name, guildOnly, permissions), handler);
+        return new User(new InteractionMeta(name(), isGuildOnly(), permission(), scope()), handler);
     }
 }

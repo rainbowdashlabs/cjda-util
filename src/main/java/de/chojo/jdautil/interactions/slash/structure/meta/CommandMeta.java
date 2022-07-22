@@ -6,23 +6,12 @@
 
 package de.chojo.jdautil.interactions.slash.structure.meta;
 
+import de.chojo.jdautil.interactions.base.DescriptiveMeta;
+import de.chojo.jdautil.interactions.base.InteractionScope;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-public class CommandMeta extends RouteMeta {
-    private final DefaultMemberPermissions permission;
-    private final boolean guildOnly;
-
-    public CommandMeta(String name, String description, DefaultMemberPermissions permission, boolean guildOnly) {
-        super(name, description);
-        this.permission = permission;
-        this.guildOnly = guildOnly;
-    }
-
-    public DefaultMemberPermissions permission() {
-        return permission;
-    }
-
-    public boolean isGuildOnly() {
-        return guildOnly;
+public class CommandMeta extends DescriptiveMeta {
+    public CommandMeta(String name, String description, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope) {
+        super(name, description, guildOnly, permission, scope);
     }
 }

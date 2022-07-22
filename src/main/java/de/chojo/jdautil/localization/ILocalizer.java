@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -19,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface ILocalizer {
+public interface ILocalizer extends LocalizationFunction {
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
         public String localize(String message, DiscordLocale language, Replacement... replacements) {
@@ -92,8 +93,16 @@ public interface ILocalizer {
     String localize(String message, MessageChannel channel, Replacement... replacements);
 
     String localize(String message, Replacement... replacements);
-    default @NotNull Map<DiscordLocale, String> localizationMap(String message){
-        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize(message, lang)));
+
+    @NotNull
+    @Override
+    default Map<DiscordLocale, String> apply(@NotNull String localizationKey) {
+        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize(localizationKey, lang)));
+    }
+
+    @NotNull
+    default LocalizationFunction prefixedLocalizer(String prefix) {
+        return key -> languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localize("%s.%s".formatted(prefix, key), lang)));
     }
 
     String localize(String message, Guild guild, Replacement... replacements);

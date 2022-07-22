@@ -4,21 +4,25 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.message;
+package de.chojo.jdautil.interactions.base;
 
-import de.chojo.jdautil.interactions.base.Meta;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-public class MessageMeta implements Meta {
-
+public class InteractionMeta implements Meta {
     private final String name;
     private final boolean guildOnly;
     private final DefaultMemberPermissions permission;
+    private final InteractionScope scope;
 
-    public MessageMeta(String name, boolean guildOnly, DefaultMemberPermissions permission) {
+    public InteractionMeta(String name, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope) {
         this.name = name;
         this.guildOnly = guildOnly;
         this.permission = permission;
+        this.scope = scope;
+    }
+
+    public boolean isGuildOnly() {
+        return guildOnly;
     }
 
     @Override
@@ -26,11 +30,11 @@ public class MessageMeta implements Meta {
         return name;
     }
 
-    public boolean isGuildOnly() {
-        return guildOnly;
-    }
-
     public DefaultMemberPermissions permission() {
         return permission;
+    }
+
+    public InteractionScope scope() {
+        return scope;
     }
 }

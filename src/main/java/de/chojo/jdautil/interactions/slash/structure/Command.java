@@ -7,7 +7,6 @@
 package de.chojo.jdautil.interactions.slash.structure;
 
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
-import de.chojo.jdautil.interactions.base.Meta;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.builder.CommandBuilder;
@@ -27,7 +26,7 @@ import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class Command implements Route<RouteMeta>, CommandDataProvider {
+public class Command implements CommandDataProvider {
     private static final Logger log = getLogger(Command.class);
     private final SlashHandler handler;
     private final List<Group> groups;
@@ -47,40 +46,67 @@ public class Command implements Route<RouteMeta>, CommandDataProvider {
         return new CommandBuilder(name, description);
     }
 
-    @Override
     public Collection<Collection<? extends Route<RouteMeta>>> routes() {
         return List.of(groups, leaves);
     }
 
     @Override
-    public Meta meta() {
+    public CommandMeta meta() {
         return meta;
     }
 
-    @Override
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
         if (handler != null) {
             handler.onSlashCommand(event, context);
             return;
         }
 
-        Route.super.onSlashCommand(event, context);
+        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta.name()));
+
+        if (commandPath.length != 2) {
+            log.warn("end of route is reached on a branch at {}", event.getCommandPath());
+            return;
+        }
+
+        for (var routeGroup : routes()) {
+            for (Route<RouteMeta> route : routeGroup) {
+                if (commandPath[1].equalsIgnoreCase(route.meta().name())) {
+                    route.onSlashCommand(event, context);
+                    return;
+                }
+            }
+        }
     }
 
-    @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
         if (handler != null) {
             handler.onAutoComplete(event, context);
             return;
         }
 
-        Route.super.onAutoComplete(event, context);
+        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta.name()));
+
+        if (commandPath.length != 2) {
+            log.warn("end of route is reached on a branch at {}", event.getCommandPath());
+            return;
+        }
+
+        for (var routeGroup : routes()) {
+            for (Route<RouteMeta> route : routeGroup) {
+                if (commandPath[1].equalsIgnoreCase(route.meta().name())) {
+                    route.onAutoComplete(event, context);
+                    return;
+                }
+            }
+        }
     }
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        var slash = Commands.slash(meta.name(), meta.description());
-        slash.setLocalizationFunction(localizer::localizationMap);
+        var slash = Commands.slash(meta.name(), meta.description())
+                .setDefaultPermissions(meta.permission())
+                .setGuildOnly(meta.isGuildOnly())
+                .setLocalizationFunction(localizer.prefixedLocalizer("command"));
         if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(Group::data).toList());
         if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(SubCommand::data).toList());
         if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(Argument::data).toList());

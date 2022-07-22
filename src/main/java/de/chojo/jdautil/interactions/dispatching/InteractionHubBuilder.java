@@ -7,6 +7,7 @@
 package de.chojo.jdautil.interactions.dispatching;
 
 import de.chojo.jdautil.conversation.ConversationService;
+import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.structure.Command;
 import de.chojo.jdautil.interactions.user.User;
@@ -25,11 +26,14 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -45,25 +49,20 @@ public class InteractionHubBuilder<T extends Command, M extends Message, U exten
     private Consumer<InteractionResult<T>> postCommandHook = r -> {
     };
     private boolean withConversations;
-    private boolean useSlashGlobalCommands = true;
     @Deprecated
     private BiConsumer<InteractionContext, Throwable> commandErrorHandler =
             (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.interaction(), context.args(), err);
     private PageServiceBuilder pagination;
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
+    private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
     }
 
-    /**
-     * This will make interactions only available on these guilds
-     *
-     * @return builder instance
-     */
-    public InteractionHubBuilder<T, M, U> useGuildCommands() {
-        useSlashGlobalCommands = false;
+    public InteractionHubBuilder<T, M, U> withGuildCommandMapper(Function<InteractionMeta, List<Long>> commandMapper) {
+        this.guildCommandMapper =  commandMapper;
         return this;
     }
 
@@ -202,7 +201,7 @@ public class InteractionHubBuilder<T extends Command, M extends Message, U exten
             modals = modalService.build();
         }
         var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                useSlashGlobalCommands, commandErrorHandler, buttons, pages, modals, postCommandHook);
+                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;
