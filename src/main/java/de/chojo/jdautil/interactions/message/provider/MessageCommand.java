@@ -7,12 +7,16 @@
 package de.chojo.jdautil.interactions.message.provider;
 
 import de.chojo.jdautil.interactions.message.Message;
+import de.chojo.jdautil.interactions.message.builder.MessageBuilder;
 
 public class MessageCommand implements MessageProvider<Message> {
     private final Message message;
 
     public MessageCommand(Message message) {
         this.message = message;
+    }
+    public MessageCommand(MessageBuilder message) {
+        this(message.build());
     }
 
     @Override

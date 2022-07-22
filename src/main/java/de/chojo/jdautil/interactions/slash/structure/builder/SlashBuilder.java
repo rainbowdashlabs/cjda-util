@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * The limitations are implemented as defined
  * <a href="https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups">here</a>
  */
-public class CommandBuilder implements RootArgumentBuilder, ExtendableRootBuilder, RootMetaBuilder, BuildableMetaBuilder {
+public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder, RootMetaBuilder, BuildableMetaBuilder {
     private final String name;
     private final String description;
     private final List<Group> groups = new ArrayList<>();
@@ -41,7 +41,7 @@ public class CommandBuilder implements RootArgumentBuilder, ExtendableRootBuilde
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
 
-    public CommandBuilder(String name, String description) {
+    public SlashBuilder(String name, String description) {
         this.name = name;
         this.description = description;
     }
