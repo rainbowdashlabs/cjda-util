@@ -17,7 +17,7 @@ public class Argument {
     private final boolean required;
     private final boolean autoComplete;
 
-    Argument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
+    public Argument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
         this.type = type;
         this.name = name;
         this.description = description;
