@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.slash.structure.builder.ArgumentBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 

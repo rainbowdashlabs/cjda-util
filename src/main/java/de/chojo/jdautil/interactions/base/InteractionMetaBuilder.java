@@ -35,17 +35,17 @@ public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
         return guildOnly;
     }
 
+    public T setGuildOnly(boolean guildOnly) {
+        this.guildOnly = guildOnly;
+        return self();
+    }
+
     public DefaultMemberPermissions permission() {
         return permission;
     }
 
     public InteractionScope scope() {
         return scope;
-    }
-
-    public T setGuildOnly(boolean guildOnly) {
-        this.guildOnly = guildOnly;
-        return self();
     }
 
     public T setPermission(DefaultMemberPermissions permission) {

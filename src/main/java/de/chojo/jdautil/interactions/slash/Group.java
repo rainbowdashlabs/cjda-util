@@ -4,8 +4,9 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.slash.structure;
+package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.GroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialGroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;

@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
-import de.chojo.jdautil.interactions.slash.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.builder.SubCommandBuilder;
+import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

@@ -8,14 +8,13 @@ package de.chojo.jdautil.interactions.slash.structure.builder;
 
 import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.slash.Argument;
-import de.chojo.jdautil.interactions.slash.ArgumentBuilder;
-import de.chojo.jdautil.interactions.slash.SlashHandler;
-import de.chojo.jdautil.interactions.slash.structure.Slash;
-import de.chojo.jdautil.interactions.slash.structure.Group;
-import de.chojo.jdautil.interactions.slash.structure.SubCommand;
+import de.chojo.jdautil.interactions.slash.Group;
+import de.chojo.jdautil.interactions.slash.Slash;
+import de.chojo.jdautil.interactions.slash.SubCommand;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.ExtendableRootBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.RootArgumentBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.RootMetaBuilder;
+import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.CommandMeta;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;

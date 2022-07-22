@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
-import de.chojo.jdautil.interactions.slash.structure.Group;
-import de.chojo.jdautil.interactions.slash.structure.SubCommand;
+import de.chojo.jdautil.interactions.slash.Group;
+import de.chojo.jdautil.interactions.slash.SubCommand;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialGroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 

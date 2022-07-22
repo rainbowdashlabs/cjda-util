@@ -7,7 +7,7 @@
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
 import de.chojo.jdautil.interactions.base.InteractionScope;
-import de.chojo.jdautil.interactions.slash.SlashHandler;
+import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import net.dv8tion.jda.api.Permission;
 
 public interface RootMetaBuilder extends ExtendableRootBuilder {

@@ -4,13 +4,13 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.slash.structure;
+package de.chojo.jdautil.interactions.slash;
 
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
-import de.chojo.jdautil.interactions.slash.Argument;
-import de.chojo.jdautil.interactions.slash.SlashHandler;
+import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.CommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.RootMetaBuilder;
+import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.CommandMeta;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 import de.chojo.jdautil.localization.ILocalizer;

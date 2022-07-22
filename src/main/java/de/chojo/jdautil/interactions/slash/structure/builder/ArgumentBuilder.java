@@ -4,8 +4,9 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.slash;
+package de.chojo.jdautil.interactions.slash.structure.builder;
 
+import de.chojo.jdautil.interactions.slash.Argument;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class ArgumentBuilder {

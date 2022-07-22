@@ -7,9 +7,9 @@
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
 import de.chojo.jdautil.interactions.slash.Argument;
-import de.chojo.jdautil.interactions.slash.structure.Slash;
-import de.chojo.jdautil.interactions.slash.structure.Group;
-import de.chojo.jdautil.interactions.slash.structure.SubCommand;
+import de.chojo.jdautil.interactions.slash.Slash;
+import de.chojo.jdautil.interactions.slash.Group;
+import de.chojo.jdautil.interactions.slash.SubCommand;
 
 class RouteBuilderTest {
 

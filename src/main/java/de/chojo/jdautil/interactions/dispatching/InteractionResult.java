@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.interactions.dispatching;
 
-import de.chojo.jdautil.interactions.slash.structure.Slash;
+import de.chojo.jdautil.interactions.slash.Slash;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 public record InteractionResult<T extends Slash>(GenericCommandInteractionEvent event, boolean failed,

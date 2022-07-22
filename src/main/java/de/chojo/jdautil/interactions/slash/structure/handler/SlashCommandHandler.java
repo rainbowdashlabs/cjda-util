@@ -4,7 +4,7 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.slash;
+package de.chojo.jdautil.interactions.slash.structure.handler;
 
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

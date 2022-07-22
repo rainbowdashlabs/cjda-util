@@ -9,8 +9,11 @@ package de.chojo.jdautil.interactions.dispatching;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.message.Message;
-import de.chojo.jdautil.interactions.slash.structure.Slash;
+import de.chojo.jdautil.interactions.message.provider.MessageProvider;
+import de.chojo.jdautil.interactions.slash.Slash;
+import de.chojo.jdautil.interactions.slash.provider.SlashProvider;
 import de.chojo.jdautil.interactions.user.User;
+import de.chojo.jdautil.interactions.user.provider.UserProvider;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.menus.MenuService;
@@ -62,7 +65,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     }
 
     public InteractionHubBuilder<T, M, U> withGuildCommandMapper(Function<InteractionMeta, List<Long>> commandMapper) {
-        this.guildCommandMapper =  commandMapper;
+        this.guildCommandMapper = commandMapper;
         return this;
     }
 
@@ -92,6 +95,20 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     }
 
     /**
+     * Register slash interactions
+     *
+     * @param commands commands to register
+     * @return builder instance
+     */
+    @SafeVarargs
+    public final InteractionHubBuilder<T, M, U> withCommands(SlashProvider<T>... commands) {
+        for (var command : commands) {
+            this.commands.put(command.slash().meta().name().toLowerCase(Locale.ROOT), command.slash());
+        }
+        return this;
+    }
+
+    /**
      * Register message interactions
      *
      * @param messages commands to register
@@ -101,6 +118,48 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     public final InteractionHubBuilder<T, M, U> withMessages(M... messages) {
         for (var message : messages) {
             this.messages.put(message.meta().name().toLowerCase(Locale.ROOT), message);
+        }
+        return this;
+    }
+
+    /**
+     * Register message interactions
+     *
+     * @param messages commands to register
+     * @return builder instance
+     */
+    @SafeVarargs
+    public final InteractionHubBuilder<T, M, U> withMessages(MessageProvider<M>... messages) {
+        for (var message : messages) {
+            this.messages.put(message.message().meta().name().toLowerCase(Locale.ROOT), message.message());
+        }
+        return this;
+    }
+
+    /**
+     * Register message interactions
+     *
+     * @param messages commands to register
+     * @return builder instance
+     */
+    @SafeVarargs
+    public final InteractionHubBuilder<T, M, U> withUsers(M... messages) {
+        for (var message : messages) {
+            this.messages.put(message.meta().name().toLowerCase(Locale.ROOT), message);
+        }
+        return this;
+    }
+
+    /**
+     * Register message interactions
+     *
+     * @param users commands to register
+     * @return builder instance
+     */
+    @SafeVarargs
+    public final InteractionHubBuilder<T, M, U> withUsers(UserProvider<U>... users) {
+        for (var user : users) {
+            this.users.put(user.user().meta().name().toLowerCase(Locale.ROOT), user.user());
         }
         return this;
     }

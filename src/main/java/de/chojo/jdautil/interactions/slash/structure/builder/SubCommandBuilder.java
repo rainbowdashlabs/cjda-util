@@ -7,10 +7,9 @@
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
 import de.chojo.jdautil.interactions.slash.Argument;
-import de.chojo.jdautil.interactions.slash.ArgumentBuilder;
-import de.chojo.jdautil.interactions.slash.SlashHandler;
-import de.chojo.jdautil.interactions.slash.structure.SubCommand;
+import de.chojo.jdautil.interactions.slash.SubCommand;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialSubCommandBuilder;
+import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 
 import java.util.ArrayList;

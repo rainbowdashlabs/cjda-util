@@ -9,7 +9,6 @@ package de.chojo.jdautil.interactions.user;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.Interaction;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
-import de.chojo.jdautil.interactions.base.Meta;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
