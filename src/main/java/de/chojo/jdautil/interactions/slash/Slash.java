@@ -103,13 +103,13 @@ public class Slash implements CommandDataProvider {
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        var slash = Commands.slash(meta.name(), meta.description())
+        var slash = Commands.slash(meta.name(), localizer.localize(meta.description()))
                 .setDefaultPermissions(meta.permission())
                 .setGuildOnly(meta.isGuildOnly())
                 .setLocalizationFunction(localizer.prefixedLocalizer("command"));
-        if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(Group::data).toList());
-        if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(SubCommand::data).toList());
-        if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(Argument::data).toList());
+        if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(g -> g.data(localizer)).toList());
+        if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(s -> s.data(localizer)).toList());
+        if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(a -> a.data(localizer)).toList());
         return slash;
     }
 }

@@ -11,6 +11,7 @@ import de.chojo.jdautil.interactions.slash.structure.builder.SubCommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialSubCommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
+import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -51,8 +52,8 @@ public class SubCommand implements Route<RouteMeta> {
         handler.onSlashCommand(event, context);
     }
 
-    public SubcommandData data() {
-        return new SubcommandData(meta.name(), meta.description())
-                .addOptions(arguments.stream().map(Argument::data).toList());
+    public SubcommandData data(ILocalizer localizer) {
+        return new SubcommandData(meta.name(), localizer.localize(meta.description()))
+                .addOptions(arguments.stream().map(a -> a.data(localizer)).toList());
     }
 }
