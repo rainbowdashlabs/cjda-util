@@ -4,7 +4,7 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.interactions.slash.structure.builder;
+package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
 import de.chojo.jdautil.interactions.slash.Slash;
 

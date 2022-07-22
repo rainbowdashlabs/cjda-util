@@ -7,7 +7,7 @@
 package de.chojo.jdautil.interactions.slash.provider;
 
 import de.chojo.jdautil.interactions.slash.Slash;
-import de.chojo.jdautil.interactions.slash.structure.builder.SlashBuilder;
+import de.chojo.jdautil.interactions.slash.structure.builder.components.BuildableMetaBuilder;
 
 public class SlashCommand implements SlashProvider<Slash> {
     private final Slash slash;
@@ -16,7 +16,7 @@ public class SlashCommand implements SlashProvider<Slash> {
         this.slash = slash;
     }
 
-    public SlashCommand(SlashBuilder slash) {
+    public SlashCommand(BuildableMetaBuilder slash) {
         this(slash.build());
     }
 
