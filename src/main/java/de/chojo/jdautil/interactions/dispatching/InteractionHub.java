@@ -11,7 +11,7 @@ import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.message.Message;
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.menus.MenuService;
@@ -45,7 +45,7 @@ import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class InteractionHub<C extends Command, M extends Message, U extends User> extends ListenerAdapter {
+public class InteractionHub<C extends Slash, M extends Message, U extends User> extends ListenerAdapter {
     private static final Logger log = getLogger(InteractionHub.class);
     private final ShardManager shardManager;
     private final Map<String, C> slash;
@@ -81,7 +81,7 @@ public class InteractionHub<C extends Command, M extends Message, U extends User
     }
 
 
-    public static <T extends Command, M extends Message, U extends User> InteractionHubBuilder<T, M, U> builder(ShardManager shardManager) {
+    public static <T extends Slash, M extends Message, U extends User> InteractionHubBuilder<T, M, U> builder(ShardManager shardManager) {
         return new InteractionHubBuilder<>(shardManager);
     }
 

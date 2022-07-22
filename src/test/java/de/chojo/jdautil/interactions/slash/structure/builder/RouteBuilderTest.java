@@ -7,7 +7,7 @@
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
 import de.chojo.jdautil.interactions.slash.Argument;
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 import de.chojo.jdautil.interactions.slash.structure.Group;
 import de.chojo.jdautil.interactions.slash.structure.SubCommand;
 
@@ -15,7 +15,7 @@ class RouteBuilderTest {
 
     void testSyntax() {
         // no arguments can be set on the route
-        Command.of("command", "description")
+        Slash.of("command", "description")
                 // Creates a new command group
                 .group(Group.of("subcommand-group1", "description")
                         // only sub commands can be defined here. No arguments are allowed on groups

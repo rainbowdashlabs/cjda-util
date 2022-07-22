@@ -6,17 +6,17 @@
 
 package de.chojo.jdautil.interactions.dispatching;
 
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
-public record InteractionResult<T extends Command>(GenericCommandInteractionEvent event, boolean failed,
-                                                   Throwable exception, InteractionContext context) {
+public record InteractionResult<T extends Slash>(GenericCommandInteractionEvent event, boolean failed,
+                                                 Throwable exception, InteractionContext context) {
 
-    public static <T extends Command> InteractionResult<T> success(GenericCommandInteractionEvent event, InteractionContext context) {
+    public static <T extends Slash> InteractionResult<T> success(GenericCommandInteractionEvent event, InteractionContext context) {
         return new InteractionResult<>(event, false, null, context);
     }
 
-    public static <T extends Command> InteractionResult<T> failed(GenericCommandInteractionEvent event, InteractionContext context, Throwable exception) {
+    public static <T extends Slash> InteractionResult<T> failed(GenericCommandInteractionEvent event, InteractionContext context, Throwable exception) {
         return new InteractionResult<>(event, true, exception, context);
     }
 }

@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 
 public interface BuildableMetaBuilder {
-    Command build();
+    Slash build();
 }

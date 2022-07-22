@@ -10,7 +10,7 @@ import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.ArgumentBuilder;
 import de.chojo.jdautil.interactions.slash.SlashHandler;
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 import de.chojo.jdautil.interactions.slash.structure.Group;
 import de.chojo.jdautil.interactions.slash.structure.SubCommand;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.ExtendableRootBuilder;
@@ -117,8 +117,8 @@ public class CommandBuilder implements RootArgumentBuilder, ExtendableRootBuilde
     }
 
     @Override
-    public Command build() {
+    public Slash build() {
         var meta = new CommandMeta(name, description, guildOnly, permission, scope);
-        return new Command(meta, handler, groups, leaves, arguments);
+        return new Slash(meta, handler, groups, leaves, arguments);
     }
 }

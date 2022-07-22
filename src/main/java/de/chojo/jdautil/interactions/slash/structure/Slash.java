@@ -26,15 +26,15 @@ import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class Command implements CommandDataProvider {
-    private static final Logger log = getLogger(Command.class);
+public class Slash implements CommandDataProvider {
+    private static final Logger log = getLogger(Slash.class);
     private final SlashHandler handler;
     private final List<Group> groups;
     private final List<SubCommand> leaves;
     private final List<Argument> arguments;
     CommandMeta meta;
 
-    public Command(CommandMeta meta, SlashHandler handler, List<Group> groups, List<SubCommand> leaves, List<Argument> arguments) {
+    public Slash(CommandMeta meta, SlashHandler handler, List<Group> groups, List<SubCommand> leaves, List<Argument> arguments) {
         this.meta = meta;
         this.handler = handler;
         this.groups = groups;

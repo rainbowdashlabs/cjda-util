@@ -9,7 +9,7 @@ package de.chojo.jdautil.interactions.dispatching;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.message.Message;
-import de.chojo.jdautil.interactions.slash.structure.Command;
+import de.chojo.jdautil.interactions.slash.structure.Slash;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.localization.ContextLocalizer;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -37,7 +37,7 @@ import java.util.function.Function;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class InteractionHubBuilder<T extends Command, M extends Message, U extends User> {
+public class InteractionHubBuilder<T extends Slash, M extends Message, U extends User> {
     private static final Logger log = getLogger(InteractionHubBuilder.class);
     private final ShardManager shardManager;
     private final Map<String, T> commands = new HashMap<>();
