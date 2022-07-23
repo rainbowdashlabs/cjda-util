@@ -19,11 +19,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public interface ILocalizer extends LocalizationFunction {
+    Pattern localeName = Pattern.compile("\\.?([_\\w-]+?)\\.name$");
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
@@ -111,9 +113,15 @@ public interface ILocalizer extends LocalizationFunction {
             log.warn("Result for key {}@{} is null.", key, locale);
             return "null";
         }
+        var nameMatcher = localeName.matcher(localize);
+        if (nameMatcher.find()) {
+            localize = nameMatcher.group(1);
+            log.warn("No value for {}. Defaulting to {}", key, localize);
+        }
         if (localize.isBlank()) {
             log.warn("Result for key {}@{} is empty.", key, locale);
         }
+        log.trace("Localized key {} for {}", key, locale);
         return localize;
     }
 

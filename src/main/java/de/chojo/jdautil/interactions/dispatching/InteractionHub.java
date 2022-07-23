@@ -27,8 +27,10 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -204,7 +206,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         if (testMode) {
             // All commands with global scope will be published directly on the guilds
             // Commands which are on private scope will still only be published on the defined guilds.
-            log.warn("interactions hub is running in test mode. All interactions will be published on guilds and not globally");
+            log.warn("Interactions hub is running in test mode. All interactions will be published on guilds and not globally");
             for (var guild : shardManager.getGuilds()) {
                 var deploy = global;
                 if (guildCommands.containsKey(guild.getIdLong())) {
@@ -212,7 +214,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                     deploy = new ArrayList<>(deploy);
                     deploy.addAll(guildCommands.get(guild.getIdLong()));
                 }
-                log.debug("Published {} command on {}.", deploy.size(), Guilds.prettyName(guild));
+                log.debug("Published {} commands on {}.", deploy.size(), Guilds.prettyName(guild));
                 guild.updateCommands().addCommands(deploy).queue();
             }
             log.debug("Global slash commands were unregistered.");
@@ -221,14 +223,25 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         }
 
         var baseShard = shardManager.getShards().get(0);
-        log.info("Updating global slash commands.");
-        baseShard.updateCommands().addCommands(global).complete();
+        log.info("Updating {} global commands.", global.size());
+        baseShard.updateCommands().addCommands(global).queue(RestAction.getDefaultSuccess(), err -> {
+            if (err instanceof ErrorResponseException e && e.getErrorCode() == 50035) {
+                for (var error : e.getSchemaErrors()) {
+                    var loc = error.getLocation().split("\\.", 2);
+                    var commandIndex = Integer.parseInt(loc[0]);
+                    log.error("Invalid values in command {} at {}. Caused by:\n{}", global.get(commandIndex).getName(), loc[1], error.getErrors());
+                }
+                return;
+            }
+            log.error("Could not deply commands", err);
+        });
 
         if (cleanGuildCommands) {
             log.warn("Clean guild command deployment requested. Updating commands for all guilds.");
             for (var guild : shardManager.getGuilds()) {
-                log.debug("Cleaning and updating guild commands for {}.", Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList())).queue();
+                var cmds = guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList());
+                log.debug("Cleaning and updating {} guild commands for {}.", cmds.size(), Guilds.prettyName(guild));
+                guild.updateCommands().addCommands(cmds).queue();
             }
         } else {
             for (var entry : guildCommands.entrySet()) {
