@@ -39,6 +39,6 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
         return Commands.message(meta.name())
                 .setGuildOnly(meta.isGuildOnly())
                 .setDefaultPermissions(meta.permission())
-                .setLocalizationFunction(localizer.prefixedLocalizer("command"));
+                .setLocalizationFunction(localizer.prefixedLocalizer("message"));
     }
 }

@@ -124,7 +124,7 @@ public interface ILocalizer extends LocalizationFunction {
         }
         log.trace("Localized key {} for {}", key, locale);
 
-        if (key.endsWith("name")) {
+        if (key.startsWith("command") && key.endsWith("name")) {
             if (!lowercase.matcher(localize).matches() && localize.toLowerCase().equals(localize)) {
                 log.warn("Key {}@{} has invalid value \"{}\"", key, locale, localize);
             }

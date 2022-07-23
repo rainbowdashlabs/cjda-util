@@ -39,6 +39,6 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
         return Commands.user(meta.name())
                 .setGuildOnly(meta.isGuildOnly())
                 .setDefaultPermissions(meta.permission())
-                .setLocalizationFunction(localizer.prefixedLocalizer("command"));
+                .setLocalizationFunction(localizer.prefixedLocalizer("user"));
     }
 }
