@@ -26,6 +26,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public interface ILocalizer extends LocalizationFunction {
     Pattern localeName = Pattern.compile("\\.?([_\\w-]+?)\\.name$");
+    Pattern lowercase = Pattern.compile("^[\\w_-]+$");
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
@@ -122,6 +123,13 @@ public interface ILocalizer extends LocalizationFunction {
             log.warn("Result for key {}@{} is empty.", key, locale);
         }
         log.trace("Localized key {} for {}", key, locale);
+
+        if (key.endsWith("name")) {
+            if (!lowercase.matcher(localize).matches() && localize.toLowerCase().equals(localize)) {
+                log.warn("Key {}@{} has invalid value \"{}\"", key, locale, localize);
+            }
+        }
+
         return localize;
     }
 

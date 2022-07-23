@@ -229,7 +229,8 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                 for (var error : e.getSchemaErrors()) {
                     var loc = error.getLocation().split("\\.", 2);
                     var commandIndex = Integer.parseInt(loc[0]);
-                    log.error("Invalid values in command {} at {}. Caused by:\n{}", global.get(commandIndex).getName(), loc[1], error.getErrors());
+                    var command = global.get(commandIndex);
+                    log.error("Invalid values in command {} at {}. Caused by:\n{}", command.getName(), loc[1], error.getErrors());
                 }
                 return;
             }
