@@ -14,6 +14,7 @@ import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.CommandMeta;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,6 +22,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.slf4j.Logger;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -103,7 +105,7 @@ public class Slash implements CommandDataProvider {
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        var slash = Commands.slash(meta.name(), localizer.localize(meta.description()))
+        var slash = Commands.slash(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .setDefaultPermissions(meta.permission())
                 .setGuildOnly(meta.isGuildOnly())
                 .setLocalizationFunction(localizer.prefixedLocalizer("command"));

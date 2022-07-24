@@ -12,6 +12,7 @@ import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialS
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -53,7 +54,7 @@ public class SubCommand implements Route<RouteMeta> {
     }
 
     public SubcommandData data(ILocalizer localizer) {
-        return new SubcommandData(meta.name(), localizer.localize(meta.description()))
+        return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .addOptions(arguments.stream().map(a -> a.data(localizer)).toList());
     }
 }

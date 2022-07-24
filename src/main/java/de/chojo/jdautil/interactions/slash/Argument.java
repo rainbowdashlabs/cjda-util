@@ -8,6 +8,7 @@ package de.chojo.jdautil.interactions.slash;
 
 import de.chojo.jdautil.interactions.slash.structure.builder.ArgumentBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -103,6 +104,6 @@ public class Argument {
     }
 
     public OptionData data(ILocalizer localizer) {
-        return new OptionData(type, name, localizer.localize(description), isRequired(), autoComplete());
+        return new OptionData(type, name, localizer.localize(description, LocaleProvider.empty()), isRequired(), autoComplete());
     }
 }

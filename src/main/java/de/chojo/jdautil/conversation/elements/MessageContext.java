@@ -7,8 +7,9 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,12 +26,12 @@ import java.util.Map;
 
 public class MessageContext extends Context {
     private final Message message;
-    ContextLocalizer localizer;
+    LocalizationContext localizer;
 
     public MessageContext(Conversation conversation, Map<String, Object> data, Message message, ILocalizer localizer) {
         super(conversation, data);
         this.message = message;
-        this.localizer = localizer.getContextLocalizer(message.isFromGuild() ? message.getGuild() : null);
+        this.localizer = localizer.context(LocaleProvider.guild(message));
     }
 
 
@@ -107,7 +108,7 @@ public class MessageContext extends Context {
     }
 
     @Override
-    public ContextLocalizer localizer() {
+    public LocalizationContext localizer() {
         return localizer;
     }
 }

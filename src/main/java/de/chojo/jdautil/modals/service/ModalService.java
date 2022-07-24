@@ -8,6 +8,7 @@ package de.chojo.jdautil.modals.service;
 
 import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.handler.ModalHandlerBuilder;
 import de.chojo.jdautil.util.SnowflakeCreator;
@@ -53,7 +54,7 @@ public class ModalService extends ListenerAdapter {
      */
     public void registerModal(GenericCommandInteractionEvent callback, ModalHandler handler) {
         var snowflake = snowflakeCreator.nextString();
-        callback.replyModal(handler.createModal(snowflake, localizer.getContextLocalizer(callback.getGuild()))).queue();
+        callback.replyModal(handler.createModal(snowflake, localizer.context(LocaleProvider.guild(callback)))).queue();
         handlers.put(snowflake, handler);
     }
 

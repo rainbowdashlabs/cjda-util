@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.menus.entries;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.menus.EntryContext;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.interactions.components.Component.Type;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class MenuEntry<Component extends ActionComponent, Event extends GenericComponentInteractionCreateEvent> {
@@ -30,7 +29,7 @@ public abstract class MenuEntry<Component extends ActionComponent, Event extends
         this.eventConsumer = eventConsumer;
     }
 
-    public abstract ActionComponent component(long id, ContextLocalizer localizer);
+    public abstract ActionComponent component(long id, LocalizationContext localizer);
 
     public static MenuEntry<?, ?> of(Button component, Consumer<EntryContext<ButtonInteractionEvent, Button>> eventConsumer) {
         return new ButtonEntry(component, eventConsumer);

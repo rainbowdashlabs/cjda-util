@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.localization;
 
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -35,38 +36,13 @@ public interface ILocalizer extends LocalizationFunction {
         }
 
         @Override
-        public ContextLocalizer getContextLocalizer(Guild guild) {
-            return new ContextLocalizer(this, null);
-        }
-
-        @Override
-        public ContextLocalizer getContextLocalizer(CommandInteraction interaction) {
-            return new ContextLocalizer(this, null);
-        }
-
-        @Override
-        public ContextLocalizer getContextLocalizer(MessageChannel channel) {
-            return new ContextLocalizer(this, null);
+        public LocalizationContext context(LocaleProvider provider) {
+            return new LocalizationContext(this, provider);
         }
 
         @Override
         public DiscordLocale getGuildLocale(Guild guild) {
             return defaultLanguage();
-        }
-
-        @Override
-        public String localize(String message, CommandInteraction interaction, Replacement... replacements) {
-            return message;
-        }
-
-        @Override
-        public String localize(String message, MessageChannel channel, Replacement... replacements) {
-            return message;
-        }
-
-        @Override
-        public String localize(String message, Replacement... replacements) {
-            return message;
         }
 
         @Override
@@ -87,19 +63,9 @@ public interface ILocalizer extends LocalizationFunction {
 
     String localize(String message, DiscordLocale language, Replacement... replacements);
 
-    ContextLocalizer getContextLocalizer(Guild guild);
-
-    ContextLocalizer getContextLocalizer(CommandInteraction interaction);
-
-    ContextLocalizer getContextLocalizer(MessageChannel channel);
+    LocalizationContext context(LocaleProvider guild);
 
     DiscordLocale getGuildLocale(Guild guild);
-
-    String localize(String message, CommandInteraction interaction, Replacement... replacements);
-
-    String localize(String message, MessageChannel channel, Replacement... replacements);
-
-    String localize(String message, Replacement... replacements);
 
     @NotNull
     @Override
@@ -146,5 +112,9 @@ public interface ILocalizer extends LocalizationFunction {
 
     default Optional<DiscordLocale> getLanguage(String language) {
         return languages().stream().filter(lang -> lang.getLocale().equalsIgnoreCase(language)).findFirst();
+    }
+
+    default String localize(String message, LocaleProvider provider, Replacement... replacements){
+        return localize(message, provider.locale().orElse(defaultLanguage()), replacements);
     }
 }

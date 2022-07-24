@@ -14,7 +14,7 @@ import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.slash.provider.SlashProvider;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.interactions.user.provider.UserProvider;
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.menus.MenuServiceBuilder;
@@ -114,7 +114,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     }
 
     /**
-     * Adds a localizer to the hub. This will allow to use {@link ContextLocalizer}.
+     * Adds a localizer to the hub. This will allow to use {@link LocalizationContext}.
      *
      * @param localizer localizer instance
      * @return builder instance

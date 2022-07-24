@@ -14,6 +14,7 @@ import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
@@ -100,7 +101,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var message = getMessage(name).get();
         var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            message.onMessage(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+            message.onMessage(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -114,7 +115,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var command = getSlash(name).get();
         var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            command.onSlashCommand(event, new EventContext(event, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+            command.onSlashCommand(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -127,7 +128,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var name = event.getName();
         var command = getSlash(name).get();
         try {
-            command.onAutoComplete(event, new EventContext(null, conversationService, localizer.getContextLocalizer(event.getGuild()), buttons, pages, modalService, this));
+            command.onAutoComplete(event, new EventContext(null, conversationService, localizer, buttons, pages, modalService, this));
         } catch (Throwable t) {
             var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);

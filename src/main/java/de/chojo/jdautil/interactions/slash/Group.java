@@ -11,6 +11,7 @@ import de.chojo.jdautil.interactions.slash.structure.builder.GroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialGroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -74,7 +75,7 @@ public class Group implements Route<RouteMeta> {
     }
 
     public SubcommandGroupData data(ILocalizer localizer) {
-        return new SubcommandGroupData(meta.name(), localizer.localize(meta.description()))
+        return new SubcommandGroupData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .addSubcommands(subCommands.stream().map(s -> s.data(localizer)).toList());
     }
 }

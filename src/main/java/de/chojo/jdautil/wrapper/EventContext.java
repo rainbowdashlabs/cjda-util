@@ -6,13 +6,15 @@
 
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.menus.MenuAction;
-import de.chojo.jdautil.menus.MenuService;
-import de.chojo.jdautil.interactions.dispatching.InteractionHub;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.interactions.dispatching.InteractionHub;
+import de.chojo.jdautil.localization.LocalizationContext;
+import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
+import de.chojo.jdautil.menus.MenuAction;
+import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
@@ -23,16 +25,16 @@ import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 public class EventContext {
     private final IReplyCallback event;
     private final ConversationService conversationService;
-    private final ContextLocalizer contextLocalizer;
+    private final ILocalizer localizer;
     private final MenuService menus;
     private final PageService pages;
     private final ModalService modalService;
-    private final InteractionHub<?,?,?> interactionHub;
+    private final InteractionHub<?, ?, ?> interactionHub;
 
-    public EventContext(IReplyCallback event, ConversationService conversationService, ContextLocalizer contextLocalizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?,?,?> interactionHub) {
+    public EventContext(IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub) {
         this.event = event;
         this.conversationService = conversationService;
-        this.contextLocalizer = contextLocalizer;
+        this.localizer = localizer;
         this.menus = menus;
         this.pages = pages;
         this.modalService = modalService;
@@ -48,7 +50,15 @@ public class EventContext {
     }
 
     public String localize(String message, Replacement... replacements) {
-        return contextLocalizer.localize(message, replacements);
+        return guildLocale(message, replacements);
+    }
+
+    public String guildLocale(String message, Replacement... replacements) {
+        return localizer.localize(message, LocaleProvider.guild(event), replacements);
+    }
+
+    public String userLocale(String message, Replacement... replacements) {
+        return localizer.localize(message, LocaleProvider.user(event), replacements);
     }
 
     public void registerMenu(MenuAction interaction) {
@@ -80,11 +90,14 @@ public class EventContext {
         }
     }
 
-    public ContextLocalizer localizer() {
-        return contextLocalizer;
+    public LocalizationContext guildLocalizer() {
+        return new LocalizationContext(localizer, LocaleProvider.guild(event));
+    }
+    public LocalizationContext userLocalizer() {
+        return new LocalizationContext(localizer, LocaleProvider.user(event));
     }
 
-    public InteractionHub<?,?,?> commandHub() {
+    public InteractionHub<?, ?, ?> commandHub() {
         return interactionHub;
     }
 }

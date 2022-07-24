@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.localization;
 
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -80,8 +81,13 @@ public class Localizer implements ILocalizer {
         if (guild == null) {
             return defaultLanguage;
         }
-        var apply = languageProvider.apply(guild).orElse(defaultLanguage.getLocale());
-        return getLanguage(apply).orElse(defaultLanguage);
+        var locale = guild.getLocale();
+        // Encountered default value. Will recheck on database
+        if (locale == DiscordLocale.ENGLISH_US) {
+            var apply = languageProvider.apply(guild).orElse(defaultLanguage.getLocale());
+            locale = getLanguage(apply).orElse(defaultLanguage);
+        }
+        return locale;
     }
 
     public Optional<DiscordLocale> getLanguage(String code) {
@@ -95,31 +101,6 @@ public class Localizer implements ILocalizer {
 
     public Set<DiscordLocale> getLanguages() {
         return languages.keySet();
-    }
-
-    @Override
-    public String localize(String message, CommandInteraction event, Replacement... replacements) {
-        Guild guild = null;
-        if (event.isFromGuild()) {
-            guild = event.getGuild();
-        }
-        return localize(message, guild, replacements);
-    }
-
-
-    @Override
-    public String localize(String message, MessageChannel channel, Replacement... replacements) {
-        if (channel instanceof TextChannel) {
-            var guildChannel = (TextChannel) channel;
-            return localize(message, guildChannel.getGuild(), replacements);
-        } else {
-            return localize(message, (Guild) null, replacements);
-        }
-    }
-
-    @Override
-    public String localize(String message, Replacement... replacements) {
-        return localize(message, (Guild) null, replacements);
     }
 
     @Override
@@ -183,22 +164,8 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public ContextLocalizer getContextLocalizer(Guild guild) {
-        return new ContextLocalizer(this, guild);
-    }
-
-    @Override
-    public ContextLocalizer getContextLocalizer(CommandInteraction wrapper) {
-        return new ContextLocalizer(this, wrapper.getGuild());
-    }
-
-    @Override
-    public ContextLocalizer getContextLocalizer(MessageChannel channel) {
-        if (channel instanceof TextChannel) {
-            return new ContextLocalizer(this, ((TextChannel) channel).getGuild());
-        } else {
-            return new ContextLocalizer(this, null);
-        }
+    public LocalizationContext context(LocaleProvider provider) {
+        return new LocalizationContext(this, provider);
     }
 
     public DiscordLocale getDefaultLanguage() {
@@ -215,7 +182,7 @@ public class Localizer implements ILocalizer {
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
             languages.add(defaultLanguage);
-            languageProvider = s -> Optional.ofNullable(defaultLanguage.getLocale());
+            languageProvider = s -> Optional.of(defaultLanguage.getLocale());
         }
 
         public Builder withBundlePath(String bundlePath) {
