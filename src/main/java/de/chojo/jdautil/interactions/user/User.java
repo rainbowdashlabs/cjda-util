@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEven
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+import java.util.Locale;
+
 public class User implements Interaction, UserHandler, CommandDataProvider {
     private final InteractionMeta meta;
     private final UserHandler handler;
@@ -39,6 +41,11 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
         return Commands.user(meta.name())
                 .setGuildOnly(meta.isGuildOnly())
                 .setDefaultPermissions(meta.permission())
-                .setLocalizationFunction(localizer.prefixedLocalizer("user"));
+                .setNameLocalizations(localizer.prefixedLocalizer("user").apply(localeKey()));
+
+    }
+
+    private String localeKey(){
+        return meta.name().toLowerCase(Locale.ROOT).replace(" ", "_") + ".name";
     }
 }

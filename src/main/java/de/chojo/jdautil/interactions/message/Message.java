@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+import java.util.Locale;
+
 public class Message implements Interaction, MessageHandler, CommandDataProvider {
     private final InteractionMeta meta;
     private final MessageHandler handler;
@@ -39,6 +41,10 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
         return Commands.message(meta.name())
                 .setGuildOnly(meta.isGuildOnly())
                 .setDefaultPermissions(meta.permission())
-                .setLocalizationFunction(localizer.prefixedLocalizer("message"));
+                .setNameLocalizations(localizer.prefixedLocalizer("message").apply(localeKey()));
+    }
+
+    private String localeKey(){
+        return meta.name().toLowerCase(Locale.ROOT).replace(" ", "_") + ".name";
     }
 }
