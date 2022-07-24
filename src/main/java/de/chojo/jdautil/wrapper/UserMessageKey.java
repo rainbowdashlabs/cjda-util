@@ -20,7 +20,7 @@ public class UserMessageKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        UserMessageKey that = (UserMessageKey) o;
+        var that = (UserMessageKey) o;
 
         if (user != that.user) return false;
         return message == that.message;
@@ -28,7 +28,7 @@ public class UserMessageKey {
 
     @Override
     public int hashCode() {
-        int result = (int) (user ^ (user >>> 32));
+        var result = (int) (user ^ (user >>> 32));
         result = 31 * result + (int) (message ^ (message >>> 32));
         return result;
     }

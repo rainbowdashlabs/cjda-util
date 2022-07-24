@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuActionBuilder {
-    private MessageEmbed embed;
+    private final MessageEmbed embed;
     @Nullable
     private IReplyCallback callback;
     @Nullable

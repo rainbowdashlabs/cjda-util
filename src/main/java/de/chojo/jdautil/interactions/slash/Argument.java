@@ -12,20 +12,7 @@ import de.chojo.jdautil.localization.util.LocaleProvider;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-public class Argument {
-    private final OptionType type;
-    private final String name;
-    private final String description;
-    private final boolean required;
-    private final boolean autoComplete;
-
-    public Argument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
-        this.type = type;
-        this.name = name;
-        this.description = description;
-        this.required = required;
-        this.autoComplete = autoComplete;
-    }
+public record Argument(OptionType type, String name, String description, boolean required, boolean autoComplete) {
 
     /**
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
@@ -47,7 +34,15 @@ public class Argument {
         return new ArgumentBuilder(type, name, description);
     }
 
+    /**
+     * @deprecated Replaced by {@link Argument#text(String, String)}
+     */
+    @Deprecated(forRemoval = true)
     public static ArgumentBuilder string(String name, String description) {
+        return builder(OptionType.STRING, name, description);
+    }
+
+    public static ArgumentBuilder text(String name, String description) {
         return builder(OptionType.STRING, name, description);
     }
 
@@ -83,27 +78,7 @@ public class Argument {
         return builder(OptionType.MENTIONABLE, name, description);
     }
 
-    public String name() {
-        return name;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public String description() {
-        return description;
-    }
-
-    public OptionType type() {
-        return type;
-    }
-
-    public boolean autoComplete() {
-        return autoComplete;
-    }
-
     public OptionData data(ILocalizer localizer) {
-        return new OptionData(type, name, localizer.localize(description, LocaleProvider.empty()), isRequired(), autoComplete());
+        return new OptionData(type, name, localizer.localize(description, LocaleProvider.empty()), required(), autoComplete());
     }
 }

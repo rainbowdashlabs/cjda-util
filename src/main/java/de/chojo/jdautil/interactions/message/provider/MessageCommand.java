@@ -15,6 +15,7 @@ public class MessageCommand implements MessageProvider<Message> {
     public MessageCommand(Message message) {
         this.message = message;
     }
+
     public MessageCommand(MessageBuilder message) {
         this(message.build());
     }

@@ -45,7 +45,7 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
 
     }
 
-    private String localeKey(){
+    private String localeKey() {
         return meta.name().toLowerCase(Locale.ROOT).replace(" ", "_") + ".name";
     }
 }

@@ -16,8 +16,8 @@ import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public class TextInputHandlerBuilder {
-    TextInput.Builder builder;
-    Consumer<ModalMapping> handler = Consumers.empty();
+    private final TextInput.Builder builder;
+    private Consumer<ModalMapping> handler = Consumers.empty();
 
 
     public TextInputHandlerBuilder(String id, String label, TextInputStyle style) {

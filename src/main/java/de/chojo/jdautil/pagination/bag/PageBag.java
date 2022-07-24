@@ -11,7 +11,7 @@ package de.chojo.jdautil.pagination.bag;
  */
 public abstract class PageBag implements IPageBag {
     private final int pages;
-    private int currentPage = 0;
+    private int currentPage;
 
     public PageBag(int pages) {
         this.pages = pages;

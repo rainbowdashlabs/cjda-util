@@ -6,7 +6,6 @@
 
 package de.chojo.jdautil.botlist;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import de.chojo.jdautil.botlist.modules.submission.SubmissionService;
 import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 import de.chojo.jdautil.botlist.modules.voting.VoteService;
@@ -76,7 +75,7 @@ public class BotlistService implements Runnable {
         private long interval = 60;
         private TimeUnit unit = TimeUnit.of(ChronoUnit.MINUTES);
         private ScheduledExecutorService executorService;
-        private Set<BotList> botLists = new HashSet<>();
+        private final Set<BotList> botLists = new HashSet<>();
         private VoteService voteService;
 
         public Builder(ShardManager shardManager) {

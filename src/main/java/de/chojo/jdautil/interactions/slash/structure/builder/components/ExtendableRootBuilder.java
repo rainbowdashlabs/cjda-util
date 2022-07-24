@@ -9,7 +9,7 @@ package de.chojo.jdautil.interactions.slash.structure.builder.components;
 import de.chojo.jdautil.interactions.slash.structure.builder.GroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.SubCommandBuilder;
 
-public interface ExtendableRootBuilder extends BuildableMetaBuilder{
+public interface ExtendableRootBuilder extends BuildableMetaBuilder {
     ExtendableRootBuilder group(GroupBuilder builder);
 
     ExtendableRootBuilder subCommand(SubCommandBuilder builder);

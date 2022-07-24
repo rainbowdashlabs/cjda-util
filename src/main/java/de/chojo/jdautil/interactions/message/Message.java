@@ -44,7 +44,7 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
                 .setNameLocalizations(localizer.prefixedLocalizer("message").apply(localeKey()));
     }
 
-    private String localeKey(){
+    private String localeKey() {
         return meta.name().toLowerCase(Locale.ROOT).replace(" ", "_") + ".name";
     }
 }

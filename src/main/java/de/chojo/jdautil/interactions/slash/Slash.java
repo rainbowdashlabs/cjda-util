@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.slf4j.Logger;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,7 +33,7 @@ public class Slash implements CommandDataProvider {
     private final List<Group> groups;
     private final List<SubCommand> leaves;
     private final List<Argument> arguments;
-    CommandMeta meta;
+    private final CommandMeta meta;
 
     public Slash(CommandMeta meta, SlashHandler handler, List<Group> groups, List<SubCommand> leaves, List<Argument> arguments) {
         this.meta = meta;

@@ -9,14 +9,12 @@ package de.chojo.jdautil.localization;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,17 +61,16 @@ public class Localizer implements ILocalizer {
     public String getLanguageString(DiscordLocale language, String localetag) {
         if (getLanguageResource(language).containsKey(localetag)) {
             return getLanguageResource(language).getString(localetag);
-        } else {
-            log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
-                    localetag, language);
-            var bundle = getLanguageResource(defaultLanguage);
-
-            if (!bundle.containsKey(localetag)) {
-                log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);
-            }
-
-            return bundle.containsKey(localetag) ? bundle.getString(localetag) : localetag;
         }
+        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
+                localetag, language);
+        var bundle = getLanguageResource(defaultLanguage);
+
+        if (!bundle.containsKey(localetag)) {
+            log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);
+        }
+
+        return bundle.containsKey(localetag) ? bundle.getString(localetag) : localetag;
     }
 
     @Override
@@ -174,7 +171,7 @@ public class Localizer implements ILocalizer {
 
     public static class Builder {
         private final Set<DiscordLocale> languages = new HashSet<>();
-        private final Map<DiscordLocale, ResourceBundle> resourceBundles = new HashMap<>();
+        private final Map<DiscordLocale, ResourceBundle> resourceBundles = new EnumMap<>(DiscordLocale.class);
         private final DiscordLocale defaultLanguage;
         private String bundlePath = "locale";
         private Function<Guild, Optional<String>> languageProvider;

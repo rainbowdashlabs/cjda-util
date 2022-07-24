@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class TextInputHandler {
-    TextInput.Builder input;
-    Consumer<ModalMapping> mapping;
+    private final TextInput.Builder input;
+    private final Consumer<ModalMapping> mapping;
 
     TextInputHandler(@NotNull TextInput.Builder input, @NotNull Consumer<ModalMapping> mapping) {
         this.input = input;

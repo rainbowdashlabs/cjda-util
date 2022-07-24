@@ -20,7 +20,7 @@ public class MessageBuffer implements Runnable {
     private final ShardManager shardManager;
     private final long channelId;
     private final int flushDuration;
-    private Instant oldest = null;
+    private Instant oldest;
     private final StringBuilder buffer = new StringBuilder();
 
     private MessageBuffer(int maxLength, DateTimeFormatter formatter, ShardManager shardManager, long channelId, int flushDuration) {

@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ButtonDialog {
-    private Map<String, ComponenAction> components = new HashMap<>();
+    private final Map<String, ComponenAction> components = new HashMap<>();
 
     public ButtonDialog add(ComponenAction action) {
         components.put(action.component().getId(), action);

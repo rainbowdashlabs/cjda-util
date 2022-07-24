@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class MessageContext extends Context {
     private final Message message;
-    LocalizationContext localizer;
+    private final LocalizationContext localizer;
 
     public MessageContext(Conversation conversation, Map<String, Object> data, Message message, ILocalizer localizer) {
         super(conversation, data);
