@@ -93,6 +93,17 @@ public class EventContext {
     public LocalizationContext guildLocalizer() {
         return new LocalizationContext(localizer, LocaleProvider.guild(event));
     }
+
+    /**
+     *
+     * @return
+     * @deprecated Removed in favor or {@link EventContext#guildLocalizer()}
+     */
+    @Deprecated(forRemoval = true)
+    public LocalizationContext localizer() {
+        return guildLocalizer();
+    }
+
     public LocalizationContext userLocalizer() {
         return new LocalizationContext(localizer, LocaleProvider.user(event));
     }
