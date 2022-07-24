@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
     private final String name;
     private boolean guildOnly;
-    private DefaultMemberPermissions permission;
-    private InteractionScope scope;
+    private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
+    private InteractionScope scope = InteractionScope.GLOBAL;
 
     public InteractionMetaBuilder(String name) {
         this.name = name;
