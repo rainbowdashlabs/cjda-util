@@ -33,10 +33,10 @@ public class Localizer implements ILocalizer {
     private static final Pattern SIMPLE_LOCALIZATION_CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
     private static final Logger log = getLogger(Localizer.class);
     private final Map<DiscordLocale, ResourceBundle> languages;
-    private final Function<Guild, Optional<String>> languageProvider;
+    private final Function<Guild, Optional<DiscordLocale>> languageProvider;
     private final DiscordLocale defaultLanguage;
 
-    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<String>> languageProvider, DiscordLocale defaultLanguage) {
+    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage) {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
@@ -77,22 +77,8 @@ public class Localizer implements ILocalizer {
         if (guild == null) {
             return defaultLanguage;
         }
-        var locale = guild.getLocale();
-        // Encountered default value. Will recheck on database
-        if (locale == DiscordLocale.ENGLISH_US) {
-            var apply = languageProvider.apply(guild).orElse(defaultLanguage.getLocale());
-            locale = getLanguage(apply).orElse(defaultLanguage);
-        }
-        return locale;
-    }
-
-    public Optional<DiscordLocale> getLanguage(String code) {
-        for (var language : languages.keySet()) {
-            if (language.getLocale().equalsIgnoreCase(code)) {
-                return Optional.of(language);
-            }
-        }
-        return Optional.empty();
+        var guildLocale = languageProvider.apply(guild);
+        return guildLocale.orElseGet(guild::getLocale);
     }
 
     public Set<DiscordLocale> getLanguages() {
@@ -180,12 +166,12 @@ public class Localizer implements ILocalizer {
         private final Map<DiscordLocale, ResourceBundle> resourceBundles = new EnumMap<>(DiscordLocale.class);
         private final DiscordLocale defaultLanguage;
         private String bundlePath = "locale";
-        private Function<Guild, Optional<String>> languageProvider;
+        private Function<Guild, Optional<DiscordLocale>> languageProvider;
 
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
             languages.add(defaultLanguage);
-            languageProvider = s -> Optional.of(defaultLanguage.getLocale());
+            languageProvider = s -> Optional.of(defaultLanguage);
         }
 
         public Builder withBundlePath(String bundlePath) {
@@ -193,7 +179,7 @@ public class Localizer implements ILocalizer {
             return this;
         }
 
-        public Builder withLanguageProvider(Function<Guild, Optional<String>> languageProvider) {
+        public Builder withLanguageProvider(Function<Guild, Optional<DiscordLocale>> languageProvider) {
             this.languageProvider = languageProvider;
             return this;
         }
