@@ -9,8 +9,9 @@ package de.chojo.jdautil.wrapper;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.dispatching.InteractionHub;
-import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
+import de.chojo.jdautil.localization.Localizer.Builder;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import de.chojo.jdautil.menus.MenuAction;
@@ -21,6 +22,8 @@ import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+
+import java.util.function.Function;
 
 public class EventContext {
     private final IReplyCallback event;
@@ -49,14 +52,40 @@ public class EventContext {
         conversationService.startDialog(event, conversation);
     }
 
+    /**
+     * Localizes a message with the guild locale if the event happened on a guild. Will use user locale if it happened in a private message.
+     *
+     * @param message      message
+     * @param replacements replacements
+     * @return localized message
+     */
+    @Deprecated
     public String localize(String message, Replacement... replacements) {
-        return guildLocale(message, replacements);
+        if (event.isFromGuild()) {
+            return localizer.localize(message, event.getGuild(), replacements);
+        }
+        return userLocale(message, replacements);
     }
 
+    /**
+     * Localizes the key with the defined language of the guild or by the locale provided by the
+     * {@link Builder#withLanguageProvider(Function)} when the language is the default value.
+     *
+     * @param message      message
+     * @param replacements replacements
+     * @return localized message
+     */
     public String guildLocale(String message, Replacement... replacements) {
         return localizer.localize(message, LocaleProvider.guild(event), replacements);
     }
 
+    /**
+     * Localizes the key with the defined language of the user.
+     *
+     * @param message      message
+     * @param replacements replacements
+     * @return localized message
+     */
     public String userLocale(String message, Replacement... replacements) {
         return localizer.localize(message, LocaleProvider.user(event), replacements);
     }
@@ -95,7 +124,6 @@ public class EventContext {
     }
 
     /**
-     *
      * @return
      * @deprecated Removed in favor or {@link EventContext#guildLocalizer()}
      */

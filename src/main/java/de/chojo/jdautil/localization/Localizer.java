@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -118,6 +117,13 @@ public class Localizer implements ILocalizer {
 
     @Override
     public String localize(String message, DiscordLocale language, Replacement... replacements) {
+        if (!languages.containsKey(language)) {
+            language = defaultLanguage();
+        }
+        return translate(message, language, replacements);
+    }
+
+    private String translate(String message, DiscordLocale language, Replacement... replacements) {
         if (message == null) {
             return null;
         }
