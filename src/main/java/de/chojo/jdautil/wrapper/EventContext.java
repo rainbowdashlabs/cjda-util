@@ -59,7 +59,6 @@ public class EventContext {
      * @param replacements replacements
      * @return localized message
      */
-    @Deprecated
     public String localize(String message, Replacement... replacements) {
         if (event.isFromGuild()) {
             return localizer.localize(message, event.getGuild(), replacements);
