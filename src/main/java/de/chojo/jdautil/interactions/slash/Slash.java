@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.locale.LocaleChecks;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.SlashBuilder;
@@ -104,13 +105,16 @@ public class Slash implements CommandDataProvider {
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
+        LocaleChecks.checkCommandName(localizer, "command", "%s.name".formatted(meta.name()));
+        LocaleChecks.checkCommandDescription(localizer, "command", "%s.description".formatted(meta.name()));
+
         var slash = Commands.slash(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .setDefaultPermissions(meta.permission())
                 .setGuildOnly(meta.isGuildOnly())
                 .setLocalizationFunction(localizer.prefixedLocalizer("command"));
-        if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(g -> g.data(localizer)).toList());
-        if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(s -> s.data(localizer)).toList());
-        if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(a -> a.data(localizer)).toList());
+        if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(g -> g.data(this, localizer)).toList());
+        if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(s -> s.data(this, localizer)).toList());
+        if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(a -> a.data(this, localizer)).toList());
         return slash;
     }
 }

@@ -6,6 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.locale.LocaleChecks;
+import de.chojo.jdautil.interactions.locale.LocaleKey;
 import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.SubCommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialSubCommandBuilder;
@@ -53,8 +55,17 @@ public class SubCommand implements Route<RouteMeta> {
         handler.onSlashCommand(event, context);
     }
 
-    public SubcommandData data(ILocalizer localizer) {
+    public SubcommandData data(Slash slash, Group group, ILocalizer localizer) {
+        LocaleChecks.checkCommandName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), meta.name()));
         return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .addOptions(arguments.stream().map(a -> a.data(localizer)).toList());
+                .addOptions(arguments.stream().map(a -> a.data(slash, group, this, localizer)).toList());
+    }
+
+    public SubcommandData data(Slash slash, ILocalizer localizer) {
+        LocaleChecks.checkCommandName(localizer, "command", LocaleKey.name(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(localizer, "command", LocaleKey.description(slash.meta().name(), meta.name()));
+        return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
+                .addOptions(arguments.stream().map(a -> a.data(slash, this, localizer)).toList());
     }
 }

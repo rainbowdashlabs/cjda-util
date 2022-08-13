@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.locale.LocaleChecks;
 import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.GroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialGroupBuilder;
@@ -74,8 +75,10 @@ public class Group implements Route<RouteMeta> {
         return Collections.singletonList(subCommands);
     }
 
-    public SubcommandGroupData data(ILocalizer localizer) {
+    public SubcommandGroupData data(Slash slash, ILocalizer localizer) {
+        LocaleChecks.checkCommandName(localizer, "command", "%s.%s.name".formatted(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(localizer, "command", "%s.%s.description".formatted(slash.meta().name(), meta.name()));
         return new SubcommandGroupData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .addSubcommands(subCommands.stream().map(s -> s.data(localizer)).toList());
+                .addSubcommands(subCommands.stream().map(s -> s.data(slash, this, localizer)).toList());
     }
 }

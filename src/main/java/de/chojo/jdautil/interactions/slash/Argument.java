@@ -6,6 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash;
 
+import de.chojo.jdautil.interactions.locale.LocaleChecks;
+import de.chojo.jdautil.interactions.locale.LocaleKey;
 import de.chojo.jdautil.interactions.slash.structure.builder.ArgumentBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.LocaleProvider;
@@ -80,5 +82,26 @@ public record Argument(OptionType type, String name, String description, boolean
 
     public OptionData data(ILocalizer localizer) {
         return new OptionData(type, name, localizer.localize(description, LocaleProvider.empty()), required(), autoComplete());
+    }
+
+    public OptionData data(Slash slash, Group group, SubCommand subCommand, ILocalizer localizer) {
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), subCommand.meta().name(), name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), subCommand.meta().name(), name()));
+
+        return data(localizer);
+    }
+
+    public OptionData data(Slash slash, SubCommand subCommand, ILocalizer localizer) {
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), subCommand.meta().name(), name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), subCommand.meta().name(), name()));
+
+        return data(localizer);
+    }
+
+    public OptionData data(Slash slash, ILocalizer localizer) {
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), name()));
+
+        return data(localizer);
     }
 }

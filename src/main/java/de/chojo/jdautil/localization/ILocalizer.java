@@ -102,6 +102,10 @@ public interface ILocalizer extends LocalizationFunction {
         return key -> languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
+    default Map<DiscordLocale, String> keyMap(String prefix, String key) {
+        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
+    }
+
     String localize(String message, Guild guild, Replacement... replacements);
 
     Set<DiscordLocale> languages();
@@ -112,7 +116,7 @@ public interface ILocalizer extends LocalizationFunction {
         return languages().stream().filter(lang -> lang.getLocale().equalsIgnoreCase(language)).findFirst();
     }
 
-    default String localize(String message, LocaleProvider provider, Replacement... replacements){
+    default String localize(String message, LocaleProvider provider, Replacement... replacements) {
         return localize(message, provider.locale().orElse(defaultLanguage()), replacements);
     }
 }

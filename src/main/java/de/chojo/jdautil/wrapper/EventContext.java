@@ -61,7 +61,7 @@ public class EventContext {
      */
     public String localize(String message, Replacement... replacements) {
         if (event.isFromGuild()) {
-            return localizer.localize(message, event.getGuild(), replacements);
+            return guildLocale(message, replacements);
         }
         return userLocale(message, replacements);
     }
@@ -75,7 +75,7 @@ public class EventContext {
      * @return localized message
      */
     public String guildLocale(String message, Replacement... replacements) {
-        return localizer.localize(message, LocaleProvider.guild(event), replacements);
+        return localizer.localize(message, event.getGuild(), replacements);
     }
 
     /**

@@ -9,7 +9,16 @@ package de.chojo.jdautil.localization;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 
-public record LocalizationContext(ILocalizer localizer, LocaleProvider provider) {
+import java.util.Objects;
+
+public class LocalizationContext {
+    private final ILocalizer localizer;
+    private final LocaleProvider provider;
+
+    public LocalizationContext(ILocalizer localizer, LocaleProvider provider) {
+        this.localizer = localizer;
+        this.provider = provider;
+    }
 
     /**
      * Localize a message in the given guild or private context.
@@ -27,8 +36,11 @@ public record LocalizationContext(ILocalizer localizer, LocaleProvider provider)
      *
      * @return localizer
      */
-    @Override
     public ILocalizer localizer() {
         return localizer;
+    }
+
+    public LocaleProvider provider() {
+        return provider;
     }
 }
