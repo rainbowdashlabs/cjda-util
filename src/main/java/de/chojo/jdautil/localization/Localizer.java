@@ -201,10 +201,10 @@ public class Localizer implements ILocalizer {
 
 
         private void loadLanguages() {
-            for (var code : languages) {
-                var locale = new Locale(code.getLocale().replace("-", "_"));
+            for (var lang : languages) {
+                var locale = Locale.forLanguageTag(lang.getLocale());
                 var bundle = ResourceBundle.getBundle(bundlePath, locale);
-                resourceBundles.put(code, bundle);
+                resourceBundles.put(lang, bundle);
             }
 
             log.debug("Loaded {} languages!", languages.size());
