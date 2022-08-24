@@ -38,7 +38,7 @@ public final class LocaleChecks {
 
     private static void checkSnakeCase(ILocalizer localizer, String prefix, String key){
         localizer.keyMap(prefix, key).entrySet().stream()
-                .filter(e -> e.getValue().equals(e.getValue().toLowerCase().replace(" ", "_")))
+                .filter(e -> !e.getValue().equals(e.getValue().toLowerCase().replace(" ", "_")))
                 .forEach(e -> log.warn("Key {}.{}@{} is not snake_case ({}). Should be {}",
                         prefix, key, e.getKey(), e.getValue(), e.getValue().toLowerCase().replace(" ", "_")));
 
