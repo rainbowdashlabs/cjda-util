@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.modals.handler;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 public class TextInputHandler {
-    TextInput.Builder input;
-    Consumer<ModalMapping> mapping;
+    private final TextInput.Builder input;
+    private final Consumer<ModalMapping> mapping;
 
     TextInputHandler(@NotNull TextInput.Builder input, @NotNull Consumer<ModalMapping> mapping) {
         this.input = input;
@@ -31,7 +31,7 @@ public class TextInputHandler {
         this.mapping.accept(mapping);
     }
 
-    public TextInput input(ContextLocalizer localizer) {
+    public TextInput input(LocalizationContext localizer) {
         return input.setLabel(localizer.localize(input.getLabel()))
                 .setPlaceholder(localizer.localize(input.getPlaceholder()))
                 .build();

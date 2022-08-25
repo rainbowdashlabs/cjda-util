@@ -7,7 +7,7 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface ConversationContext {
     Message message();
@@ -68,5 +67,5 @@ public interface ConversationContext {
 
     String localize(String message, Replacement... replacements);
 
-    ContextLocalizer localizer();
+    LocalizationContext localizer();
 }

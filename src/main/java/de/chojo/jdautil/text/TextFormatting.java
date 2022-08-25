@@ -142,7 +142,7 @@ public final class TextFormatting {
         private final String[][] table;
         private String markdown = "";
         private int padding = 1;
-        private int rowPointer = 0;
+        private int rowPointer;
 
         /**
          * Create a new tablebuilder.

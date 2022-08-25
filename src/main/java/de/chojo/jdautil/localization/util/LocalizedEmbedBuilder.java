@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.localization.util;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -23,7 +23,7 @@ import java.time.temporal.TemporalAccessor;
  */
 public class LocalizedEmbedBuilder extends EmbedBuilder {
     private static final Replacement[] NONE = new Replacement[0];
-    private final ContextLocalizer localizer;
+    private final LocalizationContext localizer;
 
     /**
      * Creates a new localized embed builder.
@@ -31,15 +31,15 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
      * @param event message context for guild and language detection
      */
     public LocalizedEmbedBuilder(ILocalizer localizer, CommandInteraction event) {
-        this.localizer = localizer.getContextLocalizer(event == null ? null : event.getGuild());
+        this.localizer = localizer.context(LocaleProvider.guild(event));
     }
 
-    public LocalizedEmbedBuilder(ContextLocalizer localizer) {
+    public LocalizedEmbedBuilder(LocalizationContext localizer) {
         this.localizer = localizer;
     }
 
     public LocalizedEmbedBuilder(ILocalizer localizer, @Nullable Guild guild) {
-        this.localizer = localizer.getContextLocalizer(guild);
+        this.localizer = localizer.context(LocaleProvider.guild(guild));
     }
 
     private String localize(String message, Replacement... replacements) {

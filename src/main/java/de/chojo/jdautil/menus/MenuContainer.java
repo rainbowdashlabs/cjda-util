@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.menus;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.menus.entries.ButtonEntry;
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import de.chojo.jdautil.menus.entries.SelectMenuEntry;
@@ -22,11 +22,11 @@ import java.util.Optional;
 
 public class MenuContainer {
     private final long id;
-    private final ContextLocalizer localizer;
+    private final LocalizationContext localizer;
     private final List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> entries;
     private final long ownerId;
 
-    MenuContainer(long id, ContextLocalizer localizer, List<MenuEntry<?, ?>> entries, User user) {
+    MenuContainer(long id, LocalizationContext localizer, List<MenuEntry<?, ?>> entries, User user) {
         this.id = id;
         this.localizer = localizer;
         this.entries = entries;

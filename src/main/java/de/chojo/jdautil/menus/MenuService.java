@@ -8,6 +8,7 @@ package de.chojo.jdautil.menus;
 
 import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.parsing.ValueParser;
 import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -57,7 +58,7 @@ public class MenuService extends ListenerAdapter {
     public void register(MenuAction interaction) {
         var id = nextId();
         interaction.send(localizer, id);
-        cache.put(id, new MenuContainer(id, localizer.getContextLocalizer(interaction.guild()), interaction.components(), interaction.user()));
+        cache.put(id, new MenuContainer(id, localizer.context(LocaleProvider.guild(interaction.guild())), interaction.components(), interaction.user()));
     }
 
     private long nextId() {

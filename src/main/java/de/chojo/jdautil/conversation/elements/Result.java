@@ -7,13 +7,14 @@
 package de.chojo.jdautil.conversation.elements;
 
 public class Result {
-    private ResultType type;
-    private int next;
-    private boolean silent = false;
+    private final ResultType type;
+    private final int next;
+    private final boolean silent;
 
     private Result(ResultType type, int next, boolean silent) {
         this.type = type;
         this.next = next;
+        this.silent = silent;
     }
 
     public static Result proceed(int next) {

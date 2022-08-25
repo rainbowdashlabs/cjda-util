@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.modals.handler;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Modal;
@@ -30,7 +30,7 @@ public class ModalHandler {
         return new ModalHandlerBuilder(label);
     }
 
-    public Modal createModal(String id, ContextLocalizer localizer) {
+    public Modal createModal(String id, LocalizationContext localizer) {
         var inputs = this.inputs.values().stream().map(input -> ActionRow.of(input.input(localizer))).toList();
         return Modal.create(id, localizer.localize(label))
                 .addActionRows(inputs)

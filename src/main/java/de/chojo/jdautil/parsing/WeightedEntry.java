@@ -39,7 +39,7 @@ public class WeightedEntry<T> implements Comparable<WeightedEntry<T>> {
         var jaro = Math.max(SIMILARITY.apply(member.getEffectiveName(), name), SIMILARITY.apply(member.getUser().getName(), name));
         var score = jaro;
         if (jaro < 0.85) {
-            double startsWith = 0.65;
+            var startsWith = 0.65;
             var contains = 0.85;
             if (lowerEffective.startsWith(lowerName) || lowerUser.startsWith(lowerName)) {
                 startsWith = 1;

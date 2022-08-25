@@ -7,6 +7,7 @@
 package de.chojo.jdautil.menus;
 
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -45,7 +46,7 @@ public class MenuAction {
     public void send(ILocalizer localizer, long id) {
         var buttons = this.components.stream()
                 .filter(MenuEntry::visible)
-                .map(e -> e.component(id, localizer.getContextLocalizer(guild)))
+                .map(e -> e.component(id, localizer.context(LocaleProvider.guild(guild))))
                 .collect(Collectors.toList());
 
         var rows = ActionRow.partitionOf(buttons);
