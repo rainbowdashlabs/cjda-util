@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.7.0+alpha.17"
+version = "2.7.0+alpha.18"
 description = "Discord utilities for use with JDA"
 
 publishData {
