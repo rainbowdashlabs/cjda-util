@@ -16,7 +16,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
@@ -38,11 +39,6 @@ public class MessageContext extends Context {
     @Override
     public Message message() {
         return message;
-    }
-
-    @Override
-    public MessageAction reply(String message) {
-        return this.message.reply(message);
     }
 
     @Override
@@ -84,22 +80,22 @@ public class MessageContext extends Context {
     @Override
     @CheckReturnValue
     @Nonnull
-    public MessageAction reply(@NotNull CharSequence content) {
-        return message.reply(content);
+    public @NotNull MessageCreateAction reply(@NotNull String content) {
+        return message.reply(MessageCreateData.fromContent(content));
     }
 
     @Override
     @CheckReturnValue
     @Nonnull
-    public MessageAction reply(@NotNull MessageEmbed content) {
+    public @NotNull MessageCreateAction reply(@NotNull MessageEmbed content) {
         return message.replyEmbeds(content);
     }
 
     @Override
     @CheckReturnValue
     @Nonnull
-    public MessageAction reply(@NotNull Message content) {
-        return message.reply(content);
+    public @NotNull MessageCreateAction reply(@NotNull Message content) {
+        return message.reply(MessageCreateData.fromMessage(content));
     }
 
     @Override
