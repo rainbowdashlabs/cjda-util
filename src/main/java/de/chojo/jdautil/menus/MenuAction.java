@@ -53,14 +53,14 @@ public class MenuAction {
 
         if (channel != null) {
             channel.sendMessageEmbeds(embed)
-                    .setActionRows(rows)
+                    .addComponents(rows)
                     .queue();
         }
 
         if (callback != null) {
             callback.replyEmbeds(embed)
                     .setEphemeral(ephemeral)
-                    .addActionRows(rows)
+                    .setComponents(rows)
                     .queue();
         }
     }

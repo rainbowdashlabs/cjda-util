@@ -11,23 +11,24 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public record EntryContext<Event extends GenericComponentInteractionCreateEvent, Component extends ActionComponent>(
         Event event, MenuEntry<Component, Event> entry, MenuContainer container) {
 
     public void refresh() {
-        event.deferEdit().setActionRows(container.actionRows()).queue();
+        event.deferEdit().setComponents(container.actionRows()).queue();
     }
 
     public void refresh(Message message) {
-        event.editMessage(message).setActionRows(container.actionRows()).queue();
+        event.editMessage(MessageEditData.fromMessage(message)).setComponents(container.actionRows()).queue();
     }
 
     public void refresh(MessageEmbed... message) {
-        event.editMessageEmbeds(message).setActionRows(container.actionRows()).queue();
+        event.editMessageEmbeds(message).setComponents(container.actionRows()).queue();
     }
 
     public void refresh(String message) {
-        event.editMessage(message).setActionRows(container.actionRows()).queue();
+        event.editMessage(message).setComponents(container.actionRows()).queue();
     }
 }

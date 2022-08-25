@@ -18,7 +18,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,11 +39,6 @@ public class InteractionContext extends Context {
     @Override
     public Message message() {
         return interaction.getMessage();
-    }
-
-    @Override
-    public MessageAction reply(String message) {
-        return interaction.getChannel().sendMessage(message);
     }
 
     @NotNull
@@ -82,20 +78,18 @@ public class InteractionContext extends Context {
 
     @NotNull
     @Override
-    public MessageAction reply(@NotNull CharSequence content) {
-        return interaction.getChannel().sendMessage(content);
+    public MessageCreateAction reply(@NotNull String content) {
+        return interaction.getChannel().sendMessage(MessageCreateData.fromContent(content));
     }
 
-    @NotNull
     @Override
-    public MessageAction reply(@NotNull MessageEmbed content) {
+    public @NotNull MessageCreateAction reply(@NotNull MessageEmbed content) {
         return interaction.getChannel().sendMessageEmbeds(content);
     }
 
-    @NotNull
     @Override
-    public MessageAction reply(@NotNull Message content) {
-        return interaction.getChannel().sendMessage(content);
+    public @NotNull MessageCreateAction reply(@NotNull Message content) {
+        return interaction.getChannel().sendMessage(MessageCreateData.fromMessage(content));
     }
 
     @Nonnull

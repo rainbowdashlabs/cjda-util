@@ -92,7 +92,7 @@ public class PageService extends ListenerAdapter {
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
             event.replyEmbeds(embed)
-                    .addActionRows(getPageButtons(event.getGuild(), page, id))
+                    .setComponents(getPageButtons(event.getGuild(), page, id))
                     .setEphemeral(ephemeral)
                     .queue();
             cache.put(id, page);
@@ -120,7 +120,7 @@ public class PageService extends ListenerAdapter {
                 .whenComplete(Futures.whenComplete(
                         embed -> {
                             channel.sendMessageEmbeds(embed)
-                                    .setActionRows(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
+                                    .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
                                     .queue();
                             cache.put(id, page);
                         },
@@ -188,12 +188,12 @@ public class PageService extends ListenerAdapter {
                 .whenComplete(Futures.whenComplete(
                         embed -> event.getHook()
                                 .editOriginalEmbeds(embed)
-                                .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                                .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
                                 .queue(),
                         err -> {
                             log.error("Could not build page", err);
                             event.getHook().editOriginal("Something went wrong")
-                                    .setActionRows(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                                    .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
                                     .queue();
                         }));
     }

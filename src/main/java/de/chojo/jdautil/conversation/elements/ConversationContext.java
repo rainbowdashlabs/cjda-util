@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
@@ -22,8 +22,6 @@ import javax.annotation.Nonnull;
 
 public interface ConversationContext {
     Message message();
-
-    MessageAction reply(String message);
 
     @Nonnull
     User getAuthor();
@@ -43,15 +41,15 @@ public interface ConversationContext {
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull CharSequence content);
+    MessageCreateAction reply(@NotNull String content);
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull MessageEmbed content);
+    MessageCreateAction reply(@NotNull Message content);
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull Message content);
+    MessageCreateAction reply(@NotNull MessageEmbed content);
 
     Conversation conversation();
 
