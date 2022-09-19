@@ -10,7 +10,7 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;

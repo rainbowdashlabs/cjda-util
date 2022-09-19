@@ -53,7 +53,7 @@ public class Choice {
         return new ChoiceBuilder();
     }
 
-        public static class ChoiceBuilder {
+    public static class ChoiceBuilder {
         private final List<Command.Choice> choices = new ArrayList<>();
 
         private ChoiceBuilder add(Command.Choice choice) {

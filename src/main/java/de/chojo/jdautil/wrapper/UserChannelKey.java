@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.wrapper;
 
-import net.dv8tion.jda.api.entities.Channel;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.User;
 
 public class UserChannelKey {

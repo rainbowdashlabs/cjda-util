@@ -38,7 +38,7 @@ public class SnowflakeCreator {
      *
      * @return a unique snowflake for the current time
      */
-    public String nextString(){
+    public String nextString() {
         return String.valueOf(nextLong());
     }
 

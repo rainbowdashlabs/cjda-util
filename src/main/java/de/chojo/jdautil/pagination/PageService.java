@@ -13,10 +13,10 @@ import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import de.chojo.jdautil.parsing.ValueParser;
 import de.chojo.jdautil.util.Futures;
 import de.chojo.jdautil.util.SnowflakeCreator;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -80,11 +80,11 @@ public class PageService extends ListenerAdapter {
     public void registerPage(IReplyCallback event, IPageBag page, boolean ephemeral) throws EmptyPageBagException {
         if (page.isEmpty()) {
             page.buildEmptyPage()
-                    .whenComplete(Futures.whenComplete(
-                            embed -> event.replyEmbeds(embed)
-                                    .setEphemeral(ephemeral)
-                                    .queue(),
-                            err -> log.error("Could not build page", err)));
+                .whenComplete(Futures.whenComplete(
+                        embed -> event.replyEmbeds(embed)
+                                      .setEphemeral(ephemeral)
+                                      .queue(),
+                        err -> log.error("Could not build page", err)));
             return;
         }
 
@@ -92,9 +92,9 @@ public class PageService extends ListenerAdapter {
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
             event.replyEmbeds(embed)
-                    .setComponents(getPageButtons(event.getGuild(), page, id))
-                    .setEphemeral(ephemeral)
-                    .queue();
+                 .setComponents(getPageButtons(event.getGuild(), page, id))
+                 .setEphemeral(ephemeral)
+                 .queue();
             cache.put(id, page);
         }, err -> log.error("Could not build page", err)));
     }
@@ -117,14 +117,14 @@ public class PageService extends ListenerAdapter {
         var id = nextId();
 
         page.buildPage()
-                .whenComplete(Futures.whenComplete(
-                        embed -> {
-                            channel.sendMessageEmbeds(embed)
-                                    .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
-                                    .queue();
-                            cache.put(id, page);
-                        },
-                        err -> log.error("Could not build page", err)));
+            .whenComplete(Futures.whenComplete(
+                    embed -> {
+                        channel.sendMessageEmbeds(embed)
+                               .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
+                               .queue();
+                        cache.put(id, page);
+                    },
+                    err -> log.error("Could not build page", err)));
     }
 
     @Override
@@ -152,22 +152,24 @@ public class PageService extends ListenerAdapter {
             sendPage(event, pageId.get());
         } else {
             page.buttons().stream()
-                    .filter(button -> button.button(page).getId().equals(id))
-                    .findFirst()
-                    .ifPresent(button -> button.invoke(page, event));
+                .filter(button -> button.button(page).getId().equals(id))
+                .findFirst()
+                .ifPresent(button -> button.invoke(page, event));
         }
     }
 
     private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
         var buttons = page.buttons().stream()
-                .map(b -> b.button(page))
-                .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
-                .collect(Collectors.toList());
+                          .map(b -> b.button(page))
+                          .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
+                          .collect(Collectors.toList());
         var actionRows = ActionRow.partitionOf(buttons);
         actionRows.add(ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, addId(id, previousId), localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅")).withDisabled(!page.hasPrevious()),
+                Button.of(ButtonStyle.SUCCESS, addId(id, previousId), localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅"))
+                        .withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
-                Button.of(ButtonStyle.SUCCESS, addId(id, nextId), localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️")).withDisabled(!page.hasNext())
+                Button.of(ButtonStyle.SUCCESS, addId(id, nextId), localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️"))
+                        .withDisabled(!page.hasNext())
         ));
         return actionRows;
     }
@@ -185,17 +187,17 @@ public class PageService extends ListenerAdapter {
             return;
         }
         page.buildPage()
-                .whenComplete(Futures.whenComplete(
-                        embed -> event.getHook()
-                                .editOriginalEmbeds(embed)
-                                .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                                .queue(),
-                        err -> {
-                            log.error("Could not build page", err);
-                            event.getHook().editOriginal("Something went wrong")
-                                    .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                                    .queue();
-                        }));
+            .whenComplete(Futures.whenComplete(
+                    embed -> event.getHook()
+                                  .editOriginalEmbeds(embed)
+                                  .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                                  .queue(),
+                    err -> {
+                        log.error("Could not build page", err);
+                        event.getHook().editOriginal("Something went wrong")
+                             .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                             .queue();
+                    }));
     }
 
     public long nextId() {
