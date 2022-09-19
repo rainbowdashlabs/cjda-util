@@ -6,11 +6,8 @@
 
 package de.chojo.jdautil.wrapper;
 
-import de.chojo.jdautil.parsing.ArgumentUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 class FlagContainerTest {
 

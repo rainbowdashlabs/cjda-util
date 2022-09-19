@@ -13,7 +13,7 @@ import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.util.Channel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 
@@ -81,7 +81,7 @@ public class Conversation {
         var guild = Channel.guildFromMessageChannel(messageChannel);
         if (step.hasButtons()) {
             messageChannel.sendMessage(localizer.localize(step.prompt(), guild))
-                    .setActionRows(step.getActions(localizer, guild))
+                    .addComponents(step.getActions(localizer, guild))
                     .queueAfter(2, TimeUnit.SECONDS, message -> conversationService.registerButtons(message, this));
         } else {
             messageChannel.sendMessage(localizer.localize(step.prompt(), guild)).queueAfter(delay, TimeUnit.SECONDS);

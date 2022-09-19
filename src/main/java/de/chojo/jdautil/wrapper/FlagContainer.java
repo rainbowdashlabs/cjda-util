@@ -24,7 +24,7 @@ public class FlagContainer {
 
     private final List<String> flagArgs = new LinkedList<>();
     private final String[] args;
-    private String currFlag = null;
+    private String currFlag;
 
     private FlagContainer(String[] args) {
         this.args = args;

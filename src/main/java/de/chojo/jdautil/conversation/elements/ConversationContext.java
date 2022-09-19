@@ -7,24 +7,21 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface ConversationContext {
     Message message();
-
-    MessageAction reply(String message);
 
     @Nonnull
     User getAuthor();
@@ -44,15 +41,15 @@ public interface ConversationContext {
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull CharSequence content);
+    MessageCreateAction reply(@NotNull String content);
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull MessageEmbed content);
+    MessageCreateAction reply(@NotNull Message content);
 
     @CheckReturnValue
     @Nonnull
-    MessageAction reply(@NotNull Message content);
+    MessageCreateAction reply(@NotNull MessageEmbed content);
 
     Conversation conversation();
 
@@ -68,5 +65,5 @@ public interface ConversationContext {
 
     String localize(String message, Replacement... replacements);
 
-    ContextLocalizer localizer();
+    LocalizationContext localizer();
 }

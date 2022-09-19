@@ -17,7 +17,6 @@ import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;

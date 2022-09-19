@@ -8,7 +8,7 @@ package de.chojo.jdautil.modals.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import de.chojo.jdautil.command.dispatching.CommandHub;
+import de.chojo.jdautil.interactions.dispatching.InteractionHub;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.modals.handler.ModalHandler;
 
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 public interface ModalServiceModifier {
     /**
-     * Set the {@link ILocalizer} for the {@link ModalService}. This is not required when the service is linked to a {@link CommandHub}.
+     * Set the {@link ILocalizer} for the {@link ModalService}. This is not required when the service is linked to a {@link InteractionHub}.
      *
      * @param localizer localizer instance
      * @return builder instance

@@ -45,9 +45,9 @@ public final class Completion {
         if (value.isEmpty()) return inputs.map(Choice::toChoice).limit(25).toList();
         var lowerValue = value.toLowerCase(Locale.ROOT);
         return inputs.filter(i -> i.toLowerCase().startsWith(lowerValue))
-                .map(Choice::toChoice)
-                .limit(25)
-                .toList();
+                     .map(Choice::toChoice)
+                     .limit(25)
+                     .toList();
     }
 
     /**
@@ -112,9 +112,9 @@ public final class Completion {
     public static <T extends Enum<T>> List<Command.Choice> complete(String value, Class<T> clazz, boolean lowerCase, boolean strip) {
         return complete(value,
                 Arrays.stream(clazz.getEnumConstants())
-                        .map(Enum::name)
-                        .map(v -> lowerCase ? v.toLowerCase() : v)
-                        .map(v -> strip ? v.replace("_", "") : v));
+                      .map(Enum::name)
+                      .map(v -> lowerCase ? v.toLowerCase() : v)
+                      .map(v -> strip ? v.replace("_", "") : v));
     }
 
     public static <T> List<T> singleEntryList(T value) {

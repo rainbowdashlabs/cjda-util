@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.menus.entries;
 
-import de.chojo.jdautil.localization.ContextLocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.menus.EntryContext;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
@@ -20,7 +20,7 @@ public class SelectMenuEntry extends MenuEntry<SelectMenu, SelectMenuInteraction
     }
 
     @Override
-    public ActionComponent component(long id, ContextLocalizer localizer) {
+    public ActionComponent component(long id, LocalizationContext localizer) {
         var copy = component().createCopy();
         copy.setId(String.format("%s:%s", id, copy.getId()))
                 .setPlaceholder(localizer.localize(copy.getPlaceholder()));

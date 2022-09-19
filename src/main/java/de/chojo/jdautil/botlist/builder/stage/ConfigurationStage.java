@@ -7,7 +7,6 @@
 package de.chojo.jdautil.botlist.builder.stage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.chojo.jdautil.botlist.builder.BotlistBuilder;
 import de.chojo.jdautil.botlist.modules.shared.StatusCodeHandler;
 import de.chojo.jdautil.botlist.modules.submission.StatsMapper;
 import de.chojo.jdautil.botlist.modules.voting.poll.VoteChecker;
