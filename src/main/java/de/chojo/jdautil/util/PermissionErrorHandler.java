@@ -11,8 +11,8 @@ import de.chojo.jdautil.localization.util.Format;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
@@ -60,7 +60,8 @@ public final class PermissionErrorHandler {
             errorMessage += "\n" + localizer.localize("error.missingPermissionGuild", guild);
         }
         if (permission != Permission.MESSAGE_SEND && permission != Permission.VIEW_CHANNEL
-            && PermissionUtil.checkPermission(channel.getPermissionContainer(), channel.getGuild().getSelfMember(), Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
+            && PermissionUtil.checkPermission(channel.getPermissionContainer(), channel.getGuild()
+                                                                                       .getSelfMember(), Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
             channel.sendMessage(errorMessage).queue();
             return;
         }
@@ -70,10 +71,10 @@ public final class PermissionErrorHandler {
         var ownerId = guild.getOwnerIdLong();
         var finalErrorMessage = errorMessage;
         guild.retrieveMemberById(ownerId)
-                .flatMap(member -> member.getUser().openPrivateChannel())
-                .flatMap(privateChannel -> privateChannel.sendMessage(finalErrorMessage))
-                .onErrorMap(t -> null)
-                .queue();
+             .flatMap(member -> member.getUser().openPrivateChannel())
+             .flatMap(privateChannel -> privateChannel.sendMessage(finalErrorMessage))
+             .onErrorMap(t -> null)
+             .queue();
     }
 
     /**
@@ -81,7 +82,7 @@ public final class PermissionErrorHandler {
      *
      * @param channel     channel to check
      * @param permissions permissions to check
-     * @throws InsufficientPermissionException when the bot user doesnt have a permission
+     * @throws InsufficientPermissionException when the bot user doesn't have a permission
      */
     public static void assertPermissions(GuildMessageChannel channel, Permission... permissions) throws InsufficientPermissionException {
         var self = channel.getGuild().getSelfMember();
