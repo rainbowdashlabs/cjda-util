@@ -14,10 +14,11 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class StatsMapper extends RouteProvider implements ISubmissionService {
-    private BiConsumer<BotListData, MapBuilder<String, Object>> mapper;
+    private final BiConsumer<BotListData, MapBuilder<String, Object>> mapper;
 
     private StatsMapper(String route, BiConsumer<BotListData, MapBuilder<String, Object>> mapper) {
         super(route);
+        this.mapper = mapper;
     }
 
     public static StatsMapper of(String route, BiConsumer<BotListData, MapBuilder<String, Object>> mapper) {

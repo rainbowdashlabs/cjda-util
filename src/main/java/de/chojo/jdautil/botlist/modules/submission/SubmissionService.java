@@ -32,15 +32,19 @@ public class SubmissionService {
                 try {
                     botlist.report(total);
                 } catch (JsonProcessingException e) {
-                    log.error("Could not build stats", e);
+                    log.error("Could not build stats for {}.", botlist.name(), e);
+                } catch (RuntimeException e) {
+                    log.error("Could not send stats for {}.", botlist.name(), e);
                 }
-                return;
+                continue;
             }
             for (var data : shardData) {
                 try {
                     botlist.report(data);
                 } catch (JsonProcessingException e) {
-                    log.error("Could not build stats", e);
+                    log.error("Could not build stats for {}.", botlist.name(), e);
+                } catch (RuntimeException e) {
+                    log.error("Could not send stats for {}.", botlist.name(), e);
                 }
             }
         }

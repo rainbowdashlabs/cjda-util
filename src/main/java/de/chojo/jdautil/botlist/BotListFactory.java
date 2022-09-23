@@ -24,7 +24,7 @@ public interface BotListFactory {
             .withBaseUrl("https://top.gg/api")
             .withAuthentication(AuthHandler.of(config.statsToken()))
             .withSubmission(StatsMapper.of(
-                    "bots/{ID}/stats",
+                    "bots/{id}/stats",
                     (data, map) -> map
                             .add("server_count", data.guilds())
                             .add("shard_id", data.shardId())
@@ -41,7 +41,7 @@ public interface BotListFactory {
             .withBaseUrl("https://discord.bots.gg/api/v1")
             .withAuthentication(AuthHandler.of(config.statsToken()))
             .withSubmission(StatsMapper.of(
-                    "bots/{ID}/stats",
+                    "bots/{id}/stats",
                     (data, map) -> map
                             .add("guildCount", data.guilds())
                             .add("shardCount", data.shards())
