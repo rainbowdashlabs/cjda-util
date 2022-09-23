@@ -7,8 +7,8 @@
 package de.chojo.jdautil.botlist;
 
 import de.chojo.jdautil.botlist.modules.submission.SubmissionService;
-import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 import de.chojo.jdautil.botlist.modules.voting.VoteService;
+import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
@@ -54,7 +54,11 @@ public class BotlistService implements Runnable {
 
     @Override
     public void run() {
-        submissionService.submitData();
+        try {
+            submissionService.submitData();
+        } catch (RuntimeException e) {
+            log.error("Data submission failed.");
+        }
     }
 
     private void ignite() {
