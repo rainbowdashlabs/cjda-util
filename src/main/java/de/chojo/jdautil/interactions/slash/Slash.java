@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash;
 
-import de.chojo.jdautil.interactions.locale.LocaleChecks;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
+import de.chojo.jdautil.interactions.locale.LocaleChecks;
 import de.chojo.jdautil.interactions.slash.structure.Route;
 import de.chojo.jdautil.interactions.slash.structure.builder.SlashBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.RootMetaBuilder;
@@ -70,9 +70,11 @@ public class Slash implements CommandDataProvider {
             return;
         }
 
+        commandPath = commandPath[1].split("/");
+
         for (var routeGroup : routes()) {
             for (Route<RouteMeta> route : routeGroup) {
-                if (commandPath[1].equalsIgnoreCase(route.meta().name())) {
+                if (commandPath[0].equalsIgnoreCase(route.meta().name())) {
                     route.onSlashCommand(event, context);
                     return;
                 }
@@ -109,9 +111,9 @@ public class Slash implements CommandDataProvider {
         LocaleChecks.checkCommandDescription(localizer, "command", "%s.description".formatted(meta.name()));
 
         var slash = Commands.slash(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .setDefaultPermissions(meta.permission())
-                .setGuildOnly(meta.isGuildOnly())
-                .setLocalizationFunction(localizer.prefixedLocalizer("command"));
+                            .setDefaultPermissions(meta.permission())
+                            .setGuildOnly(meta.isGuildOnly())
+                            .setLocalizationFunction(localizer.prefixedLocalizer("command"));
         if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(g -> g.data(this, localizer)).toList());
         if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(s -> s.data(this, localizer)).toList());
         if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(a -> a.data(this, localizer)).toList());
