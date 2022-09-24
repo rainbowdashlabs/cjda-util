@@ -22,7 +22,7 @@ class RouteBuilderTest {
                         .subCommand(SubCommand.of("subcommand1", "description")
                                 .handler(null)
                                 .argument(Argument.integer("name1", "descr"))
-                                .argument(Argument.string("name2", "descr").withAutoComplete()))
+                                .argument(Argument.text("name2", "descr").withAutoComplete()))
                         // Another sub command
                         .subCommand(SubCommand.of("subcommand2", "description")
                                 .handler(null)
