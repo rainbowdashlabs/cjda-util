@@ -13,7 +13,7 @@ public class InteractionMeta implements Meta {
     private final boolean guildOnly;
     private final DefaultMemberPermissions permission;
     private final InteractionScope scope;
-    private boolean localized;
+    private final boolean localized;
 
     public InteractionMeta(String name, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope, boolean localized) {
         this.name = name;
