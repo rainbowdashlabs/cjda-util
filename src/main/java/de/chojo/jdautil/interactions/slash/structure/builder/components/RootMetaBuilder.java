@@ -38,6 +38,8 @@ public interface RootMetaBuilder extends ExtendableRootBuilder {
 
     RootMetaBuilder scope(InteractionScope scope);
 
+    RootMetaBuilder unlocalized();
+
     default RootMetaBuilder globalCommand() {
         return scope(InteractionScope.GLOBAL);
     }

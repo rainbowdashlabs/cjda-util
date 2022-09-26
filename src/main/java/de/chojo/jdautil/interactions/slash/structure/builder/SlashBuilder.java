@@ -40,7 +40,8 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
     private boolean guildOnly;
     private SlashHandler handler;
-    private final InteractionScope scope = InteractionScope.GLOBAL;
+    private InteractionScope scope = InteractionScope.GLOBAL;
+    private boolean localized = true;
 
     public SlashBuilder(String name, String description) {
         this.name = name;
@@ -113,12 +114,24 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
 
     @Override
     public RootMetaBuilder scope(InteractionScope scope) {
-        return null;
+        this.scope = scope;
+        return this;
     }
 
     @Override
+    public RootMetaBuilder unlocalized() {
+        localized = false;
+        return this;
+    }
+
+    public boolean localized() {
+        return localized;
+    }
+
+
+    @Override
     public Slash build() {
-        var meta = new CommandMeta(name, description, guildOnly, permission, scope);
+        var meta = new CommandMeta(name, description, guildOnly, permission, scope, localized);
         return new Slash(meta, handler, groups, leaves, arguments);
     }
 }

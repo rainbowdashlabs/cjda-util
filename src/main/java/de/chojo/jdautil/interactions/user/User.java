@@ -44,11 +44,13 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        return Commands.user(meta.name())
-                .setGuildOnly(meta.isGuildOnly())
-                .setDefaultPermissions(meta.permission())
-                .setNameLocalizations(localizer.prefixedLocalizer("user").apply(localeKey()));
-
+        var user = Commands.user(meta.name())
+                           .setGuildOnly(meta.isGuildOnly())
+                           .setDefaultPermissions(meta.permission());
+        if (meta.localized()) {
+            user.setNameLocalizations(localizer.prefixedLocalizer("user").apply(localeKey()));
+        }
+        return user;
     }
 
     private String localeKey() {

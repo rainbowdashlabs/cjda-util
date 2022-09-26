@@ -29,6 +29,6 @@ public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> imple
     }
 
     public Message build() {
-        return new Message(new InteractionMeta(name(), isGuildOnly(), permission(), scope()), handler);
+        return new Message(new InteractionMeta(name(), isGuildOnly(), permission(), scope(), localized()), handler);
     }
 }

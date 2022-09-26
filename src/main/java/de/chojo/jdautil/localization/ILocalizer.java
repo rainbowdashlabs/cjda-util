@@ -68,7 +68,8 @@ public interface ILocalizer extends LocalizationFunction {
     @NotNull
     @Override
     default Map<DiscordLocale, String> apply(@NotNull String localizationKey) {
-        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked(localizationKey, lang)));
+        return languages().stream()
+                          .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked(localizationKey, lang)));
     }
 
     @NotNull
@@ -81,7 +82,9 @@ public interface ILocalizer extends LocalizationFunction {
         var nameMatcher = localeName.matcher(localize);
         if (nameMatcher.find()) {
             localize = nameMatcher.group(1);
-            log.warn("No value for {}. Defaulting to {}", key, localize);
+            if (!("false".equals(System.getProperty("cjda.localisation.error.name")) && key.endsWith(".name"))) {
+                log.warn("No value for {}. Defaulting to {}", key, localize);
+            }
         }
         if (localize.isBlank()) {
             log.warn("Result for key {}@{} is empty.", key, locale);
@@ -99,11 +102,13 @@ public interface ILocalizer extends LocalizationFunction {
 
     @NotNull
     default LocalizationFunction prefixedLocalizer(String prefix) {
-        return key -> languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
+        return key -> languages().stream()
+                                 .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
     default Map<DiscordLocale, String> keyMap(String prefix, String key) {
-        return languages().stream().collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
+        return languages().stream()
+                          .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
     String localize(String message, Guild guild, Replacement... replacements);

@@ -68,4 +68,11 @@ public class SubCommand implements Route<RouteMeta> {
         return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .addOptions(arguments.stream().map(a -> a.data(slash, this, localizer)).toList());
     }
+
+    public SubcommandData data() {
+        LocaleChecks.checkCommandName(meta.name());
+        LocaleChecks.checkCommandDescription(meta.description());
+        return new SubcommandData(meta.name(), meta.description())
+                .addOptions(arguments.stream().map(Argument::data).toList());
+    }
 }
