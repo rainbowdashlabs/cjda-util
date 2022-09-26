@@ -41,7 +41,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private boolean guildOnly;
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
-    private boolean localized;
+    private boolean localized = true;
 
     public SlashBuilder(String name, String description) {
         this.name = name;
