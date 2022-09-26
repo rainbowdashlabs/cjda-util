@@ -118,6 +118,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
         return this;
     }
 
+    @Override
     public RootMetaBuilder unlocalized() {
         localized = false;
         return this;
