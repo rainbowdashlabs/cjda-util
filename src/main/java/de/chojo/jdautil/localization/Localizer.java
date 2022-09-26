@@ -61,15 +61,29 @@ public class Localizer implements ILocalizer {
         if (getLanguageResource(language).containsKey(localetag)) {
             return getLanguageResource(language).getString(localetag);
         }
-        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
-                localetag, language);
+        reportFallback(language, localetag);
         var bundle = getLanguageResource(defaultLanguage);
 
         if (!bundle.containsKey(localetag)) {
-            log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);
+            reportMissing(localetag);
         }
 
         return bundle.containsKey(localetag) ? bundle.getString(localetag) : localetag;
+    }
+
+    private void reportFallback(DiscordLocale language, String localetag){
+        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
+            return;
+        }
+        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
+                localetag, language);
+    }
+
+    private void reportMissing(String localetag){
+        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true"))&& localetag.endsWith(".name")) {
+            return;
+        }
+        log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);
     }
 
     @Override
