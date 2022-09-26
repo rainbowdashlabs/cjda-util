@@ -40,7 +40,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
     private boolean guildOnly;
     private SlashHandler handler;
-    private final InteractionScope scope = InteractionScope.GLOBAL;
+    private InteractionScope scope = InteractionScope.GLOBAL;
 
     public SlashBuilder(String name, String description) {
         this.name = name;
@@ -113,7 +113,8 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
 
     @Override
     public RootMetaBuilder scope(InteractionScope scope) {
-        return null;
+        this.scope = scope;
+        return this;
     }
 
     @Override
