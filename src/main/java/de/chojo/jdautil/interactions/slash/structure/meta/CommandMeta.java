@@ -11,7 +11,7 @@ import de.chojo.jdautil.interactions.base.InteractionScope;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
 public class CommandMeta extends DescriptiveMeta {
-    public CommandMeta(String name, String description, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope) {
-        super(name, description, guildOnly, permission, scope);
+    public CommandMeta(String name, String description, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope, boolean localized) {
+        super(name, description, guildOnly, permission, scope, localized);
     }
 }

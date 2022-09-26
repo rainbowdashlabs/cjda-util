@@ -29,6 +29,6 @@ public class UserBuilder extends InteractionMetaBuilder<UserBuilder> implements 
     }
 
     public User build() {
-        return new User(new InteractionMeta(name(), isGuildOnly(), permission(), scope()), handler);
+        return new User(new InteractionMeta(name(), isGuildOnly(), permission(), scope(), localized()), handler);
     }
 }

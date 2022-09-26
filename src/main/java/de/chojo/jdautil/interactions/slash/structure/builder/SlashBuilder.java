@@ -41,6 +41,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private boolean guildOnly;
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
+    private boolean localized;
 
     public SlashBuilder(String name, String description) {
         this.name = name;
@@ -117,9 +118,19 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
         return this;
     }
 
+    public RootMetaBuilder unlocalized() {
+        localized = false;
+        return this;
+    }
+
+    public boolean localized() {
+        return localized;
+    }
+
+
     @Override
     public Slash build() {
-        var meta = new CommandMeta(name, description, guildOnly, permission, scope);
+        var meta = new CommandMeta(name, description, guildOnly, permission, scope, localized);
         return new Slash(meta, handler, groups, leaves, arguments);
     }
 }

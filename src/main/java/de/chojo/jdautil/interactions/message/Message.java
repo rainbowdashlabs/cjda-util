@@ -44,10 +44,14 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        return Commands.message(meta.name())
-                .setGuildOnly(meta.isGuildOnly())
-                .setDefaultPermissions(meta.permission())
-                .setNameLocalizations(localizer.prefixedLocalizer("message").apply(localeKey()));
+        var message = Commands.message(meta.name())
+                              .setGuildOnly(meta.isGuildOnly())
+                              .setDefaultPermissions(meta.permission())
+                              .setDefaultPermissions(meta.permission());
+        if (meta.localized()) {
+            message.setNameLocalizations(localizer.prefixedLocalizer("user").apply(localeKey()));
+        }
+        return message;
     }
 
     private String localeKey() {

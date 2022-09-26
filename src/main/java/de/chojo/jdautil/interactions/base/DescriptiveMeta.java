@@ -11,8 +11,8 @@ import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 public abstract class DescriptiveMeta extends InteractionMeta {
     private final String description;
 
-    public DescriptiveMeta(String name, String description, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope) {
-        super(name, guildOnly, permission, scope);
+    public DescriptiveMeta(String name, String description, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope, boolean localized) {
+        super(name, guildOnly, permission, scope, localized);
         this.description = description;
     }
 

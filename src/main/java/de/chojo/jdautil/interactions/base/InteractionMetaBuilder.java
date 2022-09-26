@@ -18,6 +18,7 @@ public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
     private boolean guildOnly;
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
     private InteractionScope scope = InteractionScope.GLOBAL;
+    private boolean localized = true;
 
     public InteractionMetaBuilder(String name) {
         this.name = name;
@@ -38,6 +39,10 @@ public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
     public T setGuildOnly(boolean guildOnly) {
         this.guildOnly = guildOnly;
         return self();
+    }
+
+    public boolean localized() {
+        return localized;
     }
 
     public DefaultMemberPermissions permission() {
@@ -62,6 +67,11 @@ public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
 
     public T setScope(InteractionScope scope) {
         this.scope = scope;
+        return self();
+    }
+
+    public T unlocalized() {
+        localized = false;
         return self();
     }
 }
