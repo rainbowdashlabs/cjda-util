@@ -81,4 +81,11 @@ public class Group implements Route<RouteMeta> {
         return new SubcommandGroupData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                 .addSubcommands(subCommands.stream().map(s -> s.data(slash, this, localizer)).toList());
     }
+
+    public SubcommandGroupData data() {
+        LocaleChecks.checkCommandName(meta.name());
+        LocaleChecks.checkCommandDescription(meta.name());
+        return new SubcommandGroupData(meta.name(), meta.description())
+                .addSubcommands(subCommands.stream().map(SubCommand::data).toList());
+    }
 }

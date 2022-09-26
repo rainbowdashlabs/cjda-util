@@ -104,4 +104,10 @@ public record Argument(OptionType type, String name, String description, boolean
 
         return data(localizer);
     }
+
+    public OptionData data() {
+        LocaleChecks.checkOptionName(name());
+        LocaleChecks.checkOptionDescription(name());
+        return new OptionData(type, name, description, required(), autoComplete());
+    }
 }
