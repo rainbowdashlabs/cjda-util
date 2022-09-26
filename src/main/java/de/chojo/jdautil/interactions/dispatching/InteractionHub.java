@@ -142,8 +142,8 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private void buildGuildData(Collection<? extends CommandDataProvider> interactions, Map<Long, List<CommandData>> guildCommands) {
         for (var command : interactions) {
             try {
-                var data = command.toCommandData(localizer);
                 if (command.meta().scope() == InteractionScope.PRIVATE) {
+                    var data = command.toCommandData(localizer);
                     for (var guildId : guildCommandMapper.apply(command.meta())) {
                         guildCommands.computeIfAbsent(guildId, k -> new ArrayList<>()).add(data);
                     }
@@ -157,8 +157,8 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private void buildGlobalData(Collection<? extends CommandDataProvider> interactions, List<CommandData> global) {
         for (var command : interactions) {
             try {
-                var data = command.toCommandData(localizer);
                 if (command.meta().scope() == InteractionScope.GLOBAL) {
+                    var data = command.toCommandData(localizer);
                     global.add(data);
                 }
             } catch (Exception e) {
