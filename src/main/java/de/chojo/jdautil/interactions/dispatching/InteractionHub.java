@@ -257,10 +257,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         }
     }
 
-    @Deprecated(forRemoval = true)
     public void refreshGuildCommands(Guild guild) {
         var guildData = getGuildData();
-        if (!guildData.containsKey(guild.getIdLong())) return;
+        if (!guildData.containsKey(guild.getIdLong())) {
+            guild.updateCommands().queue();
+            return;
+        }
         guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).queue();
     }
 
