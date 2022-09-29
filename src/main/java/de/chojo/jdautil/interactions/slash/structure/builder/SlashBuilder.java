@@ -67,7 +67,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     }
 
     @Override
-    public RootArgumentBuilder argument(ArgumentBuilder argument) {
+    public RootArgumentBuilder argument(ArgumentBuilderImpl argument) {
         arguments.add(argument.build());
         return this;
     }
