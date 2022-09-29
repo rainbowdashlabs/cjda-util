@@ -11,6 +11,7 @@ import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.Group;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.slash.SubCommand;
+import de.chojo.jdautil.interactions.slash.structure.builder.argument.ArgumentBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.BuildableMetaBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.ExtendableRootBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.RootArgumentBuilder;
@@ -67,7 +68,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     }
 
     @Override
-    public RootArgumentBuilder argument(ArgumentBuilderImpl argument) {
+    public RootArgumentBuilder argument(ArgumentBuilder argument) {
         arguments.add(argument.build());
         return this;
     }

@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
-import de.chojo.jdautil.interactions.slash.structure.builder.ArgumentBuilderImpl;
+import de.chojo.jdautil.interactions.slash.structure.builder.argument.ArgumentBuilder;
 
 public interface RootArgumentBuilder extends BuildableMetaBuilder {
-    RootArgumentBuilder argument(ArgumentBuilderImpl argument);
+    RootArgumentBuilder argument(ArgumentBuilder argument);
 }
