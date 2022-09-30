@@ -15,19 +15,21 @@ import de.chojo.jdautil.interactions.slash.structure.builder.argument.NumberArgu
 import de.chojo.jdautil.interactions.slash.structure.builder.argument.StringArgumentBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.LocaleProvider;
+import de.chojo.jdautil.util.Consumers;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public record Argument(OptionType type, String name, String description, boolean required, boolean autoComplete, Consumer<OptionData> min, Consumer<OptionData> max) {
+public record Argument(OptionType type, String name, String description, boolean required, boolean autoComplete, @NotNull Consumer<OptionData> min, @NotNull Consumer<OptionData> max) {
 
     /**
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
      */
     @Deprecated(forRemoval = true)
     public static Argument of(OptionType type, String name, String description, boolean required) {
-        return new Argument(type, name, description, required, false, null, null);
+        return new Argument(type, name, description, required, false, Consumers.empty(), Consumers.empty());
     }
 
     /**
@@ -35,7 +37,7 @@ public record Argument(OptionType type, String name, String description, boolean
      */
     @Deprecated(forRemoval = true)
     public static Argument of(OptionType type, String name, String description) {
-        return new Argument(type, name, description, false, false,null, null);
+        return new Argument(type, name, description, false, false,Consumers.empty(), Consumers.empty());
     }
 
     public static ArgumentBuilderImpl builder(OptionType type, String name, String description) {
