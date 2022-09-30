@@ -42,7 +42,7 @@ public class ValueParser {
     }
 
     /**
-     * Parse a string to min.
+     * Parse a string to integer.
      *
      * @param number number as string
      *
