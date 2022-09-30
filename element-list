@@ -24,6 +24,7 @@ de.chojo.jdautil.interactions.slash
 de.chojo.jdautil.interactions.slash.provider
 de.chojo.jdautil.interactions.slash.structure
 de.chojo.jdautil.interactions.slash.structure.builder
+de.chojo.jdautil.interactions.slash.structure.builder.argument
 de.chojo.jdautil.interactions.slash.structure.builder.components
 de.chojo.jdautil.interactions.slash.structure.handler
 de.chojo.jdautil.interactions.slash.structure.meta
