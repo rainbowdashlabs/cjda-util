@@ -30,14 +30,14 @@ class SlashTest {
     @Test
     public void testSub() {
         var command = Slash.of("test", "test")
-                .subCommand(SubCommand.of("sub1", "sub1")
+                .subCommand(SubCommand.of("test1", "test1")
                         .handler(throwingHandler()))
                 .subCommand(SubCommand.of("sub2", "sub2")
                         .handler(emptyHandler()))
                 .build();
 
 
-        var sub1 = eventForPath("test", "sub1");
+        var sub1 = eventForPath("test", "test1");
         var sub2 = eventForPath("test", "sub2");
 
         assertThrows(RuntimeException.class, () -> command.onSlashCommand(sub1, null));

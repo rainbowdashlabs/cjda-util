@@ -63,7 +63,7 @@ public class Slash implements CommandDataProvider {
             return;
         }
 
-        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta.name()));
+        var commandPath = event.getCommandPath().split("^/?%s/?".formatted(meta.name()));
 
         if (commandPath.length != 2) {
             log.warn("end of route is reached on a branch at {}", event.getCommandPath());
@@ -88,7 +88,7 @@ public class Slash implements CommandDataProvider {
             return;
         }
 
-        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta.name()));
+        var commandPath = event.getCommandPath().split("^/?%s/?".formatted(meta.name()));
 
         if (commandPath.length != 2) {
             log.warn("end of route is reached on a branch at {}", event.getCommandPath());
