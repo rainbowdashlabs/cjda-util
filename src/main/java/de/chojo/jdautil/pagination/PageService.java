@@ -81,9 +81,16 @@ public class PageService extends ListenerAdapter {
         if (page.isEmpty()) {
             page.buildEmptyPage()
                 .whenComplete(Futures.whenComplete(
-                        embed -> event.replyEmbeds(embed)
-                                      .setEphemeral(ephemeral)
-                                      .queue(),
+                        embed -> {
+                            if (event.isAcknowledged()) {
+                                event.getHook().editOriginalEmbeds(embed).queue();
+                            } else {
+                                event.replyEmbeds(embed)
+                                     .setEphemeral(ephemeral)
+                                     .queue();
+
+                            }
+                        },
                         err -> log.error("Could not build page", err)));
             return;
         }
@@ -91,10 +98,16 @@ public class PageService extends ListenerAdapter {
         var id = nextId();
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
-            event.replyEmbeds(embed)
-                 .setComponents(getPageButtons(event.getGuild(), page, id))
-                 .setEphemeral(ephemeral)
-                 .queue();
+            if (event.isAcknowledged()) {
+                event.getHook().editOriginalEmbeds(embed)
+                     .setComponents(getPageButtons(event.getGuild(), page, id))
+                     .queue();
+            } else {
+                event.replyEmbeds(embed)
+                     .setComponents(getPageButtons(event.getGuild(), page, id))
+                     .setEphemeral(ephemeral)
+                     .queue();
+            }
             cache.put(id, page);
         }, err -> log.error("Could not build page", err)));
     }
