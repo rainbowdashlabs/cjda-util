@@ -115,7 +115,7 @@ public class FlagContainer {
      *
      * @return flag parsed with the function.
      */
-    public <T> T get(@NotNull String flag, Function<@Nullable String, T> map) {
+    public <T> T get(@NotNull String flag, Function<String, T> map) {
         return map.apply(get(flag));
     }
 
