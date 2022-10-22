@@ -14,17 +14,17 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion", "JDA", "5.0.0-alpha.20")
+    api("net.dv8tion", "JDA", "5.0.0-alpha.21")
     api("org.apache.commons", "commons-text", "1.10.0")
     api("club.minnced", "discord-webhooks", "0.8.2")
 
     // Serialization
     api("com.google.guava", "guava", "31.1-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.13.4")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.13.4.2")
 
     // web api
-    api("io.javalin", "javalin", "4.6.5")
-    api("io.javalin", "javalin-openapi", "4.6.5")
+    api("io.javalin", "javalin", "4.6.6")
+    api("io.javalin", "javalin-openapi", "4.6.6")
 
 
     // unit testing
@@ -39,7 +39,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.7.5+alpha.20"
+version = "2.7.6+alpha.21"
 description = "Discord utilities for use with JDA"
 
 publishData {
