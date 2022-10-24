@@ -23,8 +23,8 @@ dependencies {
     api("com.fasterxml.jackson.core", "jackson-databind", "2.13.4.2")
 
     // web api
-    api("io.javalin", "javalin", "4.6.6")
-    api("io.javalin", "javalin-openapi", "4.6.6")
+    api("io.javalin", "javalin", "4.6.7")
+    api("io.javalin", "javalin-openapi", "4.6.7")
 
 
     // unit testing
