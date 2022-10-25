@@ -8,12 +8,15 @@ package de.chojo.jdautil.menus;
 
 import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.menus.entries.ButtonEntry;
+import de.chojo.jdautil.menus.entries.EntitySelectMenuEntry;
 import de.chojo.jdautil.menus.entries.MenuEntry;
-import de.chojo.jdautil.menus.entries.SelectMenuEntry;
+import de.chojo.jdautil.menus.entries.StringSelectMenuEntry;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
@@ -38,20 +41,23 @@ public class MenuContainer {
         if (menuEntry.isEmpty()) return;
         var entry = menuEntry.get();
 
-        if (event instanceof ButtonInteractionEvent buttonEvent && entry instanceof ButtonEntry buttonEntry) {
-            buttonEntry.invoke(new EntryContext<>(buttonEvent, buttonEntry, this));
+        if (event instanceof ButtonInteractionEvent buttonEvent && entry instanceof ButtonEntry menu) {
+            menu.invoke(new EntryContext<>(buttonEvent, menu, this));
         }
 
-        if (event instanceof SelectMenuInteractionEvent selectMenuEvent && entry instanceof SelectMenuEntry selectMenuEntry) {
-            selectMenuEntry.invoke(new EntryContext<>(selectMenuEvent, selectMenuEntry, this));
+        if (event instanceof StringSelectInteractionEvent selectMenuEvent && entry instanceof StringSelectMenuEntry menu) {
+            menu.invoke(new EntryContext<>(selectMenuEvent, menu, this));
+        }
+        if (event instanceof EntitySelectInteractionEvent selectMenuEvent && entry instanceof EntitySelectMenuEntry menu) {
+            menu.invoke(new EntryContext<>(selectMenuEvent, menu, this));
         }
     }
 
     public List<ActionComponent> components() {
         return entries.stream()
-                .filter(MenuEntry::visible)
-                .map(e -> e.component(id, localizer))
-                .toList();
+                      .filter(MenuEntry::visible)
+                      .map(e -> e.component(id, localizer))
+                      .toList();
     }
 
     public Optional<MenuEntry<?, ?>> entry(String id) {

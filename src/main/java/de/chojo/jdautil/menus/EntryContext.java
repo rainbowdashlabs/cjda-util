@@ -11,9 +11,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
+import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-public record EntryContext<Event extends GenericComponentInteractionCreateEvent, Component extends ActionComponent>(
+public record EntryContext<Event extends ComponentInteraction, Component extends ActionComponent>(
         Event event, MenuEntry<Component, Event> entry, MenuContainer container) {
 
     public void refresh() {
