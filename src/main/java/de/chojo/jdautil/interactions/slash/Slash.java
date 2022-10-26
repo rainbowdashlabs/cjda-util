@@ -63,18 +63,16 @@ public class Slash implements CommandDataProvider {
             return;
         }
 
-        var commandPath = event.getCommandPath().split("^/?%s/?".formatted(meta.name()));
+        var commandPath = event.getCommandPath().split("/");
 
-        if (commandPath.length != 2) {
-            log.warn("end of route is reached on a branch at {}", event.getCommandPath());
+        if (commandPath.length == 1) {
+            log.warn("End of route is reached at {} in {}", event.getCommandPath(), meta.name());
             return;
         }
 
-        commandPath = commandPath[1].split("/");
-
         for (var routeGroup : routes()) {
             for (Route<RouteMeta> route : routeGroup) {
-                if (commandPath[0].equalsIgnoreCase(route.meta().name())) {
+                if (commandPath[1].equalsIgnoreCase(route.meta().name())) {
                     route.onSlashCommand(event, context);
                     return;
                 }
