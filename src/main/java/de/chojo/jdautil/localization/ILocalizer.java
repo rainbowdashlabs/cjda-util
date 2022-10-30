@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.localization;
 
+import de.chojo.jdautil.localization.util.GuildLocaleProvider;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
@@ -128,6 +129,16 @@ public interface ILocalizer extends LocalizationFunction {
     }
 
     default String localize(String message, LocaleProvider provider, Replacement... replacements) {
-        return localize(message, provider.locale().orElse(defaultLanguage()), replacements);
+        var optLocale = provider.locale();
+        if (optLocale.isEmpty()) {
+            return localize(message, defaultLanguage(), replacements);
+        }
+        var locale = optLocale.get();
+        if (provider instanceof GuildLocaleProvider guildProvider) {
+            if (locale == DiscordLocale.ENGLISH_US) {
+                locale = getGuildLocale(guildProvider.guild());
+            }
+        }
+        return localize(message, locale, replacements);
     }
 }
