@@ -25,7 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public interface ILocalizer extends LocalizationFunction {
     Pattern localeName = Pattern.compile("\\.?([_\\w-]+?)\\.name$");
-    Pattern options = Pattern.compile("\\.([_\\w-]+?)\\.[_\\w-]+?\\.(?:name|description)$");
+    Pattern options = Pattern.compile("\\.option\\.[_\\w-]+?\\.(?:name|description)$");
     Pattern lowercase = Pattern.compile("^[\\w_-]+$");
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
