@@ -25,6 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public interface ILocalizer extends LocalizationFunction {
     Pattern localeName = Pattern.compile("\\.?([_\\w-]+?)\\.name$");
+    Pattern options = Pattern.compile("\\.([_\\w-]+?)\\.[_\\w-]+?\\.(?:name|description)$");
     Pattern lowercase = Pattern.compile("^[\\w_-]+$");
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
@@ -86,6 +87,7 @@ public interface ILocalizer extends LocalizationFunction {
                 log.warn("No value for {}. Defaulting to {}", key, localize);
             }
         }
+
         if (localize.isBlank()) {
             log.warn("Result for key {}@{} is empty.", key, locale);
         }
@@ -97,6 +99,11 @@ public interface ILocalizer extends LocalizationFunction {
             }
         }
 
+        var matcher = options.matcher(key);
+        if (localize.isBlank() && matcher.find()) {
+            log.warn("Falling back on legacy options code for {}", key);
+            return localizeChecked(key.replace(".option.", "."), locale);
+        }
         return localize;
     }
 
