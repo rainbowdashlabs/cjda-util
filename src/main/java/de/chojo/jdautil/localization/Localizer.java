@@ -29,17 +29,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 
 public class Localizer implements ILocalizer {
-    private static final Pattern LOCALIZATION_CODE = Pattern.compile("\\$([a-zA-Z.]+?)\\$");
-    private static final Pattern SIMPLE_LOCALIZATION_CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
+    private final Pattern EMBEDDED_CODE;
+    private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
     private static final Logger log = getLogger(Localizer.class);
     private final Map<DiscordLocale, ResourceBundle> languages;
     private final Function<Guild, Optional<DiscordLocale>> languageProvider;
     private final DiscordLocale defaultLanguage;
 
-    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage) {
+    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage, String embedCodeStart, String embedCodeEnd) {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
+        EMBEDDED_CODE = Pattern.compile("\\%s([a-zA-Z.]+?)\\%s".formatted(embedCodeStart, embedCodeEnd));
     }
 
     public static Builder builder(DiscordLocale defaultLanguage) {
@@ -71,16 +72,16 @@ public class Localizer implements ILocalizer {
         return bundle.containsKey(localetag) ? bundle.getString(localetag) : localetag;
     }
 
-    private void reportFallback(DiscordLocale language, String localetag){
+    private void reportFallback(DiscordLocale language, String localetag) {
         if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
             return;
         }
-        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
-                localetag, language);
+        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language {}",
+                localetag, language, defaultLanguage);
     }
 
-    private void reportMissing(String localetag){
-        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true"))&& localetag.endsWith(".name")) {
+    private void reportMissing(String localetag) {
+        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
             return;
         }
         log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);
@@ -129,15 +130,15 @@ public class Localizer implements ILocalizer {
         }
         String result;
         // If the matcher doesn't find any key we assume its a simple message.
-        if (!LOCALIZATION_CODE.matcher(message).find()) {
-            if (!SIMPLE_LOCALIZATION_CODE.matcher(message).find()) {
+        if (!EMBEDDED_CODE.matcher(message).find()) {
+            if (!SIMPLE__CODE.matcher(message).find()) {
                 result = message;
             } else {
                 result = getLanguageString(language, message);
             }
         } else {
             // find locale codes in message
-            var matcher = LOCALIZATION_CODE.matcher(message);
+            var matcher = EMBEDDED_CODE.matcher(message);
             var keys = new ArrayList<String>();
             while (matcher.find()) {
                 keys.add(matcher.group(1));
@@ -151,11 +152,12 @@ public class Localizer implements ILocalizer {
                 result = result.replace("$" + match + "$", languageString);
             }
         }
+
         for (var replacement : replacements) {
             result = replacement.invoke(result);
         }
 
-        if (LOCALIZATION_CODE.matcher(result).find()) {
+        if (EMBEDDED_CODE.matcher(result).find()) {
             return localize(result, language, replacements);
         }
 
@@ -181,6 +183,8 @@ public class Localizer implements ILocalizer {
         private final DiscordLocale defaultLanguage;
         private String bundlePath = "locale";
         private Function<Guild, Optional<DiscordLocale>> languageProvider;
+        private String embedCodeStart = "$";
+        private String embedCodeEnd = "$";
 
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
@@ -210,7 +214,7 @@ public class Localizer implements ILocalizer {
 
         public Localizer build() {
             loadLanguages();
-            return new Localizer(resourceBundles, languageProvider, defaultLanguage);
+            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeStart);
         }
 
 
