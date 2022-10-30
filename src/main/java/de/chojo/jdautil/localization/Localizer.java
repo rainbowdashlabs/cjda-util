@@ -76,8 +76,8 @@ public class Localizer implements ILocalizer {
         if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
             return;
         }
-        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language en_US",
-                localetag, language);
+        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language {}",
+                localetag, language, defaultLanguage);
     }
 
     private void reportMissing(String localetag) {

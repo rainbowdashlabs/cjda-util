@@ -99,22 +99,22 @@ public record Argument(OptionType type, String name, String description, boolean
     }
 
     public OptionData data(Slash slash, Group group, SubCommand subCommand, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), subCommand.meta().name(),"option", name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), subCommand.meta().name(),"option", name()));
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), subCommand.meta().name(),"options", name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), subCommand.meta().name(),"options", name()));
 
         return data(localizer);
     }
 
     public OptionData data(Slash slash, SubCommand subCommand, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), subCommand.meta().name(), "option",name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), subCommand.meta().name(),"option", name()));
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), subCommand.meta().name(), "options",name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), subCommand.meta().name(),"options", name()));
 
         return data(localizer);
     }
 
     public OptionData data(Slash slash, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(),"option", name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), "option",name()));
+        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(),"options", name()));
+        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), "options",name()));
 
         return data(localizer);
     }
