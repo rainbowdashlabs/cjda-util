@@ -21,7 +21,7 @@ public interface ModalServiceModifier {
      * @param localizer localizer instance
      * @return builder instance
      */
-    ModalServiceBuilder withLocalizer(ILocalizer localizer);
+    ModalServiceModifier withLocalizer(ILocalizer localizer);
 
     /**
      * Set the cache implementation for the modal service
@@ -29,7 +29,7 @@ public interface ModalServiceModifier {
      * @param cache cache
      * @return builder instance
      */
-    ModalServiceBuilder setCache(Cache<String, ModalHandler> cache);
+    ModalServiceModifier setCache(Cache<String, ModalHandler> cache);
 
     /**
      * Modifies a provided cache builder instance.
@@ -37,5 +37,5 @@ public interface ModalServiceModifier {
      * @param cache cache
      * @return builder instance
      */
-    ModalServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache);
+    ModalServiceModifier withCache(Consumer<CacheBuilder<Object, Object>> cache);
 }
