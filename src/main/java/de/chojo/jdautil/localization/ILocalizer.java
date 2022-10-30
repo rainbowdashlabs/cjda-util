@@ -99,7 +99,7 @@ public interface ILocalizer extends LocalizationFunction {
             }
         }
 
-        if (options.matcher(key).find()) {
+        if (key.equals(localize) && options.matcher(key).find()) {
             log.warn("Falling back on legacy options code for {}", key);
             return localizeChecked(key.replace(".options.", "."), locale);
         }
