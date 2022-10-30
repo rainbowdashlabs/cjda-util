@@ -26,7 +26,6 @@ dependencies {
     api("io.javalin", "javalin", "4.6.7")
     api("io.javalin", "javalin-openapi", "4.6.7")
 
-
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
