@@ -59,8 +59,8 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
-    private boolean cleanGuildCommands;
-    private boolean testMode;
+    private boolean cleanGuildCommands = Boolean.parseBoolean(System.getProperty("cjda.interactions.cleanguildcommands", "false"));;
+    private boolean testMode = Boolean.parseBoolean(System.getProperty("cjda.interactions.testmode", "false"));
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;

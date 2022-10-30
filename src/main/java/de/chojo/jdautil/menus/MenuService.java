@@ -13,7 +13,7 @@ import de.chojo.jdautil.parsing.ValueParser;
 import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class MenuService extends ListenerAdapter {
     }
 
     @Override
-    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+    public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent event) {
         handleInteraction(event);
     }
 
