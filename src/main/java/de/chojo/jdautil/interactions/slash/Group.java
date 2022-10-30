@@ -62,8 +62,14 @@ public class Group implements Route<RouteMeta> {
 
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
         var commandPath = event.getCommandPath().split("/");
+
+        if (commandPath.length != 3) {
+            log.warn("End of route is reached at {} in group {}", event.getCommandPath(), meta.name());
+            return;
+        }
+
         for (var route : subCommands) {
-            if (commandPath[1].equalsIgnoreCase(route.meta().name())) {
+            if (commandPath[2].equalsIgnoreCase(route.meta().name())) {
                 route.onAutoComplete(event, context);
                 return;
             }
