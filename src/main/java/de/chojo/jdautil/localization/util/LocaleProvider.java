@@ -6,10 +6,10 @@
 
 package de.chojo.jdautil.localization.util;
 
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.Interaction;
 
@@ -18,23 +18,23 @@ import java.util.Optional;
 public interface LocaleProvider {
 
     static LocaleProvider user(Interaction interaction) {
-        if(interaction == null) return empty();
-        return () -> Optional.of(interaction.getUserLocale());
+        if (interaction == null) return empty();
+        return UserLocaleProvider.of(interaction.getUser(), interaction.getUserLocale());
     }
 
     static LocaleProvider guild(Interaction interaction) {
-        if(interaction == null) return empty();
-        return () -> Optional.of(interaction.isFromGuild() ? interaction.getGuildLocale() : interaction.getUserLocale());
+        if (interaction == null) return empty();
+        return interaction.isFromGuild() ? GuildLocaleProvider.of(interaction.getGuild()) : UserLocaleProvider.of(interaction.getUser(), interaction.getUserLocale());
     }
 
     static LocaleProvider guild(Guild guild) {
-        if(guild == null) return empty();
-        return () -> Optional.of(guild.getLocale());
+        if (guild == null) return empty();
+        return GuildLocaleProvider.of(guild);
     }
 
     static LocaleProvider channel(GuildChannel channel) {
-        if(channel == null) return empty();
-        return () -> Optional.of(channel.getGuild().getLocale());
+        if (channel == null) return empty();
+        return GuildLocaleProvider.of(channel.getGuild());
     }
 
     static LocaleProvider channel(Channel channel) {
