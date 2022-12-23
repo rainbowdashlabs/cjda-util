@@ -45,10 +45,10 @@ public class Group implements Route<RouteMeta> {
     }
 
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
-        var commandPath = event.getCommandPath().split("/");
+        var commandPath = event.getFullCommandName().split("\\s");
 
         if (commandPath.length != 3) {
-            log.warn("End of route is reached at {} in group {}", event.getCommandPath(), meta.name());
+            log.warn("End of route is reached at {} in group {}", event.getFullCommandName(), meta.name());
             return;
         }
 
@@ -61,10 +61,10 @@ public class Group implements Route<RouteMeta> {
     }
 
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-        var commandPath = event.getCommandPath().split("/");
+        var commandPath = event.getFullCommandName().split("\\s");
 
         if (commandPath.length != 3) {
-            log.warn("End of route is reached at {} in group {}", event.getCommandPath(), meta.name());
+            log.warn("End of route is reached at {} in group {}", event.getFullCommandName(), meta.name());
             return;
         }
 
