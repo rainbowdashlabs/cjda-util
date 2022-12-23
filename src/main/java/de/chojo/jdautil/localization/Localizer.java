@@ -40,7 +40,7 @@ public class Localizer implements ILocalizer {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
-        EMBEDDED_CODE = Pattern.compile("\\%s([a-zA-Z.]+?)\\%s".formatted(embedCodeStart, embedCodeEnd));
+        EMBEDDED_CODE = Pattern.compile("%s([a-zA-Z.]+?)%s".formatted(embedCodeStart, embedCodeEnd));
     }
 
     public static Builder builder(DiscordLocale defaultLanguage) {
@@ -183,8 +183,8 @@ public class Localizer implements ILocalizer {
         private final DiscordLocale defaultLanguage;
         private String bundlePath = "locale";
         private Function<Guild, Optional<DiscordLocale>> languageProvider;
-        private String embedCodeStart = "$";
-        private String embedCodeEnd = "$";
+        private String embedCodeStart = "\\$";
+        private String embedCodeEnd = "\\$";
 
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
@@ -212,9 +212,45 @@ public class Localizer implements ILocalizer {
             return this;
         }
 
+        /**
+         * Sets the embed code to the provided pattern. A locale code needs to be enclosed by those pattern.
+         * If regex pattern are used those need to be escaped.
+         *
+         * @param code code which is one char long
+         * @return builder instance
+         */
+        public Builder embedCode(String code) {
+            if (code.isBlank()) {
+                throw new IllegalArgumentException("The pattern has to be a single char.");
+            }
+            embedCodeStart = code;
+            embedCodeEnd = code;
+            return this;
+        }
+
+        /**
+         * Sets the embed code to the provided pattern. A locale code needs to be enclosed by those pattern.
+         * If regex pattern are used those need to be escaped.
+         *
+         * @param embedCodeStart start code
+         * @param embedCodeEnd   end code
+         * @return builder instance
+         */
+        public Builder embedCode(String embedCodeStart, String embedCodeEnd) {
+            if (embedCodeEnd.isBlank()) {
+                throw new IllegalArgumentException("The end pattern can not be empty.");
+            }
+            if (embedCodeStart.isBlank()) {
+                throw new IllegalArgumentException("The start pattern can not be empty.");
+            }
+            this.embedCodeStart = embedCodeStart;
+            this.embedCodeEnd = embedCodeEnd;
+            return this;
+        }
+
         public Localizer build() {
             loadLanguages();
-            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeStart);
+            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeEnd);
         }
 
 
