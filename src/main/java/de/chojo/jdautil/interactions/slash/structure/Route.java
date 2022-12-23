@@ -40,31 +40,31 @@ public interface Route<T extends SimpleMeta> extends SlashHandler {
 
     @Override
     default void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
-        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta().name()));
+        var commandPath = event.getFullCommandName().split("\\s?%s\\s?".formatted(meta().name()));
 
         if (commandPath.length != 2) {
-            log.warn("end of route is reached on a branch at {}.", event.getCommandPath());
+            log.warn("end of route is reached on a branch at {}.", event.getFullCommandName());
             return;
         }
         for (var routes : routes()) {
             if (executeIfFound(commandPath[1], routes, r -> r.onSlashCommand(event, context))) return;
         }
 
-        log.warn("No matching route found for {}.", event.getCommandPath());
+        log.warn("No matching route found for {}.", event.getFullCommandName());
     }
 
     @Override
     default void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-        var commandPath = event.getCommandPath().split("/?%s/?".formatted(meta().name()));
+        var commandPath = event.getFullCommandName().split("\\s?%s\\s?".formatted(meta().name()));
 
         if (commandPath.length != 2) {
-            log.warn("end of route is reached on a branch at {}", event.getCommandPath());
+            log.warn("end of route is reached on a branch at {}", event.getFullCommandName());
             return;
         }
         for (var routes : routes()) {
             if (executeIfFound(commandPath[1], routes, r -> r.onAutoComplete(event, context))) return;
         }
-        log.warn("No matching route found for {}.", event.getCommandPath());
+        log.warn("No matching route found for {}.", event.getFullCommandName());
     }
 
     default Collection<Collection<? extends Route<T>>> routes() {

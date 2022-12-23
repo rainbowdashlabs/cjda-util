@@ -105,17 +105,17 @@ class SlashTest {
 
     private SlashCommandInteractionEvent eventForPath(String... path) {
         var event = Mockito.mock(SlashCommandInteractionEvent.class);
-        when(event.getCommandPath()).thenReturn(path(path));
+        when(event.getFullCommandName()).thenReturn(path(path));
         return event;
     }
 
     private String path(String... path) {
-        return String.join("/", path);
+        return String.join(" ", path);
     }
 
     private SlashHandler throwingHandler() {
         return (event, context) -> {
-            throw new RuntimeException(event.getCommandPath());
+            throw new RuntimeException(event.getFullCommandName());
         };
     }
 

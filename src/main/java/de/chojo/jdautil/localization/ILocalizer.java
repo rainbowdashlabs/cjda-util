@@ -101,7 +101,9 @@ public interface ILocalizer extends LocalizationFunction {
         }
 
         if (key.equals(localize) && options.matcher(key).find()) {
-            log.warn("Falling back on legacy options code for {}", key);
+            if (!("false".equals(System.getProperty("cjda.localisation.error.options")))) {
+                log.warn("Falling back on legacy options code for {}", key);
+            }
             return localizeChecked(key.replace(".options.", "."), locale);
         }
         return localize;
