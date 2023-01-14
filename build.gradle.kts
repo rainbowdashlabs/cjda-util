@@ -29,7 +29,7 @@ dependencies {
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
-    testImplementation("org.mockito", "mockito-core", "4.9.0")
+    testImplementation("org.mockito", "mockito-core", "4.11.0")
 }
 
 license {
