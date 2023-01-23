@@ -1,6 +1,6 @@
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rainbowdashlabs/cjda-util/Publish%20to%20Nexus?style=for-the-badge&label=Publishing)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rainbowdashlabs/cjda-util/Verify%20state?style=for-the-badge&label=Building)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rainbowdashlabs/cjda-util/publish_to_nexus.yml?style=for-the-badge&label=Publishing&branch=master)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rainbowdashlabs/cjda-util/verify.yml?style=for-the-badge&label=Building&branch=master)
 ![Sonatype Nexus (Releases)](https://img.shields.io/nexus/maven-releases/de.chojo/cjda-util?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
 ![Sonatype Nexus (Development)](https://img.shields.io/nexus/maven-dev/de.chojo/cjda-util?label=DEV&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
 ![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.chojo/cjda-util?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
