@@ -33,7 +33,6 @@ import static de.chojo.jdautil.parsing.Verifier.isValidId;
  * Class which can be used to resolve different discord entities from strings.
  */
 public class DiscordResolver {
-    private static final Pattern DISCORD_TAG = Pattern.compile(".+?#[0-9]{4}");
 
 
     private static Optional<Member> byNameOnGuild(String memberString, Guild guild) {
@@ -217,7 +216,7 @@ public class DiscordResolver {
         foundUser = byId(memberString, m -> guild.retrieveMemberById(m).complete());
 
         //Lookup by tag
-        if (foundUser == null && DISCORD_TAG.matcher(memberString).matches()) {
+        if (foundUser == null && User.USER_TAG.matcher(memberString).matches()) {
             foundUser = guild.getMemberByTag(memberString);
         }
 
@@ -346,7 +345,7 @@ public class DiscordResolver {
         }
 
         //Lookup by tag
-        if (DISCORD_TAG.matcher(userString).matches()) {
+        if (User.USER_TAG.matcher(userString).matches()) {
             foundUser = guild.getMemberByTag(userString);
             if (foundUser != null) {
                 return Collections.singletonList(WeightedEntry.directMatch(foundUser));
@@ -399,7 +398,7 @@ public class DiscordResolver {
         }
 
         //Lookup by tag
-        if (DISCORD_TAG.matcher(userString).matches()) {
+        if (User.USER_TAG.matcher(userString).matches()) {
             foundUser = targets.stream().filter(t -> t.getUser().getAsTag().equalsIgnoreCase(userString)).findFirst();
             if (foundUser.isPresent()) {
                 return Collections.singletonList(WeightedEntry.directMatch(foundUser.get()));
@@ -447,7 +446,7 @@ public class DiscordResolver {
             user = byId(userString, shardManager::getUserById);
         }
 
-        if (user == null && DISCORD_TAG.matcher(userString).matches()) {
+        if (user == null && User.USER_TAG.matcher(userString).matches()) {
             user = shardManager.getUserByTag(userString);
         }
 
@@ -538,7 +537,7 @@ public class DiscordResolver {
             }
         }
 
-        if (DISCORD_TAG.matcher(userString).matches()) {
+        if (User.USER_TAG.matcher(userString).matches()) {
             user = shardManager.getUserByTag(userString);
             if (user != null) {
                 return Collections.singletonList(user);
