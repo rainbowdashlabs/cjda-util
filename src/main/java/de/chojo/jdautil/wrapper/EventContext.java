@@ -9,6 +9,7 @@ package de.chojo.jdautil.wrapper;
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.dispatching.InteractionHub;
+import de.chojo.jdautil.interactions.dispatching.InteractionHubBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.Localizer.Builder;
@@ -20,9 +21,12 @@ import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class EventContext {
@@ -44,10 +48,22 @@ public class EventContext {
         this.interactionHub = interactionHub;
     }
 
+    /**
+     * Registers a new conversation.
+     * <p>
+     * Requires that a {@link ConversationService} is registered via {@link InteractionHubBuilder#withConversationSystem()}
+     */
     public ConversationService conversationService() {
         return conversationService;
     }
 
+    /**
+     * Registers a new conversation.
+     * <p>
+     * Requires that a {@link ConversationService} is registered via {@link InteractionHubBuilder#withConversationSystem()}
+     *
+     * @param conversation conversation to start
+     */
     public void startDialog(Conversation conversation) {
         conversationService.startDialog(event, conversation);
     }
@@ -89,13 +105,27 @@ public class EventContext {
         return localizer.localize(message, LocaleProvider.user(event), replacements);
     }
 
-    public void registerMenu(MenuAction interaction) {
+    /**
+     * Registers a new menu action.
+     * <p>
+     * Requires that a {@link MenuService} is registered via {@link InteractionHubBuilder#withMenuService(Consumer)} or {@link InteractionHubBuilder#withDefaultMenuService()}
+     *
+     * @param action action to register
+     */
+    public void registerMenu(MenuAction action) {
         if (event == null) {
             throw new UnsupportedOperationException("menus can be only used on interactions");
         }
-        menus.register(interaction);
+        menus.register(action);
     }
 
+    /**
+     * Registers a new page.
+     * <p>
+     * Requires that a {@link PageService} is registered via {@link InteractionHubBuilder#withPagination(Consumer)} or {@link InteractionHubBuilder#withDefaultPagination()}
+     *
+     * @param page page to register
+     */
     public void registerPage(IPageBag page) {
         if (event == null) {
             throw new UnsupportedOperationException("Pages can be only used on interactions");
@@ -103,6 +133,14 @@ public class EventContext {
         pages.registerPage(event, page);
     }
 
+    /**
+     * Registers a new page.
+     * <p>
+     * Requires that a {@link PageService} is registered via {@link InteractionHubBuilder#withPagination(Consumer)} or {@link InteractionHubBuilder#withDefaultPagination()}
+     *
+     * @param page      page to register
+     * @param ephemeral true so send the reply ephemeral
+     */
     public void registerPage(IPageBag page, boolean ephemeral) {
         if (event == null) {
             throw new UnsupportedOperationException("Pages can be only used on interactions");
@@ -110,6 +148,12 @@ public class EventContext {
         pages.registerPage(event, page, ephemeral);
     }
 
+    /**
+     * Registers a new modal
+     * Requires that a {@link ModalService} is registered via {@link InteractionHubBuilder#withModalService(Consumer)} or {@link InteractionHubBuilder#withDefaultModalService()}
+     *
+     * @param modalHandler modal handler
+     */
     public void registerModal(ModalHandler modalHandler) {
         if (event instanceof GenericCommandInteractionEvent event) {
             modalService.registerModal(event, modalHandler);
@@ -118,12 +162,17 @@ public class EventContext {
         }
     }
 
+    /**
+     * Returns a guild localizer, which uses the {@link Guild#getLocale()}
+     *
+     * @return localizer with guild locale linked
+     */
     public LocalizationContext guildLocalizer() {
         return new LocalizationContext(localizer, LocaleProvider.guild(event));
     }
 
     /**
-     * @return
+     * @return guild localizer
      * @deprecated Removed in favor or {@link EventContext#guildLocalizer()}
      */
     @Deprecated(forRemoval = true)
@@ -131,11 +180,32 @@ public class EventContext {
         return guildLocalizer();
     }
 
+    /**
+     * Returns a guild localizer, which uses the {@link Interaction#getUserLocale()}
+     *
+     * @return localizer with user locale linked
+     */
     public LocalizationContext userLocalizer() {
         return new LocalizationContext(localizer, LocaleProvider.user(event));
     }
 
+    /**
+     * Returns the command hub
+     *
+     * @return command hub
+     * @deprecated deprecated in favor of {@link #interactionHub()}
+     */
+    @Deprecated(forRemoval = true)
     public InteractionHub<?, ?, ?> commandHub() {
+        return interactionHub;
+    }
+
+    /**
+     * Returns the interaction hub, which dispated the interaction
+     *
+     * @return interaction hub instance
+     */
+    public InteractionHub<?, ?, ?> interactionHub() {
         return interactionHub;
     }
 }

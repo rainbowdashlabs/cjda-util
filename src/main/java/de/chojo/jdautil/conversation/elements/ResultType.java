@@ -21,7 +21,7 @@ public enum ResultType {
     FINISH,
     /**
      * Freeze the conversation.
-     *
+     * <p>
      * The conversation has to be continued by calling
      */
     FREEZE

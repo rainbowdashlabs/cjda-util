@@ -25,40 +25,88 @@ public class Step {
         this.dialog = dialog;
     }
 
-    public Result handleMessage(ConversationContext message) {
-        return handle.apply(message);
-    }
-
-    public Result handleButton(InteractionContext context) {
-        return dialog.handle( context);
-    }
-
-    public boolean hasMessage() {
-        return handle != null;
-    }
-
+    /**
+     * Create a new step builder with a message prompt
+     *
+     * @param prompt prompt to send
+     * @param handle handles the input and returns a {@link Result}
+     * @return new builder instance
+     */
     public static Step.Builder message(String prompt, Function<ConversationContext, Result> handle) {
         return builder(prompt).message(handle);
     }
 
+    /**
+     * Create a new step builder with a message prompt
+     *
+     * @param prompt  prompt to send
+     * @param buttons a {@link ButtonDialog}
+     * @return new builder instance
+     */
     public static Step.Builder button(String prompt, Consumer<ButtonDialog> buttons) {
         return builder(prompt).button(buttons);
     }
 
+    private static Builder builder(String prompt) {
+        return new Builder(prompt);
+    }
+
+    /**
+     * Handles a message
+     *
+     * @param message message context
+     * @return result
+     */
+    public Result handleMessage(ConversationContext message) {
+        return handle.apply(message);
+    }
+
+    /**
+     * Handles a button interaction
+     *
+     * @param context interaction context
+     * @return result
+     */
+    public Result handleButton(InteractionContext context) {
+        return dialog.handle(context);
+    }
+
+    /**
+     * Checks for a message handler
+     *
+     * @return true if there is one
+     */
+    public boolean hasMessage() {
+        return handle != null;
+    }
+
+    /**
+     * Get the prompt
+     *
+     * @return prompt
+     */
     public String prompt() {
         return prompt;
     }
 
+    /**
+     * Checks for a button handler
+     *
+     * @return true if there is one
+     */
     public boolean hasButtons() {
         return dialog != null;
     }
 
+    /**
+     * Get the action rows for this step
+     *
+     * @param localizer localizer for button and message content
+     * @param guild     guild
+     * @return list of action rows
+     */
     public Collection<? extends ActionRow> getActions(ILocalizer localizer, Guild guild) {
         return dialog.getActions(localizer, guild);
-    }
-
-    private static Builder builder(String prompt) {
-        return new Builder(prompt);
     }
 
     public static class Builder {

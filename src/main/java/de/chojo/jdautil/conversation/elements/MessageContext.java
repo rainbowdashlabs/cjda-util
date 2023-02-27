@@ -7,8 +7,8 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.conversation.Conversation;
-import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 import net.dv8tion.jda.api.entities.Guild;
