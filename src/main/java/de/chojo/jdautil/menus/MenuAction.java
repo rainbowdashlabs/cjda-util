@@ -10,18 +10,19 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MenuAction {
-    private final MessageEmbed embed;
+    private final MessageCreateData message;
     @Nullable
     private final IReplyCallback callback;
     @Nullable
@@ -29,12 +30,12 @@ public class MenuAction {
     private final boolean ephemeral;
     @Nullable
     private final User user;
-    private final List<de.chojo.jdautil.menus.entries.MenuEntry<?,?>> components;
+    private final List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components;
     @Nullable
     private final Guild guild;
 
-    public MenuAction(MessageEmbed embed, IReplyCallback callback, MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?,?>> components) {
-        this.embed = embed;
+    public MenuAction(MessageCreateData message, IReplyCallback callback, MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components) {
+        this.message = message;
         this.callback = callback;
         this.channel = channel;
         this.ephemeral = ephemeral;
@@ -52,13 +53,13 @@ public class MenuAction {
         var rows = ActionRow.partitionOf(buttons);
 
         if (channel != null) {
-            channel.sendMessageEmbeds(embed)
+            channel.sendMessage(message)
                     .addComponents(rows)
                     .queue();
         }
 
         if (callback != null) {
-            callback.replyEmbeds(embed)
+            callback.reply(message)
                     .setEphemeral(ephemeral)
                     .setComponents(rows)
                     .queue();
@@ -69,16 +70,52 @@ public class MenuAction {
         return user;
     }
 
-    public List<MenuEntry<?,?>> components() {
+    public List<MenuEntry<?, ?>> components() {
         return components;
     }
 
-    public static MenuActionBuilder forChannel(MessageEmbed embed, MessageChannel channel){
-        return new MenuActionBuilder(embed, channel);
+    /**
+     * Create a new action for a callback
+     *
+     * @param embed message to send
+     * @param channel the channel to send the message to
+     * @return new action builder
+     */
+    public static MenuActionBuilder forChannel(MessageEmbed embed, MessageChannel channel) {
+        return new MenuActionBuilder(MessageCreateData.fromEmbeds(embed), channel);
     }
 
-    public static MenuActionBuilder forCallback(MessageEmbed embed, IReplyCallback callback){
-        return new MenuActionBuilder(embed, callback);
+    /**
+     * Create a new action for a callback
+     *
+     * @param message message to send
+     * @param channel the channel to send the message to
+     * @return new action builder
+     */
+    public static MenuActionBuilder forChannel(String message, MessageChannel channel) {
+        return new MenuActionBuilder(MessageCreateData.fromContent(message), channel);
+    }
+
+    /**
+     * Create a new action for a callback
+     *
+     * @param embed    message to send
+     * @param callback the callback to respond to
+     * @return new action builder
+     */
+    public static MenuActionBuilder forCallback(MessageEmbed embed, IReplyCallback callback) {
+        return new MenuActionBuilder(MessageCreateData.fromEmbeds(embed), callback);
+    }
+
+    /**
+     * Create a new action for a callback
+     *
+     * @param message  message to send
+     * @param callback the callback to respond to
+     * @return new action builder
+     */
+    public static MenuActionBuilder forCallback(String message, IReplyCallback callback) {
+        return new MenuActionBuilder(MessageCreateData.fromContent(message), callback);
     }
 
     public Guild guild() {

@@ -13,8 +13,8 @@ import de.chojo.jdautil.conversation.elements.Step;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.util.Channel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class Conversation {
         step = initalStep;
     }
 
-    public Result handleMessage(Message message) {
+    Result handleMessage(Message message) {
         if (!step.hasMessage()) return Result.freeze();
         var context = new MessageContext(this, data, message, localizer);
         var result = step.handleMessage(context);
@@ -51,10 +51,33 @@ public class Conversation {
         return result;
     }
 
-    public Result handleInteraction(ComponentInteraction interaction) {
+    Result handleInteraction(ComponentInteraction interaction) {
         var result = step.handleButton(new InteractionContext(data, this, interaction, localizer));
         handleResult(result, interaction.getChannel());
         return result;
+    }
+
+    void start(MessageChannel channel) {
+        sendPrompt(channel, 2);
+    }
+
+    private void proceed(MessageChannel channel, int next) {
+        step = steps.get(next);
+        sendPrompt(channel);
+    }
+
+    public void close() {
+        onClose.accept(this);
+    }
+
+    public User owner() {
+        return owner;
+    }
+
+    void inject(User owner, ILocalizer localizer, ConversationService service) {
+        this.owner = owner;
+        this.localizer = localizer;
+        this.conversationService = service;
     }
 
     private boolean handleResult(Result result, MessageChannel channel) {
@@ -86,28 +109,5 @@ public class Conversation {
         } else {
             messageChannel.sendMessage(localizer.localize(step.prompt(), guild)).queueAfter(delay, TimeUnit.SECONDS);
         }
-    }
-
-    public void start(MessageChannel channel) {
-        sendPrompt(channel, 2);
-    }
-
-    public void proceed(MessageChannel channel, int next) {
-        step = steps.get(next);
-        sendPrompt(channel);
-    }
-
-    public void close() {
-        onClose.accept(this);
-    }
-
-    void inject(User owner, ILocalizer localizer, ConversationService service) {
-        this.owner = owner;
-        this.localizer = localizer;
-        this.conversationService = service;
-    }
-
-    public User owner() {
-        return owner;
     }
 }

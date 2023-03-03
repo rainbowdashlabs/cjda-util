@@ -11,8 +11,8 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.util.Channel;
 import de.chojo.jdautil.wrapper.UserChannelKey;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -111,17 +111,6 @@ public class ConversationService extends ListenerAdapter {
         channel.sendMessage(message).queue();
     }
 
-    private void resolveButton(UserChannelKey userChannelKey) {
-        button.remove(userChannelKey);
-    }
-
-    private void removeDialog(UserChannelKey key) {
-        var remove = conversations.remove(key);
-        if (remove != null) {
-            remove.close();
-        }
-    }
-
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (!event.isAcknowledged()) event.deferEdit().queue();
@@ -142,5 +131,16 @@ public class ConversationService extends ListenerAdapter {
 
     public void registerButtons(Message message, Conversation conversation) {
         button.put(UserChannelKey.of(conversation.owner(), message.getChannel()), Pair.of(message.getIdLong(), conversation));
+    }
+
+    private void resolveButton(UserChannelKey userChannelKey) {
+        button.remove(userChannelKey);
+    }
+
+    private void removeDialog(UserChannelKey key) {
+        var remove = conversations.remove(key);
+        if (remove != null) {
+            remove.close();
+        }
     }
 }

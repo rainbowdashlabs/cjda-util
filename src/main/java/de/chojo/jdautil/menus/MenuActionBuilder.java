@@ -13,13 +13,14 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuActionBuilder {
-    private final MessageEmbed embed;
+    private final MessageCreateData message;
     @Nullable
     private IReplyCallback callback;
     @Nullable
@@ -31,14 +32,14 @@ public class MenuActionBuilder {
     @Nullable
     private Guild guild;
 
-    MenuActionBuilder(MessageEmbed embed, IReplyCallback callback) {
-        this.embed = embed;
+    MenuActionBuilder(MessageCreateData message, IReplyCallback callback) {
+        this.message = message;
         this.callback = callback;
         this.guild = callback.getGuild();
     }
 
-    MenuActionBuilder(MessageEmbed embed, MessageChannel channel) {
-        this.embed = embed;
+    MenuActionBuilder(MessageCreateData message, MessageChannel channel) {
+        this.message = message;
         this.channel = channel;
         if (channel instanceof TextChannel textChannel) {
             guild = textChannel.getGuild();
@@ -61,6 +62,6 @@ public class MenuActionBuilder {
     }
 
     public MenuAction build() {
-        return new MenuAction(embed, callback, channel, guild, ephemeral, user, components);
+        return new MenuAction(message, callback, channel, guild, ephemeral, user, components);
     }
 }
