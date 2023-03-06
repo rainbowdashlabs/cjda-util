@@ -23,7 +23,7 @@ dependencies {
     api("com.fasterxml.jackson.core", "jackson-databind", "2.14.2")
 
     // web api
-    api("io.javalin", "javalin", "5.3.2")
+    api("io.javalin", "javalin", "4.6.7")
     api("io.javalin", "javalin-openapi", "4.6.7")
 
     // unit testing
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.8.2+beta.5"
+version = "2.8.3+beta.5"
 description = "Discord utilities for use with JDA"
 
 publishData {
