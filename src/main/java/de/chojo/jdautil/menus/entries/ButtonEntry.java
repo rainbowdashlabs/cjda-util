@@ -21,6 +21,9 @@ public class ButtonEntry extends MenuEntry<Button, ButtonInteractionEvent> {
 
     @Override
     public ActionComponent component(long id, LocalizationContext localizer) {
+        if(component().getId() == null){
+            return component().withLabel(localizer.localize(component().getLabel()));
+        }
         return component().withId(String.format("%s:%s", id, component().getId()))
                 .withLabel(localizer.localize(component().getLabel()));
     }
