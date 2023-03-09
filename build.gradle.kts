@@ -4,7 +4,7 @@ plugins {
     java
     `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.0.9"
+    id("de.chojo.publishdata") version "1.1.0"
     id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.8.3+beta.5"
+version = "2.8.4+beta.5"
 description = "Discord utilities for use with JDA"
 
 publishData {
