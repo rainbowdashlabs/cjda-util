@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion", "JDA", "5.0.0-beta.5")
+    api("net.dv8tion", "JDA", "5.0.0-beta.6")
     api("org.apache.commons", "commons-text", "1.10.0")
     api("club.minnced", "discord-webhooks", "0.8.2")
 
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.8.4+beta.5"
+version = "2.8.5+beta.6"
 description = "Discord utilities for use with JDA"
 
 publishData {
