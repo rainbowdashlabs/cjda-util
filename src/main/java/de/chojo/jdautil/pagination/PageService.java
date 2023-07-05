@@ -60,7 +60,7 @@ public class PageService extends ListenerAdapter {
     }
 
     /**
-     * Registers a new page on a slash command event. The page will be send as a reply to this event.
+     * Registers a new page on a slash command event. The page will be sent as a reply to this event.
      *
      * @param event event
      * @param page  page
@@ -71,7 +71,7 @@ public class PageService extends ListenerAdapter {
     }
 
     /**
-     * Registers a new page on a slash command event. The page will be send as a reply to this event.
+     * Registers a new page on a slash command event. The page will be sent as a reply to this event.
      *
      * @param event     event
      * @param page      page
@@ -97,6 +97,7 @@ public class PageService extends ListenerAdapter {
         var id = nextId();
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
+            cache.put(id, page);
             if (!event.isAcknowledged()) {
                 event.reply(MessageCreateData.fromEditData(embed))
                         .setComponents(getPageButtons(event.getGuild(), page, id))
@@ -107,7 +108,6 @@ public class PageService extends ListenerAdapter {
             event.getHook().editOriginal(embed)
                     .setComponents(getPageButtons(event.getGuild(), page, id))
                     .queue();
-            cache.put(id, page);
         }, err -> log.error("Could not build page", err)));
     }
 
@@ -134,6 +134,7 @@ public class PageService extends ListenerAdapter {
                             channel.sendMessage(MessageCreateData.fromEditData(embed))
                                     .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
                                     .queue();
+                            log.trace("Registering page with id {}", id);
                             cache.put(id, page);
                         },
                         err -> log.error("Could not build page", err)));
@@ -141,17 +142,23 @@ public class PageService extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        log.trace("Received button interaction");
         var split = event.getComponentId().split(":", 2);
         var pageId = ValueParser.parseLong(split[0]);
 
         if (pageId.isEmpty() || split.length != 2) {
             return;
         }
+        log.trace("Button action identified");
 
         var page = cache.getIfPresent(pageId.get());
-        if (page == null || !page.canInteract(event.getUser())) return;
+        if (page == null || !page.canInteract(event.getUser())) {
+            log.trace("Page {} is unkown", pageId.get());
+            return;
+        }
 
         if (!event.isAcknowledged()) {
+            log.trace("Event not acknowledged. Defering reply");
             event.deferEdit().queue();
         }
 
@@ -193,11 +200,13 @@ public class PageService extends ListenerAdapter {
     private void sendPage(ButtonInteractionEvent event, long pageId) {
         var page = cache.getIfPresent(pageId);
         if (page.isEmpty()) {
+            log.trace("Page is empty");
             page.buildEmptyPage().whenComplete(Futures.whenComplete(
                     embed -> event.getHook().editOriginal(embed).queue(),
                     err -> log.error("Could not build page", err)));
             return;
         }
+        log.info("Build and send new page.");
         page.buildPage()
                 .whenComplete(Futures.whenComplete(
                         embed -> event.getHook()
