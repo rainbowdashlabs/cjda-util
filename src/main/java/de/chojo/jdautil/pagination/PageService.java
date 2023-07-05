@@ -98,7 +98,10 @@ public class PageService extends ListenerAdapter {
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
             if (!event.isAcknowledged()) {
-                event.reply(MessageCreateData.fromEditData(embed)).setEphemeral(ephemeral).queue();
+                event.reply(MessageCreateData.fromEditData(embed))
+                        .setComponents(getPageButtons(event.getGuild(), page, id))
+                        .setEphemeral(ephemeral)
+                        .queue();
                 return;
             }
             event.getHook().editOriginal(embed)
