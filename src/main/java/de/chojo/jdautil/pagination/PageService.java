@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -178,11 +179,7 @@ public class PageService extends ListenerAdapter {
     }
 
     private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
-        var buttons = page.buttons().stream()
-                .map(b -> b.button(page))
-                .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
-                .collect(Collectors.toList());
-        var actionRows = ActionRow.partitionOf(buttons);
+        var actionRows = new ArrayList<ActionRow>();
         actionRows.add(ActionRow.of(
                 Button.of(ButtonStyle.SUCCESS, addId(id, previousId), localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅"))
                         .withDisabled(!page.hasPrevious()),
@@ -190,6 +187,11 @@ public class PageService extends ListenerAdapter {
                 Button.of(ButtonStyle.SUCCESS, addId(id, nextId), localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️"))
                         .withDisabled(!page.hasNext())
         ));
+        var buttons = page.buttons().stream()
+                .map(b -> b.button(page))
+                .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
+                .collect(Collectors.toList());
+        actionRows.addAll(ActionRow.partitionOf(buttons));
         return actionRows;
     }
 
