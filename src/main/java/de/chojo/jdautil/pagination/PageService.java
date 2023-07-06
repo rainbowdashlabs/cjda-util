@@ -150,7 +150,7 @@ public class PageService extends ListenerAdapter {
         if (pageId.isEmpty() || split.length != 2) {
             return;
         }
-        log.trace("Button action identified");
+        log.trace("Button action identified with {}", split[1]);
 
         var page = cache.getIfPresent(pageId.get());
         if (page == null || !page.canInteract(event.getUser())) {
@@ -158,16 +158,19 @@ public class PageService extends ListenerAdapter {
             return;
         }
 
-        if (!event.isAcknowledged()) {
-            log.trace("Event not acknowledged. Defering reply");
-            event.deferEdit().queue();
-        }
-
         var id = split[1];
         if (nextId.equals(id) && page.hasNext()) {
+            if (!event.isAcknowledged()) {
+                event.deferEdit().queue();
+                log.trace("Event not acknowledged. Defering reply");
+            }
             page.scrollNext();
             sendPage(event, pageId.get());
         } else if (previousId.equals(id) && page.hasPrevious()) {
+            if (!event.isAcknowledged()) {
+                event.deferEdit().queue();
+                log.trace("Event not acknowledged. Defering reply");
+            }
             page.scrollPrevious();
             sendPage(event, pageId.get());
         } else {
