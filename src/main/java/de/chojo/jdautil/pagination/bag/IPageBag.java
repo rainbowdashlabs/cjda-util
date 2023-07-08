@@ -7,16 +7,63 @@
 package de.chojo.jdautil.pagination.bag;
 
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface IPageBag {
+
+    static IPageBag standard(int pages, Supplier<MessageEditData> embed){
+        return new PageBag(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.get());
+            }
+        };
+    }
+    static IPageBag standard(int pages, Function<IPageBag,MessageEditData> embed, Function<IPageBag,MessageEditData> empty){
+        return new PageBag(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+
+            @Override
+            public CompletableFuture<MessageEditData> buildEmptyPage() {
+                return CompletableFuture.completedFuture(empty.apply(this));
+            }
+        };
+    }
+
+    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed){
+        return new ListPageBag<>(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+        };
+    }
+
+    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed, Function<ListPageBag<T>, MessageEditData> empty){
+        return new ListPageBag<>(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+
+            @Override
+            public CompletableFuture<MessageEditData> buildEmptyPage() {
+                return CompletableFuture.completedFuture(empty.apply(this));
+            }
+        };
+    }
+
     /**
      * The amount of pages.
      *

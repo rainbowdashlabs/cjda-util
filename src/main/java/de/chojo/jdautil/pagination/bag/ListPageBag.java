@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class ListPageBag<T> extends PageBag {
+public abstract class ListPageBag<T> extends PageBag implements IListPageBag<T> {
     private final List<T> content;
 
     public ListPageBag(Collection<T> content) {
@@ -23,6 +23,7 @@ public abstract class ListPageBag<T> extends PageBag {
      *
      * @return element from the current page
      */
+    @Override
     public T currentElement() {
         return content.get(current());
     }
