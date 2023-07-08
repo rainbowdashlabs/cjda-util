@@ -40,6 +40,13 @@ public class SubCommand implements Route<RouteMeta> {
     public static PartialSubCommandBuilder of(String name, String description) {
         return SubCommandBuilder.partial(name, description);
     }
+    public static SubCommandBuilder sub(String name, String description, SlashHandler handler) {
+        return of(name, description, handler);
+    }
+
+    public static PartialSubCommandBuilder sub(String name, String description) {
+        return of(name, description);
+    }
 
     public RouteMeta meta() {
         return meta;
