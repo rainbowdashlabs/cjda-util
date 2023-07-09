@@ -8,6 +8,7 @@ package de.chojo.jdautil.pagination;
 
 import com.google.common.cache.Cache;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import de.chojo.jdautil.parsing.ValueParser;
@@ -183,16 +184,19 @@ public class PageService extends ListenerAdapter {
 
     private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
         var actionRows = new ArrayList<ActionRow>();
+        var previous = localizer.localize(previousLabel, guild).isBlank() ?
+                Button.success(addId(id, previousId), Emoji.fromUnicode("⬅"))
+                : Button.success(addId(id, previousId), localizer.localize(previousLabel, guild)).withEmoji(Emoji.fromUnicode("⬅"));
+        var next = localizer.localize(nextLabel, guild).isBlank() ?
+                Button.success(addId(id, nextId), Emoji.fromUnicode("➡️"))
+                : Button.success(addId(id, nextId), localizer.localize(previousLabel, guild)).withEmoji(Emoji.fromUnicode("⬅"));
         actionRows.add(ActionRow.of(
-                Button.of(ButtonStyle.SUCCESS, addId(id, previousId), localizer.localize(previousLabel, guild), Emoji.fromUnicode("⬅"))
-                        .withDisabled(!page.hasPrevious()),
+                previous.withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
-                Button.of(ButtonStyle.SUCCESS, addId(id, nextId), localizer.localize(nextLabel, guild), Emoji.fromUnicode("➡️"))
-                        .withDisabled(!page.hasNext())
+                next.withDisabled(!page.hasNext())
         ));
         var buttons = page.buttons().stream()
-                .map(b -> b.button(page))
-                .map(b -> b.withId(addId(id, b.getId())).withLabel(localizer.localize(b.getLabel(), guild)))
+                .map(b -> b.component(page, id, localizer.context(LocaleProvider.guild(guild))))
                 .collect(Collectors.toList());
         actionRows.addAll(ActionRow.partitionOf(buttons));
         return actionRows;
