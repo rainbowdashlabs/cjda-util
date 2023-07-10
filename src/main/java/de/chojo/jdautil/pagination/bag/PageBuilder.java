@@ -103,7 +103,8 @@ public class PageBuilder {
 
                 @Override
                 public CompletableFuture<MessageEditData> buildEmptyPage() {
-                    return page.apply(this);
+                    if (empty == null) super.buildEmptyPage();
+                    return empty.apply(this);
                 }
             };
         }
@@ -150,7 +151,8 @@ public class PageBuilder {
 
                 @Override
                 public CompletableFuture<MessageEditData> buildEmptyPage() {
-                    return page.apply(this);
+                    if (empty == null) super.buildEmptyPage();
+                    return empty.apply(this);
                 }
             };
         }
