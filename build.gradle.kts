@@ -29,7 +29,7 @@ dependencies {
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.9.3"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
-    testImplementation("org.mockito", "mockito-core", "5.3.1")
+    testImplementation("org.mockito", "mockito-core", "5.4.0")
 }
 
 license {
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.8.6+beta.11"
+version = "2.9.0+beta.11"
 description = "Discord utilities for use with JDA"
 
 publishData {

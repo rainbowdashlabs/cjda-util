@@ -7,14 +7,63 @@
 package de.chojo.jdautil.pagination.bag;
 
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface IPageBag {
+
+    static IPageBag standard(int pages, Supplier<MessageEditData> embed){
+        return new PageBag(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.get());
+            }
+        };
+    }
+    static IPageBag standard(int pages, Function<IPageBag,MessageEditData> embed, Function<IPageBag,MessageEditData> empty){
+        return new PageBag(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+
+            @Override
+            public CompletableFuture<MessageEditData> buildEmptyPage() {
+                return CompletableFuture.completedFuture(empty.apply(this));
+            }
+        };
+    }
+
+    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed){
+        return new ListPageBag<>(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+        };
+    }
+
+    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed, Function<ListPageBag<T>, MessageEditData> empty){
+        return new ListPageBag<>(pages) {
+            @Override
+            public CompletableFuture<MessageEditData> buildPage() {
+                return CompletableFuture.completedFuture(embed.apply(this));
+            }
+
+            @Override
+            public CompletableFuture<MessageEditData> buildEmptyPage() {
+                return CompletableFuture.completedFuture(empty.apply(this));
+            }
+        };
+    }
+
     /**
      * The amount of pages.
      *
@@ -83,15 +132,15 @@ public interface IPageBag {
      *
      * @return A {@link CompletableFuture} providing the message embed.
      */
-    CompletableFuture<MessageEmbed> buildPage();
+    CompletableFuture<MessageEditData> buildPage();
 
     /**
-     * Build a embed for an empty page when the bag is empty
+     * Build an embed for an empty page when the bag is empty
      *
      * @return A {@link CompletableFuture} providing the message embed.
      * @throws EmptyPageBagException when not overridden.
      */
-    default CompletableFuture<MessageEmbed> buildEmptyPage() {
+    default CompletableFuture<MessageEditData> buildEmptyPage() {
         throw new EmptyPageBagException("The provided page bag is empty. Escape empty page submission or implement IPageBag#buildEmptyPage()");
     }
 

@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class MenuAction {
     @Nullable
     private final Guild guild;
 
-    public MenuAction(MessageCreateData message, IReplyCallback callback, MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components) {
+    public MenuAction(MessageCreateData message, @Nullable IReplyCallback callback, @Nullable MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components) {
         this.message = message;
         this.callback = callback;
         this.channel = channel;
@@ -59,8 +60,11 @@ public class MenuAction {
         }
 
         if (callback != null) {
-            callback.reply(message)
-                    .setEphemeral(ephemeral)
+            if (!callback.isAcknowledged()) {
+                callback.deferReply(ephemeral).complete();
+            }
+            callback.getHook()
+                    .editOriginal(MessageEditData.fromCreateData(message))
                     .setComponents(rows)
                     .queue();
         }
@@ -77,7 +81,7 @@ public class MenuAction {
     /**
      * Create a new action for a callback
      *
-     * @param embed message to send
+     * @param embed   message to send
      * @param channel the channel to send the message to
      * @return new action builder
      */
@@ -116,6 +120,16 @@ public class MenuAction {
      */
     public static MenuActionBuilder forCallback(String message, IReplyCallback callback) {
         return new MenuActionBuilder(MessageCreateData.fromContent(message), callback);
+    }
+    /**
+     * Create a new action for a callback
+     *
+     * @param message  message to send
+     * @param callback the callback to respond to
+     * @return new action builder
+     */
+    public static MenuActionBuilder forCallback(MessageCreateData message, IReplyCallback callback) {
+        return new MenuActionBuilder(message, callback);
     }
 
     public Guild guild() {

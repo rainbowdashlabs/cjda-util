@@ -47,6 +47,9 @@ public class Slash implements CommandDataProvider {
     public static RootMetaBuilder of(String name, String description) {
         return new SlashBuilder(name, description);
     }
+    public static RootMetaBuilder slash(String name, String description) {
+        return of(name, description);
+    }
 
     public Collection<Collection<? extends Route<RouteMeta>>> routes() {
         return List.of(groups, leaves);
