@@ -125,8 +125,8 @@ public class Localizer implements ILocalizer {
     }
 
     private String translate(String message, DiscordLocale language, Replacement... replacements) {
-        if (message == null) {
-            return null;
+        if (message == null || message.isBlank()) {
+            return message;
         }
         String result;
         // If the matcher doesn't find any key we assume its a simple message.

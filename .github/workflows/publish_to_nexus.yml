@@ -3,7 +3,7 @@ name: Publish to Nexus
 on:
   push:
     branches:
-      - master
+      - main
       - dev*
       - feature/*
       - fix/*
