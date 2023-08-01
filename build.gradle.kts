@@ -19,7 +19,7 @@ dependencies {
     api("club.minnced", "discord-webhooks", "0.8.2")
 
     // Serialization
-    api("com.google.guava", "guava", "32.1.1-jre")
+    api("com.google.guava", "guava", "32.1.2-jre")
     api("com.fasterxml.jackson.core", "jackson-databind", "2.15.2")
 
     // web api
