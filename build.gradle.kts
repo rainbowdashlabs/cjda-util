@@ -16,7 +16,7 @@ repositories {
 dependencies {
     api("net.dv8tion", "JDA", "5.0.0-beta.12")
     api("org.apache.commons", "commons-text", "1.10.0")
-    api("club.minnced", "discord-webhooks", "0.8.2")
+    api("club.minnced", "discord-webhooks", "0.8.3")
 
     // Serialization
     api("com.google.guava", "guava", "32.1.2-jre")
