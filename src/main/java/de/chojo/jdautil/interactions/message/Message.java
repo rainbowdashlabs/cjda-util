@@ -49,8 +49,7 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
                 .setDefaultPermissions(meta.permission())
                 .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
-            message.setNameLocalizations(localizer.prefixedLocalizer("message").apply(localeKey()))
-                    .setLocalizationFunction(localizer.prefixedLocalizer("message"));
+            message.setLocalizationFunction(localizer.prefixedLocalizer("message"));
         }
         return message;
     }
