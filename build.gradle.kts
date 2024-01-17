@@ -19,7 +19,7 @@ dependencies {
     api("club.minnced", "discord-webhooks", "0.8.4")
 
     // Serialization
-    api("com.google.guava", "guava", "32.1.3-jre")
+    api("com.google.guava", "guava", "33.0.0-jre")
     api("com.fasterxml.jackson.core", "jackson-databind", "2.16.1")
 
     // web api
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.9.0+beta.19"
+version = "2.9.1+beta.19"
 description = "Discord utilities for use with JDA"
 
 publishData {
