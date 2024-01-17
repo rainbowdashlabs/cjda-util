@@ -38,6 +38,9 @@ public class Group implements Route<RouteMeta> {
     public static PartialGroupBuilder of(String name, String description) {
         return GroupBuilder.of(name, description);
     }
+    public static PartialGroupBuilder group(String name, String description) {
+        return of(name, description);
+    }
 
     @Override
     public RouteMeta meta() {
