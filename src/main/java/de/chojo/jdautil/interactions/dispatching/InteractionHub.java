@@ -20,7 +20,6 @@ import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -313,5 +312,21 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
 
     public Collection<M> getMessage() {
         return Set.copyOf(messages.values());
+    }
+
+    public MenuService buttonService() {
+        return buttons;
+    }
+
+    public PageService pageServices() {
+        return pages;
+    }
+
+    public ModalService modalService() {
+        return modalService;
+    }
+
+    public ConversationService conversationService() {
+        return conversationService;
     }
 }
