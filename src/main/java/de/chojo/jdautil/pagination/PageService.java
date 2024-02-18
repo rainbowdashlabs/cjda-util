@@ -189,7 +189,7 @@ public class PageService extends ListenerAdapter {
                 : Button.success(addId(id, previousId), localizer.localize(previousLabel, guild)).withEmoji(Emoji.fromUnicode("⬅"));
         var next = localizer.localize(nextLabel, guild).isBlank() ?
                 Button.success(addId(id, nextId), Emoji.fromUnicode("➡️"))
-                : Button.success(addId(id, nextId), localizer.localize(previousLabel, guild)).withEmoji(Emoji.fromUnicode("⬅"));
+                : Button.success(addId(id, nextId), localizer.localize(nextLabel, guild)).withEmoji(Emoji.fromUnicode("➡️"));
         actionRows.add(ActionRow.of(
                 previous.withDisabled(!page.hasPrevious()),
                 Button.of(ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
