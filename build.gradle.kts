@@ -23,8 +23,8 @@ dependencies {
     api("com.fasterxml.jackson.core", "jackson-databind", "2.16.1")
 
     // web api
-    api("io.javalin", "javalin", "4.6.8")
-    api("io.javalin", "javalin-openapi", "4.6.8")
+    annotationProcessor(libs.javalin.annotations)
+    api(libs.bundles.javalin)
 
     // unit testing
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
@@ -72,7 +72,7 @@ java {
     withJavadocJar()
 
     toolchain{
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 

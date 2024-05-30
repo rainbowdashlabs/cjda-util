@@ -16,6 +16,8 @@ import de.chojo.jdautil.botlist.modules.voting.post.VoteReceiver;
 import io.javalin.Javalin;
 import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
+import io.javalin.openapi.OpenApiDescription;
+import io.javalin.openapi.OpenApiInfo;
 import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jetty.http.HttpStatus;
@@ -66,7 +68,7 @@ public class VoteService {
     }
 
     private Handler getHandler(BotList botList, VoteReceiver<?> voteReceiver) {
-        return OpenApiBuilder.documented(
+        return new OpenApiDescription().documented(
                 OpenApiBuilder.document()
                         .operation(op -> {
                             op.summary("Submit a vote for " + botList.name());
