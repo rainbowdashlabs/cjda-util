@@ -27,7 +27,7 @@ dependencies {
     api("io.javalin", "javalin-openapi", "4.6.8")
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
     testImplementation("org.mockito", "mockito-core", "5.12.0")
 }
