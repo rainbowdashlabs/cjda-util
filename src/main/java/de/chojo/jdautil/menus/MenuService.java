@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,11 +33,13 @@ public class MenuService extends ListenerAdapter {
         return new MenuServiceBuilder(shardManager);
     }
 
+    @SubscribeEvent
     @Override
     public void onGenericSelectMenuInteraction(@NotNull GenericSelectMenuInteractionEvent event) {
         handleInteraction(event);
     }
 
+    @SubscribeEvent
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         handleInteraction(event);

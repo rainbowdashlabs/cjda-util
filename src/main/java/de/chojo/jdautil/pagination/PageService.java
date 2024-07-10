@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -142,6 +143,7 @@ public class PageService extends ListenerAdapter {
                         err -> log.error("Could not build page", err)));
     }
 
+    @SubscribeEvent
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         log.trace("Received button interaction");

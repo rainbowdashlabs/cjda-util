@@ -15,6 +15,7 @@ import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +39,7 @@ public class ModalService extends ListenerAdapter {
         return new ModalServiceBuilder(shardManager);
     }
 
+    @SubscribeEvent
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         var modalId = event.getModalId();

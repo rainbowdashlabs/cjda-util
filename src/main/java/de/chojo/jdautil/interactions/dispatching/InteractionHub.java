@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEven
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -94,6 +95,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         return new InteractionHubBuilder<>(shardManager);
     }
 
+    @SubscribeEvent
     @Override
     public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
         var name = event.getName();
@@ -109,6 +111,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     }
 
 
+    @SubscribeEvent
     @Override
     public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
         var name = event.getName();
@@ -124,6 +127,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     }
 
 
+    @SubscribeEvent
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         var name = event.getName();
@@ -138,6 +142,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         postCommandHook.accept(InteractionResult.success(event, executionContext));
     }
 
+    @SubscribeEvent
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
         var name = event.getName();
@@ -150,6 +155,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         }
     }
 
+    @SubscribeEvent
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         refreshGuildCommands(event.getGuild());
@@ -282,6 +288,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).queue();
     }
 
+    @SubscribeEvent
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
