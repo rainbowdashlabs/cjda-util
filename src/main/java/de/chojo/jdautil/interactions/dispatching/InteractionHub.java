@@ -20,12 +20,12 @@ import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -107,6 +107,22 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         }
         postCommandHook.accept(InteractionResult.success(event, executionContext));
     }
+
+
+    @Override
+    public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
+        var name = event.getName();
+        var user = getUser(name).get();
+        var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
+        try {
+            user.onUser(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+        } catch (Throwable t) {
+            commandErrorHandler.accept(executionContext, t);
+            return;
+        }
+        postCommandHook.accept(InteractionResult.success(event, executionContext));
+    }
+
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
@@ -282,6 +298,9 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public Optional<M> getMessage(String name) {
         return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
+    public Optional<U> getUser(String name) {
+        return Optional.ofNullable(users.get(name.toLowerCase()));
+    }
 
     public Collection<C> getSlash() {
         return Set.copyOf(slash.values());
@@ -293,5 +312,21 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
 
     public Collection<M> getMessage() {
         return Set.copyOf(messages.values());
+    }
+
+    public MenuService buttonService() {
+        return buttons;
+    }
+
+    public PageService pageServices() {
+        return pages;
+    }
+
+    public ModalService modalService() {
+        return modalService;
+    }
+
+    public ConversationService conversationService() {
+        return conversationService;
     }
 }

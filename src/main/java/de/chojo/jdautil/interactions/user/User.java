@@ -45,10 +45,10 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
         var user = Commands.user(meta.name())
-                           .setGuildOnly(meta.isGuildOnly())
-                           .setDefaultPermissions(meta.permission());
+                .setGuildOnly(meta.isGuildOnly())
+                .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
-            user.setNameLocalizations(localizer.prefixedLocalizer("user").apply(localeKey()));
+            user.setLocalizationFunction(localizer.prefixedLocalizer("user"));
         }
         return user;
     }

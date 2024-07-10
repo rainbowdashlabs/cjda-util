@@ -30,7 +30,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class Localizer implements ILocalizer {
     private final Pattern EMBEDDED_CODE;
-    private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z]+?\\.[a-zA-Z.]+)$");
+    private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z_]+?\\.[a-zA-Z_.]+)$");
     private static final Logger log = getLogger(Localizer.class);
     private final Map<DiscordLocale, ResourceBundle> languages;
     private final Function<Guild, Optional<DiscordLocale>> languageProvider;
@@ -40,7 +40,7 @@ public class Localizer implements ILocalizer {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
-        EMBEDDED_CODE = Pattern.compile("%s([a-zA-Z.]+?)%s".formatted(embedCodeStart, embedCodeEnd));
+        EMBEDDED_CODE = Pattern.compile("%s([a-zA-Z._]+?)%s".formatted(embedCodeStart, embedCodeEnd));
     }
 
     public static Builder builder(DiscordLocale defaultLanguage) {

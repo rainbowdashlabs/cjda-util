@@ -28,7 +28,7 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
         this.handler = handler;
     }
 
-    public static PartialMessageBuilder of(String name){
+    public static PartialMessageBuilder of(String name) {
         return MessageBuilder.of(name);
     }
 
@@ -45,11 +45,11 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
         var message = Commands.message(meta.name())
-                              .setGuildOnly(meta.isGuildOnly())
-                              .setDefaultPermissions(meta.permission())
-                              .setDefaultPermissions(meta.permission());
+                .setGuildOnly(meta.isGuildOnly())
+                .setDefaultPermissions(meta.permission())
+                .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
-            message.setNameLocalizations(localizer.prefixedLocalizer("message").apply(localeKey()));
+            message.setLocalizationFunction(localizer.prefixedLocalizer("message"));
         }
         return message;
     }
