@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import org.jetbrains.annotations.NotNull;
 
@@ -111,6 +112,7 @@ public class ConversationService extends ListenerAdapter {
         channel.sendMessage(message).queue();
     }
 
+    @SubscribeEvent
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (!event.isAcknowledged()) event.deferEdit().queue();
