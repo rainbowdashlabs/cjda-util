@@ -4,7 +4,7 @@ plugins {
     java
     `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.3.0"
+    id("de.chojo.publishdata") version "1.4.0"
     id("org.cadixdev.licenser") version "0.6.1"
 }
 
@@ -14,22 +14,22 @@ repositories {
 }
 
 dependencies {
-    api("net.dv8tion", "JDA", "5.0.0-beta.19")
-    api("org.apache.commons", "commons-text", "1.11.0")
+    api("net.dv8tion", "JDA", "5.0.0")
+    api("org.apache.commons", "commons-text", "1.12.0")
     api("club.minnced", "discord-webhooks", "0.8.4")
 
     // Serialization
-    api("com.google.guava", "guava", "33.0.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.16.1")
+    api("com.google.guava", "guava", "33.2.1-jre")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.17.2")
 
     // web api
     api("io.javalin", "javalin", "4.6.8")
     api("io.javalin", "javalin-openapi", "4.6.8")
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.10.1"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
-    testImplementation("org.mockito", "mockito-core", "5.9.0")
+    testImplementation("org.mockito", "mockito-core", "5.12.0")
 }
 
 license {
@@ -38,7 +38,7 @@ license {
 }
 
 group = "de.chojo"
-version = "2.9.6+beta.19"
+version = "2.9.7+jda-5.0.0"
 description = "Discord utilities for use with JDA"
 
 publishData {
