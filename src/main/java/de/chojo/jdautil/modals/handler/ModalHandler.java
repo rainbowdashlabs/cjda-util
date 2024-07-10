@@ -33,7 +33,7 @@ public class ModalHandler {
     public Modal createModal(String id, LocalizationContext localizer) {
         var inputs = this.inputs.values().stream().map(input -> ActionRow.of(input.input(localizer))).toList();
         return Modal.create(id, localizer.localize(label))
-                .addActionRows(inputs)
+                .addComponents(inputs)
                 .build();
     }
 
