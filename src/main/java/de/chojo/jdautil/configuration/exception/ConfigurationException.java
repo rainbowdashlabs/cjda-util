@@ -4,7 +4,7 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.configuratino.exception;
+package de.chojo.jdautil.configuration.exception;
 
 public class ConfigurationException extends RuntimeException {
     /**

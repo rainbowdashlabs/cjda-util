@@ -8,6 +8,7 @@ package de.chojo.jdautil.localization;
 
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
+import de.chojo.jdautil.util.SysVar;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 
 public class Localizer implements ILocalizer {
+    private static final boolean NAME_ERROR = "true".equalsIgnoreCase(SysVar.envOrProp("CJDA_LOCALISATION_NAME_ERROR","cjda.localisation.error.name", "true"));
     private final Pattern EMBEDDED_CODE;
     private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z_]+?\\.[a-zA-Z_.]+)$");
     private static final Logger log = getLogger(Localizer.class);
@@ -73,7 +75,7 @@ public class Localizer implements ILocalizer {
     }
 
     private void reportFallback(DiscordLocale language, String localetag) {
-        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
+        if (!NAME_ERROR && localetag.endsWith(".name")) {
             return;
         }
         log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language {}",
@@ -81,7 +83,7 @@ public class Localizer implements ILocalizer {
     }
 
     private void reportMissing(String localetag) {
-        if ("false".equals(System.getProperty("cjda.localisation.error.name", "true")) && localetag.endsWith(".name")) {
+        if (!NAME_ERROR && localetag.endsWith(".name")) {
             return;
         }
         log.warn("Missing localisation for key {} in fallback language. Is this intended?", localetag);

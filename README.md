@@ -39,16 +39,25 @@ Maven:
 Snapshots are available via: **https://eldonexus.de/repository/maven-snapshots/**
 
 
-### Properties
-`-Dcjda.interactions.cleanguildcommands=true` _default false_
+### Configuration
+
+ENV always takes precedence over PROP
+
+Prop: `-Dcjda.interactions.cleanguildcommands=true`  
+Env: `CJDA_INTERACTIONS_CLEANGUILDCOMMANDS`  
+_default false_  
 
 Clean guild commands on bot start
 
-`-Dcjda.interactions.testmode=true` _default false_
+Prop: `-Dcjda.interactions.testmode=true`   
+Env: `CJDA_INTERACTIONS_TESTMODE`  
+_default false_
 
 Set the testmode. When active all global commands will be deployed on guilds and not globally.
 
-`-Dcjda.localisation.error.name=false` _default true_
+Prop: `-Dcjda.localisation.error.name=false`  
+Env: `CJDA_LOCALISATION_NAME_ERROR`  
+_default true_
 
 Allows to disable the name error on command localisation.
 

@@ -25,6 +25,7 @@ import de.chojo.jdautil.modals.service.ModalServiceModifier;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.PageServiceBuilder;
 import de.chojo.jdautil.pagination.PageServiceModifier;
+import de.chojo.jdautil.util.SysVar;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -54,13 +55,13 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private boolean withConversations;
     @Deprecated
     private BiConsumer<InteractionContext, Throwable> commandErrorHandler =
-            (context, err) -> log.error("An unhandled exception occured while executing command {}: {}", context.interaction(), context.args(), err);
+            (context, err) -> log.error("An unhandled exception occurred while executing command {}: {}", context.interaction(), context.args(), err);
     private PageServiceBuilder pagination;
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
-    private boolean cleanGuildCommands = Boolean.parseBoolean(System.getProperty("cjda.interactions.cleanguildcommands", "false"));;
-    private boolean testMode = Boolean.parseBoolean(System.getProperty("cjda.interactions.testmode", "false"));
+    private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS","cjda.interactions.cleanguildcommands", "false"));;
+    private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE","cjda.interactions.testmode", "false"));
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
