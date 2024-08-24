@@ -43,7 +43,7 @@ public class SysVar {
 
     @Deprecated
     public static Optional<String> get(String prop, String env) {
-        return Optional.ofNullable(prop(prop)).orElseGet(() -> env(env));
+        return prop(prop).or(() -> env(env));
     }
 
     public static String envOrProp(String env, String prop, String def) {
@@ -55,11 +55,11 @@ public class SysVar {
     }
 
     public static Optional<String> envOrProp(String env, String prop) {
-        return Optional.ofNullable(env(env)).orElseGet(() -> prop(prop));
+        return env(env).or(() -> prop(prop));
     }
 
     public static Optional<String> propOrEnv(String prop, String env) {
-        return get(List.of(() -> prop(prop), () -> env(env)));
+        return prop(prop).or(() -> env(env));
     }
 
     private static Optional<String> prop(String name) {
