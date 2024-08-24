@@ -40,7 +40,7 @@ public final class ArrayUtil {
     }
 
     /**
-     * Checks if a array contains any of the values.
+     * Checks if an array contains any of the values.
      *
      * @param strings string to check
      * @param values  one or more value to check against
@@ -56,10 +56,10 @@ public final class ArrayUtil {
     }
 
     /**
-     * Checks if a array contains any of the values.
+     * Checks if an array contains any of the values.
      *
      * @param chars  chars to check
-     * @param values one or more value to check agains
+     * @param values one or more value to check against
      * @return true if a match was found
      */
     public static boolean arrayContains(char[] chars, char... values) {

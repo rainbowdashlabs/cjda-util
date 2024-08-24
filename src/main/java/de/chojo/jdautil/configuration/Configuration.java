@@ -84,7 +84,7 @@ public class Configuration<T> {
     private Path getConfig() {
         var home = new File(".").getAbsoluteFile().getParentFile().toPath();
         var variable = SysVar.envOrPropOrThrow("BOT_CONFIG", "bot.config",
-                () -> new ConfigurationException("set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
+                () -> new ConfigurationException("Set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
         log.info("Found variable for config file");
         return Paths.get(home.toString(), variable);
     }
