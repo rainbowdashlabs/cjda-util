@@ -4,7 +4,7 @@
  *     Copyright (C) 2022 RainbowDashLabs and Contributor
  */
 
-package de.chojo.jdautil.configuratino;
+package de.chojo.jdautil.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import de.chojo.jdautil.configuratino.exception.ConfigurationException;
+import de.chojo.jdautil.configuration.exception.ConfigurationException;
 import de.chojo.jdautil.util.SysVar;
 import org.slf4j.Logger;
 
@@ -27,6 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Wrapper class for configuration files.
+ *
  * @param <T> type of config class
  */
 public class Configuration<T> {
@@ -36,12 +37,7 @@ public class Configuration<T> {
 
     private Configuration(T config) {
         this.config = config;
-        objectMapper = JsonMapper.builder()
-                .configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true).build()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
-                .setDefaultPrettyPrinter(new DefaultPrettyPrinter());
+        objectMapper = JsonMapper.builder().configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true).build().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE).setDefaultPrettyPrinter(new DefaultPrettyPrinter());
     }
 
     public static <T> Configuration<T> create(T def) {
@@ -87,13 +83,10 @@ public class Configuration<T> {
 
     private Path getConfig() {
         var home = new File(".").getAbsoluteFile().getParentFile().toPath();
-        var variable = SysVar.get("bot.config", "BOT_CONFIG");
-        if (variable.isPresent()) {
-            log.info("Found variable for config file");
-            return Paths.get(home.toString(), variable.get());
-        }
-        log.error("Please set bot.config property or BOT_CONFIG env variable.");
-        throw new ConfigurationException("set property -Dbot.config=<config path> or environment variable BOT_CONFIG.");
+        var variable = SysVar.envOrPropOrThrow("BOT_CONFIG", "bot.config",
+                () -> new ConfigurationException("set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
+        log.info("Found variable for config file");
+        return Paths.get(home.toString(), variable);
     }
 
     public T config() {

@@ -12,11 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.chojo.jdautil.botlist.BotList;
 import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
-import de.chojo.jdautil.botlist.modules.voting.post.VoteReceiver;
 import io.javalin.Javalin;
-import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
-import io.javalin.plugin.openapi.dsl.OpenApiBuilder;
 import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
@@ -30,7 +27,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class VoteService {
     private static final Logger log = getLogger(VoteService.class);
-    private final Javalin voteReceiver;
+    private final Javalin javalin;
     private final Consumer<VoteData> voteNotifier;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
@@ -38,8 +35,8 @@ public class VoteService {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     private final List<BotList> checker = new ArrayList<>();
 
-    public VoteService(Javalin voteReceiver, Consumer<VoteData> voteNotifier) {
-        this.voteReceiver = voteReceiver;
+    public VoteService(Javalin javalin, Consumer<VoteData> voteNotifier) {
+        this.javalin = javalin;
         this.voteNotifier = voteNotifier;
     }
 
@@ -58,33 +55,24 @@ public class VoteService {
     }
 
     private void registerWeebhook(BotList botList) {
-        var voteReceiver = botList.voteReceiver();
         var name = botList.name().toLowerCase(Locale.ROOT).replace(".", "");
         var route = "voting/" + name;
         log.info("Registering vote route {} for {}", route, botList.name());
-        this.voteReceiver.post(route, getHandler(botList, voteReceiver));
+        Handler handler = getHandler(botList);
+        this.javalin.post(route, handler);
     }
 
-    private Handler getHandler(BotList botList, VoteReceiver<?> voteReceiver) {
-        return OpenApiBuilder.documented(
-                OpenApiBuilder.document()
-                        .operation(op -> {
-                            op.summary("Submit a vote for " + botList.name());
-                        })
-                        .body(voteReceiver.payload(), ContentType.JSON)
-                        .header(voteReceiver.auth().name(), String.class)
-                        .result("200")
-                        .result("401", String.class, p -> p.setDescription("When the token in " + voteReceiver.auth().name() + " is invalid.")),
-                ctx -> {
-                    if (!voteReceiver.isAuthorized(ctx)) {
-                        ctx.status(HttpStatus.UNAUTHORIZED_401);
-                        return;
-                    }
-                    var data = OBJECT_MAPPER.readValue(ctx.body(), voteReceiver.payload());
-                    var voteData = voteReceiver.mapToVoteData(data);
-                    voted(voteData);
-                    ctx.status(HttpStatus.OK_200);
-                });
+    private Handler getHandler(BotList botList) {
+        return ctx -> {
+            if (!botList.voteReceiver().isAuthorized(ctx)) {
+                ctx.status(HttpStatus.UNAUTHORIZED_401);
+                return;
+            }
+            var data = OBJECT_MAPPER.readValue(ctx.body(), botList.voteReceiver().payload());
+            var voteData = botList.voteReceiver().mapToVoteData(data);
+            voted(voteData);
+            ctx.status(HttpStatus.OK_200);
+        };
     }
 
     /**

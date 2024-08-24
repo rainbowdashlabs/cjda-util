@@ -256,7 +256,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                 }
                 return;
             }
-            log.error("Could not deply commands", err);
+            log.error("Could not deploy commands", err);
         });
 
         if (cleanGuildCommands) {

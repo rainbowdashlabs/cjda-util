@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * This class containts methods to handle arrays and search.
+ * This class contains methods to handle arrays and search.
  *
  * @since 1.0.0
  */
@@ -25,11 +25,11 @@ public final class ArrayUtil {
     }
 
     /**
-     * Checks if a string in a array matches a pattern.
+     * Checks if a string in an array matches a pattern.
      *
      * @param strings  strings to check
      * @param contains pattern to check against
-     * @return matcher instance wich matches the string
+     * @return matcher instance which matches the string
      */
     public static Matcher findInArray(String[] strings, Pattern contains) {
         for (var string : strings) {
@@ -43,7 +43,7 @@ public final class ArrayUtil {
      * Checks if a array contains any of the values.
      *
      * @param strings string to check
-     * @param values  one or more value to check agains
+     * @param values  one or more value to check against
      * @return true if a match was found
      */
     public static boolean arrayContains(String[] strings, String... values) {
