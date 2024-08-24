@@ -8,8 +8,8 @@ de.chojo.jdautil.botlist.modules.voting.poll
 de.chojo.jdautil.botlist.modules.voting.post
 de.chojo.jdautil.botlist.modules.voting.post.payload
 de.chojo.jdautil.buffer
-de.chojo.jdautil.configuratino
-de.chojo.jdautil.configuratino.exception
+de.chojo.jdautil.configuration
+de.chojo.jdautil.configuration.exception
 de.chojo.jdautil.consumer
 de.chojo.jdautil.container
 de.chojo.jdautil.conversation
