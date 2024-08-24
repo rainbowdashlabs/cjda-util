@@ -30,14 +30,10 @@ import static org.slf4j.LoggerFactory.getLogger;
  *
  * @param <T> type of config class
  */
-public class Configuration<T> {
-    private static final Logger log = getLogger(Configuration.class);
-    private final ObjectMapper objectMapper;
-    private T config;
+public class Configuration<T> extends BaseConfiguration<T> {
 
     private Configuration(T config) {
-        this.config = config;
-        objectMapper = JsonMapper.builder().configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true).build().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY).setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE).setDefaultPrettyPrinter(new DefaultPrettyPrinter());
+        super(config);
     }
 
     public static <T> Configuration<T> create(T def) {
@@ -46,50 +42,4 @@ public class Configuration<T> {
         return configuration;
     }
 
-    public void reload() {
-        try {
-            reloadFile();
-        } catch (IOException e) {
-            log.info("Could not load config", e);
-            throw new ConfigurationException("Could not load config file", e);
-        }
-        try {
-            save();
-        } catch (IOException e) {
-            log.error("Could not save config.", e);
-        }
-    }
-
-    private void save() throws IOException {
-        try (var writer = objectMapper.writerWithDefaultPrettyPrinter().writeValues(getConfig().toFile())) {
-            writer.write(config);
-        }
-    }
-
-    private void reloadFile() throws IOException {
-        forceConsistency();
-        config = (T) objectMapper.readValue(getConfig().toFile(), config.getClass());
-    }
-
-    private void forceConsistency() throws IOException {
-        Files.createDirectories(getConfig().getParent());
-        if (!getConfig().toFile().exists()) {
-            if (getConfig().toFile().createNewFile()) {
-                save();
-                throw new ConfigurationException("Please configure the config.");
-            }
-        }
-    }
-
-    private Path getConfig() {
-        var home = new File(".").getAbsoluteFile().getParentFile().toPath();
-        var variable = SysVar.envOrPropOrThrow("BOT_CONFIG", "bot.config",
-                () -> new ConfigurationException("Set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
-        log.info("Found variable for config file");
-        return Paths.get(home.toString(), variable);
-    }
-
-    public T config() {
-        return config;
-    }
 }
