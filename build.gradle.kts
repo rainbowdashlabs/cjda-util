@@ -18,7 +18,7 @@ dependencies {
     api("org.apache.commons", "commons-text", "1.12.0")
 
     // Serialization
-    api("com.google.guava", "guava", "33.3.0-jre")
+    api("com.google.guava", "guava", "33.3.1-jre")
     api("com.fasterxml.jackson.core", "jackson-databind", "2.18.0")
 
     // web api
