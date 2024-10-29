@@ -19,7 +19,7 @@ dependencies {
 
     // Serialization
     api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.18.0")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.18.1")
 
     // web api
     api(libs.bundles.javalin)
