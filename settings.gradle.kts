@@ -14,7 +14,7 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("javalin", "6.3.0")
+            version("javalin", "6.5.0")
             library("javalin-core", "io.javalin", "javalin").versionRef("javalin")
             library(
                 "javalin-openapiannotation",
