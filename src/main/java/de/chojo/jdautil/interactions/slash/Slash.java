@@ -64,12 +64,13 @@ public class Slash implements CommandDataProvider {
     }
 
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
-        if (isNotEntitled(event, meta)) {
-            replyPremium(event, context, meta);
-            return;
-        }
 
         if (handler != null) {
+            if (isNotEntitled(event, meta)) {
+                replyPremium(event, context, meta);
+                return;
+            }
+
             handler.onSlashCommand(event, context);
             return;
         }
@@ -92,9 +93,12 @@ public class Slash implements CommandDataProvider {
     }
 
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-        if (isNotEntitled(event, meta)) return;
 
         if (handler != null) {
+            if (isNotEntitled(event, meta)) {
+                event.replyChoices().queue();
+                return;
+            }
             handler.onAutoComplete(event, context);
             return;
         }

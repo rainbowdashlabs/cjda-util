@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static de.chojo.jdautil.util.Premium.isNotEntitled;
-import static de.chojo.jdautil.util.Premium.replyPremium;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public interface Route<T extends RouteMeta> extends SlashHandler {
@@ -33,12 +32,6 @@ public interface Route<T extends RouteMeta> extends SlashHandler {
     default void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
         var commandPath = event.getFullCommandName().split("\\s?%s\\s?".formatted(meta().name()));
 
-        if (isNotEntitled(event, meta())) {
-            replyPremium(event, context, meta());
-            return;
-        }
-
-
         if (commandPath.length != 2) {
             log.warn("End of route is reached on a branch at {}.", event.getFullCommandName());
             return;
@@ -47,11 +40,6 @@ public interface Route<T extends RouteMeta> extends SlashHandler {
         for (var routes : routes()) {
             for (var route : routes) {
                 if (route.isRoute(commandPath[1])) {
-
-                    if (isNotEntitled(event, route.meta())) {
-                        replyPremium(event, context, meta());
-                        return;
-                    }
 
                     route.onSlashCommand(event, context);
                     return;

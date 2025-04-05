@@ -6,8 +6,8 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
-import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.Group;
 import de.chojo.jdautil.interactions.slash.Slash;
@@ -20,7 +20,6 @@ import de.chojo.jdautil.interactions.slash.structure.builder.components.RootMeta
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.CommandMeta;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Entitlement;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
@@ -48,7 +47,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
     private boolean localized = true;
-    private final List<Entitlement> entitlements = new ArrayList<>();
+    private final List<SKU> skus = new ArrayList<>();
 
     public SlashBuilder(String name, String description) {
         this.name = name;
@@ -79,8 +78,8 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
         return this;
     }
 
-    public RootMetaBuilder entitlements(Collection<Entitlement> entitlements) {
-        this.entitlements.addAll(entitlements);
+    public RootMetaBuilder skus(Collection<SKU> skus) {
+        this.skus.addAll(skus);
         return this;
     }
 
@@ -143,7 +142,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
 
     @Override
     public Slash build() {
-        var meta = new CommandMeta(name, description, context, permission, scope, localized, entitlements);
+        var meta = new CommandMeta(name, description, context, permission, scope, localized, skus);
         return new Slash(meta, handler, groups, leaves, arguments);
     }
 }

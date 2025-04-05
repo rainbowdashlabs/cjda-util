@@ -38,6 +38,7 @@ public class Group implements Route<RouteMeta> {
     public static PartialGroupBuilder of(String name, String description) {
         return GroupBuilder.of(name, description);
     }
+
     public static PartialGroupBuilder group(String name, String description) {
         return of(name, description);
     }
@@ -47,6 +48,7 @@ public class Group implements Route<RouteMeta> {
         return meta;
     }
 
+    @Override
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
         var commandPath = event.getFullCommandName().split("\\s");
 
@@ -63,6 +65,7 @@ public class Group implements Route<RouteMeta> {
         }
     }
 
+    @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
         var commandPath = event.getFullCommandName().split("\\s");
 

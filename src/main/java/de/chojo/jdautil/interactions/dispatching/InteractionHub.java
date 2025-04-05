@@ -311,6 +311,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public Optional<M> getMessage(String name) {
         return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
+
     public Optional<U> getUser(String name) {
         return Optional.ofNullable(users.get(name.toLowerCase()));
     }

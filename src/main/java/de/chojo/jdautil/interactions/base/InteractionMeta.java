@@ -6,7 +6,7 @@
 
 package de.chojo.jdautil.interactions.base;
 
-import net.dv8tion.jda.api.entities.Entitlement;
+import de.chojo.jdautil.interactions.premium.SKU;
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
@@ -14,21 +14,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class InteractionMeta implements Meta, EntitlementMeta {
+public class InteractionMeta implements Meta, SkuMeta {
     private final String name;
     private final Set<InteractionContextType> guildOnly;
     private final DefaultMemberPermissions permission;
     private final InteractionScope scope;
     private final boolean localized;
-    private final List<Entitlement> entitlements;
+    private final List<SKU> skus;
 
-    public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<Entitlement> entitlements) {
+    public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
         this.name = name;
         this.guildOnly = contextTypes;
         this.permission = permission;
         this.scope = scope;
         this.localized = localized;
-        this.entitlements = entitlements;
+        this.skus = skus;
     }
 
     public Set<InteractionContextType> contextTypes() {
@@ -36,8 +36,8 @@ public class InteractionMeta implements Meta, EntitlementMeta {
     }
 
     @Override
-    public Collection<Entitlement> entitlements() {
-        return entitlements;
+    public Collection<SKU> sku() {
+        return skus;
     }
 
     @Override

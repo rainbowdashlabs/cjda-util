@@ -6,13 +6,13 @@
 
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.SubCommand;
 import de.chojo.jdautil.interactions.slash.structure.builder.argument.ArgumentBuilder;
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialSubCommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
-import net.dv8tion.jda.api.entities.Entitlement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +23,7 @@ public class SubCommandBuilder implements PartialSubCommandBuilder {
     private final String description;
     private final List<Argument> arguments = new ArrayList<>();
     private SlashHandler handler;
-    private final List<Entitlement> entitlements = new ArrayList<>();
+    private final List<SKU> skus = new ArrayList<>();
 
     private SubCommandBuilder(String name, String description, SlashHandler handler) {
         this.name = name;
@@ -45,13 +45,13 @@ public class SubCommandBuilder implements PartialSubCommandBuilder {
         return this;
     }
 
-    public SubCommandBuilder entitlements(Collection<Entitlement> entitlements) {
-        this.entitlements.addAll(entitlements);
+    public SubCommandBuilder skus(Collection<SKU> skus) {
+        this.skus.addAll(skus);
         return this;
     }
 
     public SubCommand build() {
-        return new SubCommand(new RouteMeta(name, description, entitlements), handler, arguments);
+        return new SubCommand(new RouteMeta(name, description, skus), handler, arguments);
     }
 
     public SubCommandBuilder argument(ArgumentBuilder argument) {
