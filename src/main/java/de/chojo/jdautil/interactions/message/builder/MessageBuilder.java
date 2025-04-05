@@ -10,9 +10,15 @@ import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionMetaBuilder;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.message.MessageHandler;
+import net.dv8tion.jda.api.entities.Entitlement;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> implements PartialMessageBuilder {
     private MessageHandler handler;
+    private final List<Entitlement> entitlements = new ArrayList<>();
 
     private MessageBuilder(String name) {
         super(name);
@@ -22,6 +28,11 @@ public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> imple
         return new MessageBuilder(name);
     }
 
+    public MessageBuilder entitlements(Collection<Entitlement> entitlements) {
+        this.entitlements.addAll(entitlements);
+        return this;
+    }
+
     @Override
     public MessageBuilder handler(MessageHandler handler) {
         this.handler = handler;
@@ -29,6 +40,6 @@ public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> imple
     }
 
     public Message build() {
-        return new Message(new InteractionMeta(name(), isGuildOnly(), permission(), scope(), localized()), handler);
+        return new Message(new InteractionMeta(name(), getContext(), permission(), scope(), localized(), entitlements), handler);
     }
 }

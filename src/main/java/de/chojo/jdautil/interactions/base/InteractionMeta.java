@@ -6,25 +6,38 @@
 
 package de.chojo.jdautil.interactions.base;
 
+import net.dv8tion.jda.api.entities.Entitlement;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-public class InteractionMeta implements Meta {
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+public class InteractionMeta implements Meta, EntitlementMeta {
     private final String name;
-    private final boolean guildOnly;
+    private final Set<InteractionContextType> guildOnly;
     private final DefaultMemberPermissions permission;
     private final InteractionScope scope;
     private final boolean localized;
+    private final List<Entitlement> entitlements;
 
-    public InteractionMeta(String name, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope, boolean localized) {
+    public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<Entitlement> entitlements) {
         this.name = name;
-        this.guildOnly = guildOnly;
+        this.guildOnly = contextTypes;
         this.permission = permission;
         this.scope = scope;
         this.localized = localized;
+        this.entitlements = entitlements;
     }
 
-    public boolean isGuildOnly() {
+    public Set<InteractionContextType> contextTypes() {
         return guildOnly;
+    }
+
+    @Override
+    public Collection<Entitlement> entitlements() {
+        return entitlements;
     }
 
     @Override

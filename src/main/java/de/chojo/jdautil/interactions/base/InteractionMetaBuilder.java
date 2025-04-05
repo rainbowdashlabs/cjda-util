@@ -7,15 +7,17 @@
 package de.chojo.jdautil.interactions.base;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
     private final String name;
-    private boolean guildOnly;
+    private Set<InteractionContextType> context;
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
     private InteractionScope scope = InteractionScope.GLOBAL;
     private boolean localized = true;
@@ -32,12 +34,12 @@ public class InteractionMetaBuilder<T extends InteractionMetaBuilder<T>> {
         return name;
     }
 
-    public boolean isGuildOnly() {
-        return guildOnly;
+    public Set<InteractionContextType> getContext() {
+        return context;
     }
 
-    public T setGuildOnly(boolean guildOnly) {
-        this.guildOnly = guildOnly;
+    public T setContext(Set<InteractionContextType> context) {
+        this.context = context;
         return self();
     }
 

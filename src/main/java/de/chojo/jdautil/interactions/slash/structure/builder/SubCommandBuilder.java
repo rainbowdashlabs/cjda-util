@@ -12,8 +12,10 @@ import de.chojo.jdautil.interactions.slash.structure.builder.argument.ArgumentBu
 import de.chojo.jdautil.interactions.slash.structure.builder.components.PartialSubCommandBuilder;
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.RouteMeta;
+import net.dv8tion.jda.api.entities.Entitlement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class SubCommandBuilder implements PartialSubCommandBuilder {
@@ -21,6 +23,7 @@ public class SubCommandBuilder implements PartialSubCommandBuilder {
     private final String description;
     private final List<Argument> arguments = new ArrayList<>();
     private SlashHandler handler;
+    private final List<Entitlement> entitlements = new ArrayList<>();
 
     private SubCommandBuilder(String name, String description, SlashHandler handler) {
         this.name = name;
@@ -42,8 +45,13 @@ public class SubCommandBuilder implements PartialSubCommandBuilder {
         return this;
     }
 
+    public SubCommandBuilder entitlements(Collection<Entitlement> entitlements) {
+        this.entitlements.addAll(entitlements);
+        return this;
+    }
+
     public SubCommand build() {
-        return new SubCommand(new RouteMeta(name, description), handler, arguments);
+        return new SubCommand(new RouteMeta(name, description, entitlements), handler, arguments);
     }
 
     public SubCommandBuilder argument(ArgumentBuilder argument) {

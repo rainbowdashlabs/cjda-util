@@ -67,13 +67,14 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final Function<InteractionMeta, List<Long>> guildCommandMapper;
     private final boolean cleanGuildCommands;
     private final boolean testMode;
+    private final String premiumErrorMessage;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
                           MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook,
-                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode) {
+                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage) {
         this.shardManager = shardManager;
         this.slash = slash;
         this.messages = messages;
@@ -88,6 +89,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         this.guildCommandMapper = guildCommandMapper;
         this.cleanGuildCommands = cleanGuildCommands;
         this.testMode = testMode;
+        this.premiumErrorMessage = premiumErrorMessage;
     }
 
 
@@ -159,6 +161,10 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         refreshGuildCommands(event.getGuild());
+    }
+
+    public String premiumErrorMessage() {
+        return premiumErrorMessage;
     }
 
     private void buildGuildData(Collection<? extends CommandDataProvider> interactions, Map<Long, List<CommandData>> guildCommands) {

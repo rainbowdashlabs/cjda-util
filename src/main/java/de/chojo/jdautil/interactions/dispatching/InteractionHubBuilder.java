@@ -62,6 +62,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
     private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS","cjda.interactions.cleanguildcommands", "false"));;
     private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE","cjda.interactions.testmode", "false"));
+    private String premiumErrorMessage = "error.premium";
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -274,6 +275,11 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
         return this;
     }
 
+    public InteractionHubBuilder<T, M, U> withPremiumErrorMessage(String errorMessage) {
+        this.premiumErrorMessage = errorMessage;
+        return this;
+    }
+
     /**
      * Build the command hub.
      * <p>
@@ -305,7 +311,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
             modals = modalService.build();
         }
         var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands, testMode);
+                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands, testMode, premiumErrorMessage);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

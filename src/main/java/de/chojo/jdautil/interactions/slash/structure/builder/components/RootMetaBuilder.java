@@ -7,8 +7,12 @@
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.slash.structure.builder.GroupBuilder;
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Entitlement;
+
+import java.util.Collection;
 
 public interface RootMetaBuilder extends ExtendableRootBuilder {
 
@@ -33,6 +37,8 @@ public interface RootMetaBuilder extends ExtendableRootBuilder {
      * @return builder
      */
     RootMetaBuilder adminCommand();
+
+    RootMetaBuilder entitlements(Collection<Entitlement> entitlements);
 
     RootMetaBuilder guildOnly();
 
