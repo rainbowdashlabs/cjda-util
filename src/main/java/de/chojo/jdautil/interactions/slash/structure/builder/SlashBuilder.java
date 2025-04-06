@@ -43,7 +43,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private final List<SubCommand> leaves = new ArrayList<>();
     private final List<Argument> arguments = new ArrayList<>();
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
-    private Set<InteractionContextType> context = Set.of(InteractionContextType.UNKNOWN);
+    private Set<InteractionContextType> context = Set.of(InteractionContextType.GUILD, InteractionContextType.BOT_DM);
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
     private boolean localized = true;
