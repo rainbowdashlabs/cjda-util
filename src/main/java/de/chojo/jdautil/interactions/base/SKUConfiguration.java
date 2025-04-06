@@ -19,7 +19,7 @@ import java.util.Set;
 
 @SuppressWarnings("FieldMayBeFinal")
 public class SKUConfiguration {
-    private Map<String, Set<Long>> commands = new HashMap<>();
+    private Map<String, Set<Long>> slash = new HashMap<>();
     private Map<String, Set<Long>> messages = new HashMap<>();
     private Map<String, Set<Long>> users = new HashMap<>();
 
@@ -27,10 +27,10 @@ public class SKUConfiguration {
     }
 
     public boolean isEntitled(SlashCommandInteractionEvent interaction) {
-        return isEntitled(commands, interaction);
+        return isEntitled(slash, interaction);
     }
     public boolean isEntitled(CommandAutoCompleteInteractionEvent interaction) {
-        return isEntitled(commands, interaction);
+        return isEntitled(slash, interaction);
     }
 
     public boolean isEntitled(MessageContextInteractionEvent interaction) {
@@ -42,7 +42,7 @@ public class SKUConfiguration {
     }
 
     public Set<Long> commands(String name) {
-        return commands.get(name);
+        return slash.get(name);
     }
 
     public Set<Long> messages(String name) {
