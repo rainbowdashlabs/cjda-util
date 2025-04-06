@@ -128,7 +128,7 @@ public class Slash implements CommandDataProvider {
 
             var slash = Commands.slash(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                                 .setDefaultPermissions(meta.permission())
-                                .setContexts(meta.contextTypes())
+                                .setContexts(meta.context())
                                 .setLocalizationFunction(localizer.prefixedLocalizer("command"));
             if (!groups.isEmpty())
                 slash.addSubcommandGroups(groups.stream().map(g -> g.data(this, localizer)).toList());
@@ -141,7 +141,7 @@ public class Slash implements CommandDataProvider {
 
         var slash = Commands.slash(meta.name(), meta.description())
                             .setDefaultPermissions(meta.permission())
-                            .setContexts(meta.contextTypes());
+                            .setContexts(meta.context());
         if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(Group::data).toList());
         if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(SubCommand::data).toList());
         if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(Argument::data).toList());

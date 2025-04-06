@@ -53,7 +53,7 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
         var user = Commands.user(meta.name())
-                           .setContexts(meta.contextTypes())
+                           .setContexts(meta.context())
                            .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
             user.setLocalizationFunction(localizer.prefixedLocalizer("user"));

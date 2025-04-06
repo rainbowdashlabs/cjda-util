@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class InteractionMeta implements Meta, SkuMeta {
     private final String name;
-    private final Set<InteractionContextType> guildOnly;
+    private final Set<InteractionContextType> context;
     private final DefaultMemberPermissions permission;
     private final InteractionScope scope;
     private final boolean localized;
@@ -24,15 +24,15 @@ public class InteractionMeta implements Meta, SkuMeta {
 
     public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
         this.name = name;
-        this.guildOnly = contextTypes;
+        this.context = contextTypes;
         this.permission = permission;
         this.scope = scope;
         this.localized = localized;
         this.skus = skus;
     }
 
-    public Set<InteractionContextType> contextTypes() {
-        return guildOnly;
+    public Set<InteractionContextType> context() {
+        return context;
     }
 
     @Override

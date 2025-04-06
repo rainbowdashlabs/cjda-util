@@ -53,7 +53,7 @@ public class Message implements Interaction, MessageHandler, CommandDataProvider
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
         var message = Commands.message(meta.name())
-                              .setContexts(meta.contextTypes())
+                              .setContexts(meta.context())
                               .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
             message.setLocalizationFunction(localizer.prefixedLocalizer("message"));
