@@ -7,8 +7,11 @@
 package de.chojo.jdautil.interactions.slash.structure.builder.components;
 
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import net.dv8tion.jda.api.Permission;
+
+import java.util.Collection;
 
 public interface RootMetaBuilder extends ExtendableRootBuilder {
 
@@ -33,6 +36,8 @@ public interface RootMetaBuilder extends ExtendableRootBuilder {
      * @return builder
      */
     RootMetaBuilder adminCommand();
+
+    RootMetaBuilder skus(Collection<SKU> skus);
 
     RootMetaBuilder guildOnly();
 

@@ -6,25 +6,38 @@
 
 package de.chojo.jdautil.interactions.base;
 
+import de.chojo.jdautil.interactions.premium.SKU;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
-public class InteractionMeta implements Meta {
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+public class InteractionMeta implements Meta, SkuMeta {
     private final String name;
-    private final boolean guildOnly;
+    private final Set<InteractionContextType> context;
     private final DefaultMemberPermissions permission;
     private final InteractionScope scope;
     private final boolean localized;
+    private final List<SKU> skus;
 
-    public InteractionMeta(String name, boolean guildOnly, DefaultMemberPermissions permission, InteractionScope scope, boolean localized) {
+    public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
         this.name = name;
-        this.guildOnly = guildOnly;
+        this.context = contextTypes;
         this.permission = permission;
         this.scope = scope;
         this.localized = localized;
+        this.skus = skus;
     }
 
-    public boolean isGuildOnly() {
-        return guildOnly;
+    public Set<InteractionContextType> context() {
+        return context;
+    }
+
+    @Override
+    public Collection<SKU> sku() {
+        return skus;
     }
 
     @Override

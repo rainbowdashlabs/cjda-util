@@ -7,6 +7,7 @@
 package de.chojo.jdautil.interactions.slash.structure.builder;
 
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.slash.Argument;
 import de.chojo.jdautil.interactions.slash.Group;
 import de.chojo.jdautil.interactions.slash.Slash;
@@ -19,12 +20,15 @@ import de.chojo.jdautil.interactions.slash.structure.builder.components.RootMeta
 import de.chojo.jdautil.interactions.slash.structure.handler.SlashHandler;
 import de.chojo.jdautil.interactions.slash.structure.meta.CommandMeta;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +43,11 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     private final List<SubCommand> leaves = new ArrayList<>();
     private final List<Argument> arguments = new ArrayList<>();
     private DefaultMemberPermissions permission = DefaultMemberPermissions.ENABLED;
-    private boolean guildOnly;
+    private Set<InteractionContextType> context = Set.of(InteractionContextType.GUILD, InteractionContextType.BOT_DM);
     private SlashHandler handler;
     private InteractionScope scope = InteractionScope.GLOBAL;
     private boolean localized = true;
+    private final List<SKU> skus = new ArrayList<>();
 
     public SlashBuilder(String name, String description) {
         this.name = name;
@@ -73,6 +78,11 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
         return this;
     }
 
+    public RootMetaBuilder skus(Collection<SKU> skus) {
+        this.skus.addAll(skus);
+        return this;
+    }
+
     @Override
     public RootMetaBuilder withPermission(Permission permission, Permission... permissions) {
         var collect = Arrays.stream(permissions).collect(Collectors.toCollection(HashSet::new));
@@ -97,7 +107,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
     /**
      * Marks a command as admin command.
      * <p>
-     * The command will only be accessable for administrators of a guild.
+     * The command will only be accessible for administrators of a guild.
      *
      * @return builder
      */
@@ -109,7 +119,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
 
     @Override
     public RootMetaBuilder guildOnly() {
-        this.guildOnly = true;
+        this.context = Set.of(InteractionContextType.GUILD);
         return this;
     }
 
@@ -132,7 +142,7 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
 
     @Override
     public Slash build() {
-        var meta = new CommandMeta(name, description, guildOnly, permission, scope, localized);
+        var meta = new CommandMeta(name, description, context, permission, scope, localized, skus);
         return new Slash(meta, handler, groups, leaves, arguments);
     }
 }

@@ -8,6 +8,7 @@ package de.chojo.jdautil.interactions.dispatching;
 
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
+import de.chojo.jdautil.interactions.premium.SKUConfiguration;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.message.provider.MessageProvider;
 import de.chojo.jdautil.interactions.slash.Slash;
@@ -60,8 +61,11 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
-    private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS","cjda.interactions.cleanguildcommands", "false"));;
-    private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE","cjda.interactions.testmode", "false"));
+    private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS", "cjda.interactions.cleanguildcommands", "false"));
+    ;
+    private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE", "cjda.interactions.testmode", "false"));
+    private String premiumErrorMessage = "error.premium";
+    private SKUConfiguration skuConfiguration = new SKUConfiguration();
 
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
@@ -274,6 +278,16 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
         return this;
     }
 
+    public InteractionHubBuilder<T, M, U> withPremiumErrorMessage(String errorMessage) {
+        this.premiumErrorMessage = errorMessage;
+        return this;
+    }
+
+    public InteractionHubBuilder<T, M, U> withSKUConfiguration(SKUConfiguration skuConfiguration) {
+        this.skuConfiguration = skuConfiguration;
+        return this;
+    }
+
     /**
      * Build the command hub.
      * <p>
@@ -305,7 +319,8 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
             modals = modalService.build();
         }
         var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands, testMode);
+                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands,
+                testMode, premiumErrorMessage, skuConfiguration);
         shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
         return commandListener;

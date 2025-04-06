@@ -30,6 +30,7 @@ class SlashTest {
     @Test
     public void testSub() {
         var command = Slash.of("test", "test")
+                .guildOnly()
                 .subCommand(SubCommand.of("test1", "test1")
                         .handler(throwingHandler()))
                 .subCommand(SubCommand.of("sub2", "sub2")
