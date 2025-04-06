@@ -17,6 +17,10 @@ public class SKU implements Predicate<Entitlement> {
     public SKU() {
     }
 
+    public SKU(long skuId) {
+        this.skuId = skuId;
+    }
+
     @Override
     public boolean test(Entitlement entitlement) {
         return entitlement.getSkuIdLong() == skuId;
