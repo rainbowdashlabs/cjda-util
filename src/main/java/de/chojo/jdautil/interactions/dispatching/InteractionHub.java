@@ -10,7 +10,7 @@ import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionScope;
-import de.chojo.jdautil.interactions.base.SKUConfiguration;
+import de.chojo.jdautil.interactions.premium.SKUConfiguration;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.user.User;
