@@ -7,13 +7,11 @@
 package de.chojo.jdautil.interactions.premium;
 
 import net.dv8tion.jda.api.entities.Entitlement;
-import net.dv8tion.jda.api.entities.Entitlement.EntitlementType;
 
 import java.util.function.Predicate;
 
 public class SKU implements Predicate<Entitlement> {
 
-    private boolean test = false;
     private long skuId;
 
     public SKU() {
@@ -28,10 +26,6 @@ public class SKU implements Predicate<Entitlement> {
     public boolean equals(Object obj) {
         if (!(obj instanceof Entitlement)) return false;
         return test((Entitlement) obj);
-    }
-
-    public boolean isTest() {
-        return test;
     }
 
     public long getSkuIdLong() {

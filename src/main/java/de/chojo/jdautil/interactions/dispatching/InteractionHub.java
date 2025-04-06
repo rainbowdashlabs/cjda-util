@@ -10,6 +10,7 @@ import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.base.SKUConfiguration;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.user.User;
@@ -18,6 +19,7 @@ import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
+import de.chojo.jdautil.util.Premium;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.entities.Guild;
@@ -68,13 +70,14 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final boolean cleanGuildCommands;
     private final boolean testMode;
     private final String premiumErrorMessage;
+    private final SKUConfiguration skuConfiguration;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
                           MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook,
-                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage) {
+                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage, SKUConfiguration skuConfiguration) {
         this.shardManager = shardManager;
         this.slash = slash;
         this.messages = messages;
@@ -90,6 +93,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         this.cleanGuildCommands = cleanGuildCommands;
         this.testMode = testMode;
         this.premiumErrorMessage = premiumErrorMessage;
+        this.skuConfiguration = skuConfiguration;
     }
 
 
@@ -104,7 +108,13 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var message = getMessage(name).get();
         var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            message.onMessage(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = new EventContext(event, conversationService, localizer, buttons, pages, modalService, this);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(event, context, skuConfiguration.messages(event.getFullCommandName()));
+                return;
+            }
+
+            message.onMessage(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -120,7 +130,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var user = getUser(name).get();
         var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
         try {
-            user.onUser(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = new EventContext(event, conversationService, localizer, buttons, pages, modalService, this);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(event, context, skuConfiguration.users(event.getFullCommandName()));
+                return;
+            }
+            user.onUser(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -132,11 +147,17 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @SubscribeEvent
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+
         var name = event.getName();
         var command = getSlash(name).get();
         var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            command.onSlashCommand(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = new EventContext(event, conversationService, localizer, buttons, pages, modalService, this);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(event, context, skuConfiguration.commands(event.getFullCommandName()));
+                return;
+            }
+            command.onSlashCommand(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -150,7 +171,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var name = event.getName();
         var command = getSlash(name).get();
         try {
-            command.onAutoComplete(event, new EventContext(null, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = new EventContext(null, conversationService, localizer, buttons, pages, modalService, this);
+            if (!skuConfiguration.isEntitled(event)) {
+                event.replyChoices().queue();
+                return;
+            }
+            command.onAutoComplete(event, context);
         } catch (Throwable t) {
             var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);

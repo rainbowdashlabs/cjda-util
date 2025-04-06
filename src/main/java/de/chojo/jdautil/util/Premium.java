@@ -7,13 +7,17 @@
 package de.chojo.jdautil.util;
 
 import de.chojo.jdautil.interactions.base.SkuMeta;
+import de.chojo.jdautil.interactions.dispatching.InteractionContext;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.entities.SkuSnowflake;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public final class Premium {
     private Premium() {
@@ -22,9 +26,20 @@ public final class Premium {
 
     public static List<Button> buildEntitlementButtons(SkuMeta meta) {
         return meta.sku().stream()
-                   .filter(e -> !e.isTest())
                    .map(e -> Button.premium(SkuSnowflake.fromId(e.getSkuIdLong())))
                    .toList();
+    }
+
+    public static List<Button> buildEntitlementButtons(Collection<Long> meta) {
+        return meta.stream()
+                   .map(e -> Button.premium(SkuSnowflake.fromId(e)))
+                   .toList();
+    }
+
+    public static void replyPremium(IReplyCallback callback, EventContext context, Collection<Long> skus) {
+        callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
+                .addActionRow(buildEntitlementButtons(skus))
+                .queue();
     }
 
     public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta meta) {
