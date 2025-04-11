@@ -32,7 +32,7 @@ public class SKU implements Predicate<Entitlement> {
         return test((Entitlement) obj);
     }
 
-    public long getSkuIdLong() {
+    public long skuId() {
         return skuId;
     }
 }
