@@ -33,10 +33,23 @@ public interface PageButton {
         };
     }
 
+    static PageButton of(Button button) {
+        return new PageButton() {
+            @Override
+            public Button button(IPageBag page) {
+                return button;
+            }
+
+            @Override
+            public void invoke(IPageBag pageBag, ButtonInteraction event) {
+            }
+        };
+    }
+
     default ActionComponent component(IPageBag page, long id, LocalizationContext localizer) {
-            Button button = button(page);
-            if (button.getId() == null) {
-            if(button.getLabel().isBlank()){
+        Button button = button(page);
+        if (button.getId() == null) {
+            if (button.getLabel().isBlank()) {
                 return button;
             }
             return button.withLabel(localizer.localize(button.getLabel()));
@@ -45,6 +58,6 @@ public interface PageButton {
             return button.withId(String.format("%s:%s", id, button.getId()));
         }
         return button.withId(String.format("%s:%s", id, button.getId()))
-                .withLabel(localizer.localize(button.getLabel()));
+                     .withLabel(localizer.localize(button.getLabel()));
     }
 }

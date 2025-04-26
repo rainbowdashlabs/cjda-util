@@ -8,6 +8,7 @@ package de.chojo.jdautil.wrapper;
 
 import de.chojo.jdautil.conversation.Conversation;
 import de.chojo.jdautil.conversation.ConversationService;
+import de.chojo.jdautil.interactions.base.SkuMeta;
 import de.chojo.jdautil.interactions.dispatching.InteractionHub;
 import de.chojo.jdautil.interactions.dispatching.InteractionHubBuilder;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -21,11 +22,13 @@ import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
+import net.dv8tion.jda.api.entities.Entitlement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -201,11 +204,20 @@ public class EventContext {
     }
 
     /**
-     * Returns the interaction hub, which dispated the interaction
+     * Returns the interaction hub, which dispatched the interaction
      *
      * @return interaction hub instance
      */
     public InteractionHub<?, ?, ?> interactionHub() {
         return interactionHub;
+    }
+
+    /**
+     * Returns the list of entitlements for the current guild and user.
+     * If this interaction is not from a guild, it will only contain entitlements of the user.
+     * @return list of entitlements
+     */
+    public List<Entitlement> entitlements(){
+        return event.getEntitlements();
     }
 }

@@ -41,7 +41,7 @@ version = "2.11.0+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
-    useEldoNexusRepos()
+    useEldoNexusRepos(false)
     publishComponent("java")
 }
 

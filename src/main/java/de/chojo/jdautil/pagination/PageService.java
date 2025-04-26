@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -178,7 +179,7 @@ public class PageService extends ListenerAdapter {
             sendPage(event, pageId.get());
         } else {
             page.buttons().stream()
-                    .filter(button -> button.button(page).getId().equals(id))
+                    .filter(button -> Objects.equals(button.button(page).getId(), id))
                     .findFirst()
                     .ifPresent(button -> button.invoke(page, event));
         }
