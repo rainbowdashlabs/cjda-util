@@ -48,4 +48,8 @@ public final class Premium {
     public static boolean isNotEntitled(Interaction interaction, SkuMeta meta) {
         return !meta.isEntitled(interaction.getEntitlements());
     }
+
+    public static boolean isNotEntitled(SkuMeta current, SkuMeta expected) {
+        return !current.isEntitled(expected);
+    }
 }
