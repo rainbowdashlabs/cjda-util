@@ -11,6 +11,7 @@ import de.chojo.jdautil.localization.util.Replacement;
 import de.chojo.jdautil.util.SysVar;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -30,18 +32,20 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 
 public class Localizer implements ILocalizer {
-    private static final boolean NAME_ERROR = "true".equalsIgnoreCase(SysVar.envOrProp("CJDA_LOCALISATION_NAME_ERROR","cjda.localisation.error.name", "true"));
+    private static final boolean NAME_ERROR = "true".equalsIgnoreCase(SysVar.envOrProp("CJDA_LOCALISATION_NAME_ERROR", "cjda.localisation.error.name", "true"));
     private final Pattern EMBEDDED_CODE;
     private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z_]+?\\.[a-zA-Z_.]+)$");
     private static final Logger log = getLogger(Localizer.class);
     private final Map<DiscordLocale, ResourceBundle> languages;
     private final Function<Guild, Optional<DiscordLocale>> languageProvider;
     private final DiscordLocale defaultLanguage;
+    private final BiFunction<Guild, String, Optional<String>> guildLocaleCode;
 
-    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage, String embedCodeStart, String embedCodeEnd) {
+    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage, String embedCodeStart, String embedCodeEnd, BiFunction<Guild, String, Optional<String>> guildLocaleCode) {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
+        this.guildLocaleCode = guildLocaleCode;
         EMBEDDED_CODE = Pattern.compile("%s([a-zA-Z._]+?)%s".formatted(embedCodeStart, embedCodeEnd));
     }
 
@@ -60,7 +64,11 @@ public class Localizer implements ILocalizer {
      * @param localetag locale code
      * @return message in the local code or the default language if key is missing.
      */
-    public String getLanguageString(DiscordLocale language, String localetag) {
+    public String getLanguageString(DiscordLocale language, Guild guild, String localetag) {
+        if (guild != null) {
+            Optional<String> apply = guildLocaleCode.apply(guild, localetag);
+            if (apply.isPresent()) return apply.get();
+        }
         if (getLanguageResource(language).containsKey(localetag)) {
             return getLanguageResource(language).getString(localetag);
         }
@@ -105,7 +113,10 @@ public class Localizer implements ILocalizer {
     @Override
     public String localize(String message, Guild guild, Replacement... replacements) {
         var language = getGuildLocale(guild);
-        return localize(message, language, replacements);
+        if (!languages.containsKey(language)) {
+            language = defaultLanguage();
+        }
+        return translate(message, guild, language, replacements);
     }
 
     @Override
@@ -119,14 +130,11 @@ public class Localizer implements ILocalizer {
     }
 
     @Override
-    public String localize(String message, DiscordLocale language, Replacement... replacements) {
-        if (!languages.containsKey(language)) {
-            language = defaultLanguage();
-        }
-        return translate(message, language, replacements);
+    public String localize(String message, DiscordLocale language, @Nullable Guild guild, Replacement... replacements) {
+        return translate(message, guild, language, replacements);
     }
 
-    private String translate(String message, DiscordLocale language, Replacement... replacements) {
+    private String translate(String message, Guild guild, DiscordLocale language, Replacement... replacements) {
         if (message == null || message.isBlank()) {
             return message;
         }
@@ -136,7 +144,7 @@ public class Localizer implements ILocalizer {
             if (!SIMPLE__CODE.matcher(message).find()) {
                 result = message;
             } else {
-                result = getLanguageString(language, message);
+                result = getLanguageString(language, guild, message);
             }
         } else {
             // find locale codes in message
@@ -150,7 +158,7 @@ public class Localizer implements ILocalizer {
 
             for (var match : keys) {
                 //Replace current placeholders with replacements
-                var languageString = getLanguageString(language, match);
+                var languageString = getLanguageString(language, guild, match);
                 result = result.replace("$" + match + "$", languageString);
             }
         }
@@ -160,7 +168,7 @@ public class Localizer implements ILocalizer {
         }
 
         if (EMBEDDED_CODE.matcher(result).find()) {
-            return localize(result, language, replacements);
+            return localize(result, language, guild, replacements);
         }
 
         if (result.isBlank()) {
@@ -187,6 +195,7 @@ public class Localizer implements ILocalizer {
         private Function<Guild, Optional<DiscordLocale>> languageProvider;
         private String embedCodeStart = "\\$";
         private String embedCodeEnd = "\\$";
+        private BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider;
 
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
@@ -201,6 +210,18 @@ public class Localizer implements ILocalizer {
 
         public Builder withLanguageProvider(Function<Guild, Optional<DiscordLocale>> languageProvider) {
             this.languageProvider = languageProvider;
+            return this;
+        }
+
+        /**
+         * Returns an optional holding a locale code value when present.
+         * If an empty optional is returned the default value from the locale file is used.
+         *
+         * @param guildLocaleCodeProvider provider
+         * @return optional that might contain a value
+         */
+        public Builder withGuildLocaleCodeProvider(BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider) {
+            this.guildLocaleCodeProvider = guildLocaleCodeProvider;
             return this;
         }
 
@@ -252,7 +273,7 @@ public class Localizer implements ILocalizer {
 
         public Localizer build() {
             loadLanguages();
-            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeEnd);
+            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeEnd, guildLocaleCodeProvider);
         }
 
 
