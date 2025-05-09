@@ -22,6 +22,13 @@ public interface SkuMeta {
     default boolean isEntitled(List<Entitlement> entitlement) {
         if (sku().isEmpty()) return true;
         return entitlement.stream().anyMatch(this::isEntitled);
+    }
 
+    default boolean isEntitled(SkuMeta skuMeta) {
+        return skuMeta.sku().stream().anyMatch(this::isEntitled);
+    }
+
+    default boolean isEntitled(SKU sku) {
+        return sku().stream().anyMatch(sku::equals);
     }
 }
