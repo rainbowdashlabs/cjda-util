@@ -36,12 +36,14 @@ public final class Premium {
     public static void replyPremium(IReplyCallback callback, EventContext context, Collection<Long> skus) {
         callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
                 .addActionRow(buildEntitlementButtons(skus))
+                .setEphemeral(true)
                 .queue();
     }
 
     public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta meta) {
         callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
                 .addActionRow(buildEntitlementButtons(meta))
+                .setEphemeral(true)
                 .queue();
     }
 
