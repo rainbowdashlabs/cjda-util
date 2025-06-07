@@ -45,6 +45,13 @@ public final class Premium {
                .queue();
     }
 
+    public static void replyPremium(EventContext context, SkuMeta skus) {
+        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
+               .addActionRow(buildEntitlementButtons(skus))
+               .setEphemeral(true)
+               .queue();
+    }
+
     public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
         if (isNotEntitled(context, expected)) {
             replyPremium(context, buildEntitlementButtons(expected));
