@@ -33,7 +33,7 @@ public final class Premium {
                    .toList();
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static void replyPremium(IReplyCallback callback, EventContext context, Collection<Long> skus) {
        replyPremium(context, buildEntitlementButtons(skus));
     }
@@ -60,7 +60,7 @@ public final class Premium {
         return false;
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta expected) {
         replyPremium(context, buildEntitlementButtons(expected));
     }
