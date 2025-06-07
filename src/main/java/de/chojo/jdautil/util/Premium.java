@@ -46,7 +46,7 @@ public final class Premium {
     }
 
     public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
-        if (!isNotEntitled(context, expected)) {
+        if (isNotEntitled(context, expected)) {
             replyPremium(context, buildEntitlementButtons(expected));
             return true;
         }

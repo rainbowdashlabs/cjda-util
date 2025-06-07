@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import java.util.Collection;
 import java.util.List;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
 import static de.chojo.jdautil.util.Premium.isNotEntitled;
 import static de.chojo.jdautil.util.Premium.replyPremium;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -66,8 +67,7 @@ public class Slash implements CommandDataProvider {
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
 
         if (handler != null) {
-            if (isNotEntitled(event, meta)) {
-                replyPremium(event, context, meta);
+            if (checkAndReplyPremium(context, meta)) {
                 return;
             }
 
