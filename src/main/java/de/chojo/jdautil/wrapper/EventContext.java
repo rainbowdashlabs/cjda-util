@@ -28,12 +28,12 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class EventContext {
     private final IReplyCallback event;
@@ -45,7 +45,7 @@ public class EventContext {
     private final InteractionHub<?, ?, ?> interactionHub;
     private final List<SKU> entitlements;
 
-    public EventContext(IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub, List<SKU> entitlements) {
+    public EventContext(@Nullable IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub, List<SKU> entitlements) {
         this.event = event;
         this.conversationService = conversationService;
         this.localizer = localizer;
@@ -53,8 +53,10 @@ public class EventContext {
         this.pages = pages;
         this.modalService = modalService;
         this.interactionHub = interactionHub;
-        var ent = new HashSet<>(event.getEntitlements().stream().map(SKU::new).toList());
-        ent.addAll(entitlements);
+        var ent = new HashSet<>(entitlements);
+        if (event != null) {
+            event.getEntitlements().stream().map(SKU::new).toList();
+        }
         this.entitlements = new ArrayList<>(ent);
     }
 
