@@ -11,6 +11,7 @@ import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.SkuMeta;
 import de.chojo.jdautil.interactions.dispatching.InteractionHub;
 import de.chojo.jdautil.interactions.dispatching.InteractionHubBuilder;
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.Localizer.Builder;
@@ -22,15 +23,17 @@ import de.chojo.jdautil.modals.handler.ModalHandler;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.pagination.bag.IPageBag;
-import net.dv8tion.jda.api.entities.Entitlement;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class EventContext {
     private final IReplyCallback event;
@@ -40,8 +43,9 @@ public class EventContext {
     private final PageService pages;
     private final ModalService modalService;
     private final InteractionHub<?, ?, ?> interactionHub;
+    private final List<SKU> entitlements;
 
-    public EventContext(IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub) {
+    public EventContext(IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub, List<SKU> entitlements) {
         this.event = event;
         this.conversationService = conversationService;
         this.localizer = localizer;
@@ -49,6 +53,9 @@ public class EventContext {
         this.pages = pages;
         this.modalService = modalService;
         this.interactionHub = interactionHub;
+        var ent = new HashSet<>(event.getEntitlements().stream().map(SKU::new).toList());
+        ent.addAll(entitlements);
+        this.entitlements = new ArrayList<>(ent);
     }
 
     /**
@@ -215,9 +222,14 @@ public class EventContext {
     /**
      * Returns the list of entitlements for the current guild and user.
      * If this interaction is not from a guild, it will only contain entitlements of the user.
+     *
      * @return list of entitlements
      */
-    public List<Entitlement> entitlements(){
-        return event.getEntitlements();
+    public SkuMeta entitlements() {
+        return () -> entitlements;
+    }
+
+    public IReplyCallback event() {
+        return event;
     }
 }

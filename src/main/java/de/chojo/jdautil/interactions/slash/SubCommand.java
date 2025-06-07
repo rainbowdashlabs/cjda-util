@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.List;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
 import static de.chojo.jdautil.util.Premium.isNotEntitled;
 import static de.chojo.jdautil.util.Premium.replyPremium;
 
@@ -58,7 +59,7 @@ public class SubCommand implements Route<RouteMeta> {
 
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-        if (isNotEntitled(event, meta())) {
+        if (checkAndReplyPremium(context, meta())) {
             event.replyChoices().queue();
             return;
         }
@@ -68,8 +69,7 @@ public class SubCommand implements Route<RouteMeta> {
 
     @Override
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
-        if (isNotEntitled(event, meta())) {
-            replyPremium(event, context, meta());
+        if (checkAndReplyPremium(context, meta())) {
             return;
         }
 

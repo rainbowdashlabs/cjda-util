@@ -33,30 +33,50 @@ public final class Premium {
                    .toList();
     }
 
+    @Deprecated
     public static void replyPremium(IReplyCallback callback, EventContext context, Collection<Long> skus) {
-       replyPremium(callback, context, buildEntitlementButtons(skus));
+       replyPremium(context, buildEntitlementButtons(skus));
     }
 
-    public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta meta) {
-       replyPremium(callback, context, buildEntitlementButtons(meta));
+    public static void replyPremium(EventContext context, Collection<Long> skus) {
+        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
+               .addActionRow(buildEntitlementButtons(skus))
+               .setEphemeral(true)
+               .queue();
     }
 
-    public static void replyPremium(IReplyCallback callback, EventContext context, List<Button> buttons) {
-        if (callback.isAcknowledged()) {
-            callback.getHook().editOriginal(context.localize(context.interactionHub().premiumErrorMessage()))
+    public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
+        if (!isNotEntitled(context, expected)) {
+            replyPremium(context, buildEntitlementButtons(expected));
+            return true;
+        }
+        return false;
+    }
+
+    @Deprecated
+    public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta expected) {
+        replyPremium(context, buildEntitlementButtons(expected));
+    }
+
+    public static void replyPremium(EventContext context, List<Button> buttons) {
+        if (context.event().isAcknowledged()) {
+            context.event().getHook().editOriginal(context.localize(context.interactionHub().premiumErrorMessage()))
                     .setActionRow(buttons)
                     .queue();
             return;
         }
-        callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
+        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
                 .addActionRow(buttons)
-                .setEphemeral(true)
                 .queue();
-
     }
 
+    @Deprecated(forRemoval = true)
     public static boolean isNotEntitled(Interaction interaction, SkuMeta meta) {
         return !meta.isEntitled(interaction.getEntitlements());
+    }
+
+    public static boolean isNotEntitled(EventContext context, SkuMeta expected) {
+        return !context.entitlements().isEntitled(expected);
     }
 
     public static boolean isNotEntitled(SkuMeta current, SkuMeta expected) {
