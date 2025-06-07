@@ -34,17 +34,25 @@ public final class Premium {
     }
 
     public static void replyPremium(IReplyCallback callback, EventContext context, Collection<Long> skus) {
-        callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
-                .addActionRow(buildEntitlementButtons(skus))
-                .setEphemeral(true)
-                .queue();
+       replyPremium(callback, context, buildEntitlementButtons(skus));
     }
 
     public static void replyPremium(IReplyCallback callback, EventContext context, SkuMeta meta) {
+       replyPremium(callback, context, buildEntitlementButtons(meta));
+    }
+
+    public static void replyPremium(IReplyCallback callback, EventContext context, List<Button> buttons) {
+        if (callback.isAcknowledged()) {
+            callback.getHook().editOriginal(context.localize(context.interactionHub().premiumErrorMessage()))
+                    .setActionRow(buttons)
+                    .queue();
+            return;
+        }
         callback.reply(context.localize(context.interactionHub().premiumErrorMessage()))
-                .addActionRow(buildEntitlementButtons(meta))
+                .addActionRow(buttons)
                 .setEphemeral(true)
                 .queue();
+
     }
 
     public static boolean isNotEntitled(Interaction interaction, SkuMeta meta) {
