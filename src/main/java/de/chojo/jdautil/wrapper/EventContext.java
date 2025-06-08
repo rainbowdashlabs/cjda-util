@@ -234,4 +234,16 @@ public class EventContext {
     public IReplyCallback event() {
         return event;
     }
+
+    public MenuService menus() {
+        return menus;
+    }
+
+    public PageService pages() {
+        return pages;
+    }
+
+    public ModalService modalService() {
+        return modalService;
+    }
 }
