@@ -39,11 +39,11 @@ public final class Premium {
     }
 
     public static void replyPremium(EventContext context, Collection<Long> skus) {
-        replyPremium(context, buildEntitlementButtons(expected));
+        replyPremium(context, buildEntitlementButtons(skus));
     }
 
     public static void replyPremium(EventContext context, SkuMeta skus) {
-        replyPremium(context, buildEntitlementButtons(expected));
+        replyPremium(context, buildEntitlementButtons(skus));
     }
 
     public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
