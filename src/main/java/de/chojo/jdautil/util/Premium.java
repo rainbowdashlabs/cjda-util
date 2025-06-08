@@ -39,17 +39,11 @@ public final class Premium {
     }
 
     public static void replyPremium(EventContext context, Collection<Long> skus) {
-        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
-               .addActionRow(buildEntitlementButtons(skus))
-               .setEphemeral(true)
-               .queue();
+        replyPremium(context, buildEntitlementButtons(expected));
     }
 
     public static void replyPremium(EventContext context, SkuMeta skus) {
-        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
-               .addActionRow(buildEntitlementButtons(skus))
-               .setEphemeral(true)
-               .queue();
+        replyPremium(context, buildEntitlementButtons(expected));
     }
 
     public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
