@@ -1,7 +1,7 @@
 /*
  *     SPDX-License-Identifier: AGPL-3.0-only
  *
- *     Copyright (C) 2022 RainbowDashLabs and Contributor
+ *     Copyright (C) RainbowDashLabs and Contributor
  */
 
 package de.chojo.jdautil.util;
@@ -21,8 +21,8 @@ public class SysVar {
         return get(property, environment).orElseThrow(throwableSupplier);
     }
 
-    public static <T extends Exception> String envOrPropOrThrow(String property, String environment, Supplier<T> throwableSupplier) throws T {
-        return envOrProp(property, environment).orElseThrow(throwableSupplier);
+    public static <T extends Exception> String envOrPropOrThrow(String env, String prop, Supplier<T> throwableSupplier) throws T {
+        return envOrProp(env, prop).orElseThrow(throwableSupplier);
     }
 
     public static <T extends Exception> String propOrEnvOrThrow(String property, String environment, Supplier<T> throwableSupplier) throws T {
@@ -59,7 +59,7 @@ public class SysVar {
     }
 
     public static Optional<String> propOrEnv(String prop, String env) {
-        return get(List.of(() -> prop(prop), () -> env(env)));
+        return prop(prop).or(() -> env(env));
     }
 
     private static Optional<String> prop(String name) {

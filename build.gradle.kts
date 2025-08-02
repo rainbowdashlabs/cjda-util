@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
-    id("org.cadixdev.licenser") version "0.6.1"
+    alias(libs.plugins.spotless)
 }
 
 repositories {
@@ -31,10 +31,12 @@ dependencies {
     testImplementation("org.mockito", "mockito-core", "5.18.0")
 }
 
-license {
-    header(rootProject.file("HEADER.txt"))
-    include("**/*.java")
-}
+    spotless {
+        java {
+            licenseHeaderFile(rootProject.file("HEADER.txt"))
+            target("**/*.java")
+        }
+    }
 
 group = "de.chojo"
 version = "2.11.0+jda-${libs.versions.jda.get()}"

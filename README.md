@@ -61,6 +61,10 @@ _default true_
 
 Allows to disable the name error on command localisation.
 
+Prop: `bot.config`  
+Env: `BOT_CONFIG`  
+
+Relative path to the configuration file.
 
 [nexus_releases]: https://eldonexus.de/#browse/browse:maven-releases:de%2Fchojo%2Fcjda-util
 [nexus_snapshots]: https://eldonexus.de/#browse/browse:maven-snapshots:de%2Fchojo%2Fcjda-util
