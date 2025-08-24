@@ -14,7 +14,7 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            version("javalin", "6.3.0")
+            version("javalin", "6.7.0")
             library("javalin-core", "io.javalin", "javalin").versionRef("javalin")
             library(
                 "javalin-openapiannotation",
@@ -24,7 +24,7 @@ dependencyResolutionManagement {
             library("javalin-openapi", "io.javalin.community.openapi", "javalin-openapi-plugin").versionRef("javalin")
             bundle("javalin", listOf("javalin-core", "javalin-openapi"))
 
-            version("jda", "5.1.0")
+            version("jda", "6.0.0-rc.3")
             library("jda", "net.dv8tion", "JDA").versionRef("jda")
 
             plugin("spotless", "com.diffplug.spotless").version("6.25.0")

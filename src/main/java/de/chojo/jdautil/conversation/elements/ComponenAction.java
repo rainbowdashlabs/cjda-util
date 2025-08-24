@@ -7,9 +7,10 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.localization.ILocalizer;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.function.Function;
 
@@ -26,7 +27,7 @@ public class ComponenAction {
         return component;
     }
 
-    public ActionComponent getTranslatedComponent(ILocalizer localizer, Guild guild) {
+    public ActionRowChildComponent getTranslatedComponent(ILocalizer localizer, Guild guild) {
         return switch (component.getType()) {
             case BUTTON -> {
                 var button = (Button) this.component;

@@ -22,6 +22,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 
 import java.util.List;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
+import static de.chojo.jdautil.util.Premium.isNotEntitled;
+import static de.chojo.jdautil.util.Premium.replyPremium;
+
 public class SubCommand implements Route<RouteMeta> {
     private final RouteMeta meta;
     private final SlashHandler handler;
@@ -40,6 +44,7 @@ public class SubCommand implements Route<RouteMeta> {
     public static PartialSubCommandBuilder of(String name, String description) {
         return SubCommandBuilder.partial(name, description);
     }
+
     public static SubCommandBuilder sub(String name, String description, SlashHandler handler) {
         return of(name, description, handler);
     }
@@ -54,11 +59,20 @@ public class SubCommand implements Route<RouteMeta> {
 
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
+        if (checkAndReplyPremium(context, meta())) {
+            event.replyChoices().queue();
+            return;
+        }
+
         handler.onAutoComplete(event, context);
     }
 
     @Override
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
+        if (checkAndReplyPremium(context, meta())) {
+            return;
+        }
+
         handler.onSlashCommand(event, context);
     }
 

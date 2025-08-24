@@ -7,8 +7,9 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.localization.ILocalizer;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 
 import java.util.Collection;
 import java.util.function.Consumer;
@@ -105,7 +106,7 @@ public class Step {
      * @param guild     guild
      * @return list of action rows
      */
-    public Collection<? extends ActionRow> getActions(ILocalizer localizer, Guild guild) {
+    public Collection<ActionRow> getActions(ILocalizer localizer, Guild guild) {
         return dialog.getActions(localizer, guild);
     }
 

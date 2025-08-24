@@ -26,6 +26,9 @@ import org.slf4j.Logger;
 import java.util.Collection;
 import java.util.List;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
+import static de.chojo.jdautil.util.Premium.isNotEntitled;
+import static de.chojo.jdautil.util.Premium.replyPremium;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Slash implements CommandDataProvider {
@@ -47,6 +50,7 @@ public class Slash implements CommandDataProvider {
     public static RootMetaBuilder of(String name, String description) {
         return new SlashBuilder(name, description);
     }
+
     public static RootMetaBuilder slash(String name, String description) {
         return of(name, description);
     }
@@ -61,7 +65,12 @@ public class Slash implements CommandDataProvider {
     }
 
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
+
         if (handler != null) {
+            if (checkAndReplyPremium(context, meta)) {
+                return;
+            }
+
             handler.onSlashCommand(event, context);
             return;
         }
@@ -84,7 +93,12 @@ public class Slash implements CommandDataProvider {
     }
 
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
+
         if (handler != null) {
+            if (isNotEntitled(context, meta)) {
+                event.replyChoices().queue();
+                return;
+            }
             handler.onAutoComplete(event, context);
             return;
         }
@@ -114,9 +128,10 @@ public class Slash implements CommandDataProvider {
 
             var slash = Commands.slash(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
                                 .setDefaultPermissions(meta.permission())
-                                .setGuildOnly(meta.isGuildOnly())
+                                .setContexts(meta.context())
                                 .setLocalizationFunction(localizer.prefixedLocalizer("command"));
-            if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(g -> g.data(this, localizer)).toList());
+            if (!groups.isEmpty())
+                slash.addSubcommandGroups(groups.stream().map(g -> g.data(this, localizer)).toList());
             if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(s -> s.data(this, localizer)).toList());
             if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(a -> a.data(this, localizer)).toList());
             return slash;
@@ -126,7 +141,7 @@ public class Slash implements CommandDataProvider {
 
         var slash = Commands.slash(meta.name(), meta.description())
                             .setDefaultPermissions(meta.permission())
-                            .setGuildOnly(meta.isGuildOnly());
+                            .setContexts(meta.context());
         if (!groups.isEmpty()) slash.addSubcommandGroups(groups.stream().map(Group::data).toList());
         if (!leaves.isEmpty()) slash.addSubcommands(leaves.stream().map(SubCommand::data).toList());
         if (!arguments.isEmpty()) slash.addOptions(arguments.stream().map(Argument::data).toList());

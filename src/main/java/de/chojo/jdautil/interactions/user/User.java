@@ -19,6 +19,10 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 import java.util.Locale;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
+import static de.chojo.jdautil.util.Premium.isNotEntitled;
+import static de.chojo.jdautil.util.Premium.replyPremium;
+
 public class User implements Interaction, UserHandler, CommandDataProvider {
     private final InteractionMeta meta;
     private final UserHandler handler;
@@ -39,14 +43,18 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
 
     @Override
     public void onUser(UserContextInteractionEvent event, EventContext context) {
+        if (checkAndReplyPremium(context, meta)) {
+            return;
+        }
+
         handler.onUser(event, context);
     }
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
         var user = Commands.user(meta.name())
-                .setGuildOnly(meta.isGuildOnly())
-                .setDefaultPermissions(meta.permission());
+                           .setContexts(meta.context())
+                           .setDefaultPermissions(meta.permission());
         if (meta.localized()) {
             user.setLocalizationFunction(localizer.prefixedLocalizer("user"));
         }

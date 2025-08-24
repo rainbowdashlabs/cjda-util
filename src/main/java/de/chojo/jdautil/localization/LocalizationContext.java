@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.localization;
 
+import de.chojo.jdautil.localization.util.GuildLocaleProvider;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
 

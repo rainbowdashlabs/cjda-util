@@ -115,10 +115,10 @@ public class ConversationService extends ListenerAdapter {
     @SubscribeEvent
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (!event.isAcknowledged()) event.deferEdit().queue();
 
         var location = UserChannelKey.of(event.getUser(), event.getMessageChannel());
         if (button.containsKey(location)) {
+            if (!event.isAcknowledged()) event.deferEdit().queue();
             var dialog = button.get(location);
             if (dialog.first != event.getMessageIdLong()) return;
 

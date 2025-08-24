@@ -15,20 +15,20 @@ repositories {
 
 dependencies {
     api(libs.jda)
-    api("org.apache.commons", "commons-text", "1.12.0")
+    api("org.apache.commons", "commons-text", "1.14.0")
 
     // Serialization
     api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.17.2")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.19.2")
 
     // web api
     api(libs.bundles.javalin)
     annotationProcessor(libs.javalin.openapiannotation)
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.11.0"))
+    testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter", "junit-jupiter")
-    testImplementation("org.mockito", "mockito-core", "5.12.0")
+    testImplementation("org.mockito", "mockito-core", "5.18.0")
 }
 
     spotless {
@@ -39,11 +39,11 @@ dependencies {
     }
 
 group = "de.chojo"
-version = "2.10.3+jda-" + libs.versions.jda.get()
+version = "2.11.0+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
-    useEldoNexusRepos()
+    useEldoNexusRepos(false)
     publishComponent("java")
 }
 

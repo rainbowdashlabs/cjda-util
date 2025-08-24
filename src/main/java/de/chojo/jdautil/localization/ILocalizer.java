@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.DiscordLocale;
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.Collections;
@@ -31,7 +32,7 @@ public interface ILocalizer extends LocalizationFunction {
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
-        public String localize(String message, DiscordLocale language, Replacement... replacements) {
+        public String localize(String message, DiscordLocale language, @Nullable Guild guild, Replacement... replacements) {
             return message;
         }
 
@@ -61,7 +62,7 @@ public interface ILocalizer extends LocalizationFunction {
         }
     };
 
-    String localize(String message, DiscordLocale language, Replacement... replacements);
+    String localize(String message, DiscordLocale language, @Nullable Guild guild, Replacement... replacements);
 
     LocalizationContext context(LocaleProvider guild);
 
@@ -76,7 +77,7 @@ public interface ILocalizer extends LocalizationFunction {
 
     @NotNull
     private String localizeChecked(String key, DiscordLocale locale) {
-        var localize = localize(key, locale);
+        var localize = localize(key, locale, null);
         if (localize == null) {
             log.warn("Result for key {}@{} is null.", key, locale);
             return "null";
@@ -131,9 +132,13 @@ public interface ILocalizer extends LocalizationFunction {
     }
 
     default String localize(String message, LocaleProvider provider, Replacement... replacements) {
+        Guild guild = null;
+        if(provider instanceof GuildLocaleProvider guildLocaleProvider){
+            guild = guildLocaleProvider.guild();
+        }
         var optLocale = provider.locale();
         if (optLocale.isEmpty()) {
-            return localize(message, defaultLanguage(), replacements);
+            return localize(message, defaultLanguage(), guild, replacements);
         }
         var locale = optLocale.get();
         if (provider instanceof GuildLocaleProvider guildProvider) {
@@ -141,6 +146,6 @@ public interface ILocalizer extends LocalizationFunction {
                 locale = getGuildLocale(guildProvider.guild());
             }
         }
-        return localize(message, locale, replacements);
+        return localize(message, locale, guild, replacements);
     }
 }

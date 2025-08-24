@@ -7,8 +7,8 @@
 package de.chojo.jdautil.pagination.bag;
 
 import de.chojo.jdautil.localization.LocalizationContext;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 
 import java.util.function.BiConsumer;
@@ -33,10 +33,23 @@ public interface PageButton {
         };
     }
 
-    default ActionComponent component(IPageBag page, long id, LocalizationContext localizer) {
-            Button button = button(page);
-            if (button.getId() == null) {
-            if(button.getLabel().isBlank()){
+    static PageButton of(Button button) {
+        return new PageButton() {
+            @Override
+            public Button button(IPageBag page) {
+                return button;
+            }
+
+            @Override
+            public void invoke(IPageBag pageBag, ButtonInteraction event) {
+            }
+        };
+    }
+
+    default Button component(IPageBag page, long id, LocalizationContext localizer) {
+        Button button = button(page);
+        if (button.getId() == null) {
+            if (button.getLabel().isBlank()) {
                 return button;
             }
             return button.withLabel(localizer.localize(button.getLabel()));
@@ -45,6 +58,6 @@ public interface PageButton {
             return button.withId(String.format("%s:%s", id, button.getId()));
         }
         return button.withId(String.format("%s:%s", id, button.getId()))
-                .withLabel(localizer.localize(button.getLabel()));
+                     .withLabel(localizer.localize(button.getLabel()));
     }
 }

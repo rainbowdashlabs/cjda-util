@@ -10,6 +10,8 @@ import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.premium.SKU;
+import de.chojo.jdautil.interactions.premium.SKUConfiguration;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.user.User;
@@ -18,10 +20,12 @@ import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
 import de.chojo.jdautil.util.Guilds;
+import de.chojo.jdautil.util.Premium;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -30,6 +34,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -45,6 +50,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -67,13 +73,18 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final Function<InteractionMeta, List<Long>> guildCommandMapper;
     private final boolean cleanGuildCommands;
     private final boolean testMode;
+    private final String premiumErrorMessage;
+    private final SKUConfiguration skuConfiguration;
+    private final BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
                           MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook,
-                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode) {
+                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage,
+                          SKUConfiguration skuConfiguration,
+                          BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider) {
         this.shardManager = shardManager;
         this.slash = slash;
         this.messages = messages;
@@ -88,11 +99,21 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         this.guildCommandMapper = guildCommandMapper;
         this.cleanGuildCommands = cleanGuildCommands;
         this.testMode = testMode;
+        this.premiumErrorMessage = premiumErrorMessage;
+        this.skuConfiguration = skuConfiguration;
+        this.entitlementProvider = entitlementProvider;
     }
 
 
     public static <T extends Slash, M extends Message, U extends User> InteractionHubBuilder<T, M, U> builder(ShardManager shardManager) {
         return new InteractionHubBuilder<>(shardManager);
+    }
+
+    private EventContext buildContext(GenericInteractionCreateEvent event) {
+        if (event instanceof IReplyCallback callback) {
+        return new EventContext(callback, conversationService, localizer, buttons, pages, modalService, this, entitlementProvider.apply(event.getUser(), event.getGuild()));
+        }
+        return new EventContext(null, conversationService, localizer, buttons, pages, modalService, this, entitlementProvider.apply(event.getUser(), event.getGuild()));
     }
 
     @SubscribeEvent
@@ -102,7 +123,13 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var message = getMessage(name).get();
         var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            message.onMessage(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = buildContext(event);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(context, skuConfiguration.messages(event.getFullCommandName()));
+                return;
+            }
+
+            message.onMessage(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -118,7 +145,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var user = getUser(name).get();
         var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
         try {
-            user.onUser(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = buildContext(event);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(context, skuConfiguration.users(event.getFullCommandName()));
+                return;
+            }
+            user.onUser(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -130,11 +162,17 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @SubscribeEvent
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+
         var name = event.getName();
         var command = getSlash(name).get();
         var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
         try {
-            command.onSlashCommand(event, new EventContext(event, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = buildContext(event);
+            if (!skuConfiguration.isEntitled(event)) {
+                Premium.replyPremium(context, skuConfiguration.commands(event.getFullCommandName()));
+                return;
+            }
+            command.onSlashCommand(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             return;
@@ -148,7 +186,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var name = event.getName();
         var command = getSlash(name).get();
         try {
-            command.onAutoComplete(event, new EventContext(null, conversationService, localizer, buttons, pages, modalService, this));
+            EventContext context = buildContext(event);
+            if (!skuConfiguration.isEntitled(event)) {
+                event.replyChoices().queue();
+                return;
+            }
+            command.onAutoComplete(event, context);
         } catch (Throwable t) {
             var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
             commandErrorHandler.accept(executionContext, t);
@@ -159,6 +202,10 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         refreshGuildCommands(event.getGuild());
+    }
+
+    public String premiumErrorMessage() {
+        return premiumErrorMessage;
     }
 
     private void buildGuildData(Collection<? extends CommandDataProvider> interactions, Map<Long, List<CommandData>> guildCommands) {
@@ -305,6 +352,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public Optional<M> getMessage(String name) {
         return Optional.ofNullable(messages.get(name.toLowerCase()));
     }
+
     public Optional<U> getUser(String name) {
         return Optional.ofNullable(users.get(name.toLowerCase()));
     }

@@ -7,10 +7,9 @@
 package de.chojo.jdautil.conversation.elements;
 
 import de.chojo.jdautil.localization.ILocalizer;
-import de.chojo.jdautil.util.ComponentUtil;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,8 +37,10 @@ public class ButtonDialog {
         return Result.freeze();
     }
 
-    public Collection<? extends ActionRow> getActions(ILocalizer localizer, Guild guild) {
-        var components = this.components.values().stream().map(action -> action.getTranslatedComponent(localizer, guild)).collect(Collectors.toList());
-        return ComponentUtil.getActionRows(components);
+    public Collection<ActionRow> getActions(ILocalizer localizer, Guild guild) {
+        var components = this.components.values().stream()
+                                        .map(action -> action.getTranslatedComponent(localizer, guild))
+                                        .collect(Collectors.toList());
+        return ActionRow.partitionOf(components);
     }
 }
