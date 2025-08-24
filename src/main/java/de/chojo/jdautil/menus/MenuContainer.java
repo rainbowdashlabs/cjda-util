@@ -11,14 +11,13 @@ import de.chojo.jdautil.menus.entries.ButtonEntry;
 import de.chojo.jdautil.menus.entries.EntitySelectMenuEntry;
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import de.chojo.jdautil.menus.entries.StringSelectMenuEntry;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +52,7 @@ public class MenuContainer {
         }
     }
 
-    public List<ActionComponent> components() {
+    public List<ActionRowChildComponent> components() {
         return entries.stream()
                       .filter(MenuEntry::visible)
                       .map(e -> e.component(id, localizer))

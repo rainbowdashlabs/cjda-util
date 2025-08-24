@@ -8,9 +8,9 @@ package de.chojo.jdautil.menus.entries;
 
 import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.menus.EntryContext;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.function.Consumer;
 
@@ -20,13 +20,13 @@ public class StringSelectMenuEntry extends MenuEntry<StringSelectMenu, StringSel
     }
 
     @Override
-    public ActionComponent component(long id, LocalizationContext localizer) {
+    public ActionRowChildComponent component(long id, LocalizationContext localizer) {
         var options = component().getOptions().stream().map(opt -> opt.withLabel(localizer.localize(opt.getLabel()))
                                                                       .withDescription(localizer.localize(opt.getDescription())))
                                  .toList();
         return StringSelectMenu.create(String.format("%s:%s", id, component().getId()))
-                .addOptions(options)
-                .setPlaceholder(localizer.localize(component().getPlaceholder()))
-                .build();
-}
+                               .addOptions(options)
+                               .setPlaceholder(localizer.localize(component().getPlaceholder()))
+                               .build();
+    }
 }

@@ -125,7 +125,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(event, context, skuConfiguration.messages(event.getFullCommandName()));
+                Premium.replyPremium(context, skuConfiguration.messages(event.getFullCommandName()));
                 return;
             }
 
@@ -147,7 +147,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(event, context, skuConfiguration.users(event.getFullCommandName()));
+                Premium.replyPremium(context, skuConfiguration.users(event.getFullCommandName()));
                 return;
             }
             user.onUser(event, context);
@@ -169,7 +169,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(event, context, skuConfiguration.commands(event.getFullCommandName()));
+                Premium.replyPremium(context, skuConfiguration.commands(event.getFullCommandName()));
                 return;
             }
             command.onSlashCommand(event, context);

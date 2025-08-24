@@ -63,7 +63,7 @@ public interface Route<T extends RouteMeta> extends SlashHandler {
             for (var route : routes) {
                 if (route.isRoute(commandPath[1])) {
 
-                    if (isNotEntitled(event, route.meta())) return;
+                    if (isNotEntitled(context, route.meta())) return;
 
                     route.onAutoComplete(event, context);
                     return;

@@ -7,8 +7,8 @@
 package de.chojo.jdautil.pagination.bag;
 
 import de.chojo.jdautil.localization.LocalizationContext;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.components.ActionComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 
 import java.util.function.BiConsumer;
@@ -46,7 +46,7 @@ public interface PageButton {
         };
     }
 
-    default ActionComponent component(IPageBag page, long id, LocalizationContext localizer) {
+    default Button component(IPageBag page, long id, LocalizationContext localizer) {
         Button button = button(page);
         if (button.getId() == null) {
             if (button.getLabel().isBlank()) {

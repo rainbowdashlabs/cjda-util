@@ -7,9 +7,9 @@
 package de.chojo.jdautil.menus;
 
 import de.chojo.jdautil.menus.entries.MenuEntry;
+import net.dv8tion.jda.api.components.ActionComponent;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
