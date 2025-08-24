@@ -22,6 +22,7 @@ de.chojo.jdautil.interactions.locale
 de.chojo.jdautil.interactions.message
 de.chojo.jdautil.interactions.message.builder
 de.chojo.jdautil.interactions.message.provider
+de.chojo.jdautil.interactions.premium
 de.chojo.jdautil.interactions.slash
 de.chojo.jdautil.interactions.slash.provider
 de.chojo.jdautil.interactions.slash.structure
