@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class PageBuilder {
@@ -27,25 +26,15 @@ public class PageBuilder {
 
         protected ISnowflake user;
         protected Function<V, List<PageButton>> buttons = b -> Collections.emptyList();
-        protected Function<V, CompletableFuture<MessageEditData>> page;
-        protected Function<V, CompletableFuture<MessageEditData>> empty;
+        protected Function<V, MessageEditData> page;
+        protected Function<V, MessageEditData> empty;
 
         public T syncPage(Function<V, MessageEditData> page) {
-            this.page = p -> CompletableFuture.completedFuture(page.apply(p));
-            return self();
-        }
-
-        public T syncEmptyPage(Function<V, MessageEditData> page) {
-            this.empty = p -> CompletableFuture.completedFuture(page.apply(p));
-            return self();
-        }
-
-        public T asyncPage(Function<V, CompletableFuture<MessageEditData>> page) {
             this.page = page;
             return self();
         }
 
-        public T asyncEmptyPage(Function<V, CompletableFuture<MessageEditData>> page) {
+        public T syncEmptyPage(Function<V, MessageEditData> page) {
             this.empty = page;
             return self();
         }
@@ -79,12 +68,12 @@ public class PageBuilder {
                     }
 
                     @Override
-                    public CompletableFuture<MessageEditData> buildPage() {
+                    public MessageEditData buildPage() {
                         return page.apply(this);
                     }
 
                     @Override
-                    public CompletableFuture<MessageEditData> buildEmptyPage() {
+                    public MessageEditData buildEmptyPage() {
                         if (empty == null) super.buildEmptyPage();
                         return empty.apply(this);
                     }
@@ -97,12 +86,12 @@ public class PageBuilder {
                 }
 
                 @Override
-                public CompletableFuture<MessageEditData> buildPage() {
+                public MessageEditData buildPage() {
                     return page.apply(this);
                 }
 
                 @Override
-                public CompletableFuture<MessageEditData> buildEmptyPage() {
+                public MessageEditData buildEmptyPage() {
                     if (empty == null) super.buildEmptyPage();
                     return empty.apply(this);
                 }
@@ -127,12 +116,12 @@ public class PageBuilder {
                     }
 
                     @Override
-                    public CompletableFuture<MessageEditData> buildPage() {
+                    public MessageEditData buildPage() {
                         return page.apply(this);
                     }
 
                     @Override
-                    public CompletableFuture<MessageEditData> buildEmptyPage() {
+                    public MessageEditData buildEmptyPage() {
                         if (empty == null) super.buildEmptyPage();
                         return empty.apply(this);
                     }
@@ -145,12 +134,12 @@ public class PageBuilder {
                 }
 
                 @Override
-                public CompletableFuture<MessageEditData> buildPage() {
+                public MessageEditData buildPage() {
                     return page.apply(this);
                 }
 
                 @Override
-                public CompletableFuture<MessageEditData> buildEmptyPage() {
+                public MessageEditData buildEmptyPage() {
                     if (empty == null) super.buildEmptyPage();
                     return empty.apply(this);
                 }

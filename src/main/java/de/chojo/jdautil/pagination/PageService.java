@@ -12,7 +12,6 @@ import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.pagination.bag.IPageBag;
 import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import de.chojo.jdautil.parsing.ValueParser;
-import de.chojo.jdautil.util.Futures;
 import de.chojo.jdautil.util.SnowflakeCreator;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
@@ -28,6 +27,7 @@ import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -83,44 +83,28 @@ public class PageService extends ListenerAdapter {
      */
     public void registerPage(IReplyCallback event, IPageBag page, boolean ephemeral) throws EmptyPageBagException {
         if (page.isEmpty()) {
-            page.buildEmptyPage()
-                .whenComplete(Futures.whenComplete(
-                        embed -> {
-                            if (!event.isAcknowledged()) {
-                                event.reply(MessageCreateData.fromEditData(embed)).setEphemeral(ephemeral).queue();
-                                return;
-                            }
-                            event.getHook().editOriginal(embed)
-                                 .queue();
-                        },
-                        err -> log.error("Could not build page", err)))
-                .exceptionally(ex -> {
-                    log.error("Could not send page", ex);
-                    return null;
-                });
-            ;
+            MessageEditData embed = page.buildEmptyPage();
+            if (!event.isAcknowledged()) {
+                event.reply(MessageCreateData.fromEditData(embed)).setEphemeral(ephemeral).complete();
+                return;
+            }
+            event.getHook().editOriginal(embed).complete();
             return;
         }
 
         var id = nextId();
-
-        page.buildPage().whenComplete(Futures.whenComplete(embed -> {
-                cache.put(id, page);
-                if (!event.isAcknowledged()) {
-                    event.reply(MessageCreateData.fromEditData(embed))
-                         .setComponents(getPageButtons(event.getGuild(), page, id))
-                         .setEphemeral(ephemeral)
-                         .complete();
-                    return;
-                }
-                event.getHook().editOriginal(embed)
-                     .setComponents(getPageButtons(event.getGuild(), page, id))
-                     .complete();
-            }, err -> log.error("Could not build page", err)))
-            .exceptionally(ex -> {
-                log.error("Could not send page", ex);
-                return null;
-            });
+        MessageEditData embed = page.buildPage();
+        cache.put(id, page);
+        if (!event.isAcknowledged()) {
+            event.reply(MessageCreateData.fromEditData(embed))
+                 .setComponents(getPageButtons(event.getGuild(), page, id))
+                 .setEphemeral(ephemeral)
+                 .complete();
+            return;
+        }
+        event.getHook().editOriginal(embed)
+             .setComponents(getPageButtons(event.getGuild(), page, id))
+             .complete();
     }
 
     /**
@@ -132,24 +116,19 @@ public class PageService extends ListenerAdapter {
      */
     public void registerPage(MessageChannel channel, IPageBag page) throws EmptyPageBagException {
         if (page.isEmpty()) {
-            page.buildEmptyPage().whenComplete(Futures.whenComplete(
-                    embed -> channel.sendMessage(MessageCreateData.fromEditData(embed)).queue(),
-                    err -> log.error("Could not build page", err)));
+            MessageEditData embed = page.buildEmptyPage();
+            channel.sendMessage(MessageCreateData.fromEditData(embed)).complete();
             return;
         }
 
         var id = nextId();
 
-        page.buildPage()
-            .whenComplete(Futures.whenComplete(
-                    embed -> {
-                        channel.sendMessage(MessageCreateData.fromEditData(embed))
-                               .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
-                               .queue();
-                        log.trace("Registering page with id {}", id);
-                        cache.put(id, page);
-                    },
-                    err -> log.error("Could not build page", err)));
+        MessageEditData embed = page.buildPage();
+        channel.sendMessage(MessageCreateData.fromEditData(embed))
+               .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
+               .complete();
+        log.trace("Registering page with id {}", id);
+        cache.put(id, page);
     }
 
     @SubscribeEvent
@@ -166,21 +145,21 @@ public class PageService extends ListenerAdapter {
 
         var page = cache.getIfPresent(pageId.get());
         if (page == null || !page.canInteract(event.getUser())) {
-            log.trace("Page {} is unkown", pageId.get());
+            log.trace("Page {} is unknown", pageId.get());
             return;
         }
 
         var id = split[1];
         if (nextId.equals(id) && page.hasNext()) {
             if (!event.isAcknowledged()) {
-                event.deferEdit().queue();
+                event.deferEdit().complete();
                 log.trace("Event not acknowledged. Defering reply");
             }
             page.scrollNext();
             sendPage(event, pageId.get());
         } else if (previousId.equals(id) && page.hasPrevious()) {
             if (!event.isAcknowledged()) {
-                event.deferEdit().queue();
+                event.deferEdit().complete();
                 log.trace("Event not acknowledged. Defering reply");
             }
             page.scrollPrevious();
@@ -222,24 +201,23 @@ public class PageService extends ListenerAdapter {
         var page = cache.getIfPresent(pageId);
         if (page.isEmpty()) {
             log.trace("Page is empty");
-            page.buildEmptyPage().whenComplete(Futures.whenComplete(
-                    embed -> event.getHook().editOriginal(embed).queue(),
-                    err -> log.error("Could not build page", err)));
+            MessageEditData embed = page.buildEmptyPage();
+            event.getHook().editOriginal(embed).complete();
             return;
         }
         log.info("Build and send new page.");
-        page.buildPage()
-            .whenComplete(Futures.whenComplete(
-                    embed -> event.getHook()
-                                  .editOriginal(embed)
-                                  .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                                  .queue(),
-                    err -> {
-                        log.error("Could not build page", err);
-                        event.getHook().editOriginal("Something went wrong")
-                             .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                             .queue();
-                    }));
+        try {
+            MessageEditData embed = page.buildPage();
+            event.getHook()
+                 .editOriginal(embed)
+                 .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                 .complete();
+        } catch (Exception e) {
+            log.error("Could not build page", e);
+            event.getHook().editOriginal("Something went wrong")
+                 .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                 .complete();
+        }
     }
 
     public long nextId() {

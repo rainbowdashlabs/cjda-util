@@ -70,7 +70,7 @@ public class ConversationService extends ListenerAdapter {
         var guild = Channel.guildFromMessageChannel(channel);
         if (dialogInProgress(user, channel)) {
             var message = localizer.localize("conversation.inProgress", guild);
-            channel.sendMessage(message).queue();
+            channel.sendMessage(message).complete();
             return;
         }
 
@@ -85,7 +85,7 @@ public class ConversationService extends ListenerAdapter {
         var guild = event.isFromGuild() ? event.getGuild() : null;
         if (dialogInProgress(event.getUser(), event.getMessageChannel())) {
             var message = localizer.localize("conversation.inProgress", guild);
-            event.reply(message).queue();
+            event.reply(message).complete();
             return;
         }
 
@@ -109,7 +109,7 @@ public class ConversationService extends ListenerAdapter {
         removeDialog(key);
         var guild = Channel.guildFromMessageChannel(channel);
         var message = localizer.localize(finished ? "conversation.finished" : "conversation.canceled", guild);
-        channel.sendMessage(message).queue();
+        channel.sendMessage(message).complete();
     }
 
     @SubscribeEvent
@@ -118,7 +118,7 @@ public class ConversationService extends ListenerAdapter {
 
         var location = UserChannelKey.of(event.getUser(), event.getMessageChannel());
         if (button.containsKey(location)) {
-            if (!event.isAcknowledged()) event.deferEdit().queue();
+            if (!event.isAcknowledged()) event.deferEdit().complete();
             var dialog = button.get(location);
             if (dialog.first != event.getMessageIdLong()) return;
 

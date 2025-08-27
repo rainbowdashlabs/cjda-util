@@ -60,7 +60,7 @@ public class SubCommand implements Route<RouteMeta> {
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
         if (checkAndReplyPremium(context, meta())) {
-            event.replyChoices().queue();
+            event.replyChoices().complete();
             return;
         }
 

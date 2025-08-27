@@ -96,7 +96,7 @@ public class Slash implements CommandDataProvider {
 
         if (handler != null) {
             if (isNotEntitled(context, meta)) {
-                event.replyChoices().queue();
+                event.replyChoices().complete();
                 return;
             }
             handler.onAutoComplete(event, context);

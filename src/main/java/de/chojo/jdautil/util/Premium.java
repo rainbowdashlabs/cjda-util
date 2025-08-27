@@ -63,12 +63,12 @@ public final class Premium {
             MessageEditData data = MessageEditBuilder.from(MessageEditData.fromContent(context.localize(context.interactionHub().premiumErrorMessage())))
                                                      .setComponents(buttons)
                                                      .build();
-            context.event().getHook().editOriginal(data).queue();
+            context.event().getHook().editOriginal(data).complete();
             return;
         }
         context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
                .addComponents(buttons)
-               .queue();
+               .complete();
     }
 
     @Deprecated(forRemoval = true)
