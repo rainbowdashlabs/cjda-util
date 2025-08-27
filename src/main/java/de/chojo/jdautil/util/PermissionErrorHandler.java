@@ -62,7 +62,7 @@ public final class PermissionErrorHandler {
         if (permission != Permission.MESSAGE_SEND && permission != Permission.VIEW_CHANNEL
             && PermissionUtil.checkPermission(channel.getPermissionContainer(), channel.getGuild()
                                                                                        .getSelfMember(), Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
-            channel.sendMessage(errorMessage).queue();
+            channel.sendMessage(errorMessage).complete();
             return;
         }
         // botlists always have permission issues. We will ignore them and wont try to notify anyone...
@@ -74,7 +74,7 @@ public final class PermissionErrorHandler {
              .flatMap(member -> member.getUser().openPrivateChannel())
              .flatMap(privateChannel -> privateChannel.sendMessage(finalErrorMessage))
              .onErrorMap(t -> null)
-             .queue();
+             .complete();
     }
 
     /**

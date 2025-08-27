@@ -10,56 +10,55 @@ import de.chojo.jdautil.pagination.exceptions.EmptyPageBagException;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface IPageBag {
 
-    static IPageBag standard(int pages, Supplier<MessageEditData> embed){
+    static IPageBag standard(int pages, Supplier<MessageEditData> embed) {
         return new PageBag(pages) {
             @Override
-            public CompletableFuture<MessageEditData> buildPage() {
-                return CompletableFuture.completedFuture(embed.get());
+            public MessageEditData buildPage() {
+                return embed.get();
             }
         };
     }
-    static IPageBag standard(int pages, Function<IPageBag,MessageEditData> embed, Function<IPageBag,MessageEditData> empty){
+
+    static IPageBag standard(int pages, Function<IPageBag, MessageEditData> embed, Function<IPageBag, MessageEditData> empty) {
         return new PageBag(pages) {
             @Override
-            public CompletableFuture<MessageEditData> buildPage() {
-                return CompletableFuture.completedFuture(embed.apply(this));
+            public MessageEditData buildPage() {
+                return embed.apply(this);
             }
 
             @Override
-            public CompletableFuture<MessageEditData> buildEmptyPage() {
-                return CompletableFuture.completedFuture(empty.apply(this));
-            }
-        };
-    }
-
-    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed){
-        return new ListPageBag<>(pages) {
-            @Override
-            public CompletableFuture<MessageEditData> buildPage() {
-                return CompletableFuture.completedFuture(embed.apply(this));
+            public MessageEditData buildEmptyPage() {
+                return empty.apply(this);
             }
         };
     }
 
-    static <T>IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed, Function<ListPageBag<T>, MessageEditData> empty){
+    static <T> IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed) {
         return new ListPageBag<>(pages) {
             @Override
-            public CompletableFuture<MessageEditData> buildPage() {
-                return CompletableFuture.completedFuture(embed.apply(this));
+            public MessageEditData buildPage() {
+                return embed.apply(this);
+            }
+        };
+    }
+
+    static <T> IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed, Function<ListPageBag<T>, MessageEditData> empty) {
+        return new ListPageBag<>(pages) {
+            @Override
+            public MessageEditData buildPage() {
+                return embed.apply(this);
             }
 
             @Override
-            public CompletableFuture<MessageEditData> buildEmptyPage() {
-                return CompletableFuture.completedFuture(empty.apply(this));
+            public MessageEditData buildEmptyPage() {
+                return empty.apply(this);
             }
         };
     }
@@ -130,17 +129,19 @@ public interface IPageBag {
     /**
      * Build the embed for the page.
      *
-     * @return A {@link CompletableFuture} providing the message embed.
+     * @return A message embed.
      */
-    CompletableFuture<MessageEditData> buildPage();
+    default MessageEditData buildPage() {
+        return buildPage();
+    }
 
     /**
      * Build an embed for an empty page when the bag is empty
      *
-     * @return A {@link CompletableFuture} providing the message embed.
+     * @return A message embed.
      * @throws EmptyPageBagException when not overridden.
      */
-    default CompletableFuture<MessageEditData> buildEmptyPage() {
+    default MessageEditData buildEmptyPage() {
         throw new EmptyPageBagException("The provided page bag is empty. Escape empty page submission or implement IPageBag#buildEmptyPage()");
     }
 

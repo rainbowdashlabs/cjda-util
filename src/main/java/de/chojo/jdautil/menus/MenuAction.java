@@ -56,7 +56,7 @@ public class MenuAction {
         if (channel != null) {
             channel.sendMessage(message)
                     .addComponents(rows)
-                    .queue();
+                    .complete();
         }
 
         if (callback != null) {
@@ -66,7 +66,7 @@ public class MenuAction {
             callback.getHook()
                     .editOriginal(MessageEditData.fromCreateData(message))
                     .setComponents(rows)
-                    .queue();
+                    .complete();
         }
     }
 

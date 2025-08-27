@@ -19,18 +19,18 @@ public record EntryContext<Event extends ComponentInteraction, Component extends
         Event event, MenuEntry<Component, Event> entry, MenuContainer container) {
 
     public void refresh() {
-        event.deferEdit().setComponents(container.actionRows()).queue();
+        event.deferEdit().setComponents(container.actionRows()).complete();
     }
 
     public void refresh(Message message) {
-        event.editMessage(MessageEditData.fromMessage(message)).setComponents(container.actionRows()).queue();
+        event.editMessage(MessageEditData.fromMessage(message)).setComponents(container.actionRows()).complete();
     }
 
     public void refresh(MessageEmbed... message) {
-        event.editMessageEmbeds(message).setContent("").setComponents(container.actionRows()).queue();
+        event.editMessageEmbeds(message).setContent("").setComponents(container.actionRows()).complete();
     }
 
     public void refresh(String message) {
-        event.editMessage(message).setEmbeds(Collections.emptyList()).setComponents(container.actionRows()).queue();
+        event.editMessage(message).setEmbeds(Collections.emptyList()).setComponents(container.actionRows()).complete();
     }
 }

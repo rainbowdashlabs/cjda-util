@@ -56,7 +56,7 @@ public class ModalService extends ListenerAdapter {
      */
     public void registerModal(GenericCommandInteractionEvent callback, ModalHandler handler) {
         var snowflake = snowflakeCreator.nextString();
-        callback.replyModal(handler.createModal(snowflake, localizer.context(LocaleProvider.guild(callback)))).queue();
+        callback.replyModal(handler.createModal(snowflake, localizer.context(LocaleProvider.guild(callback)))).complete();
         handlers.put(snowflake, handler);
     }
 

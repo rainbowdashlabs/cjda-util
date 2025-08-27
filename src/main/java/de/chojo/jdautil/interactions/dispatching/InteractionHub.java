@@ -188,7 +188,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
-                event.replyChoices().queue();
+                event.replyChoices().complete();
                 return;
             }
             command.onAutoComplete(event, context);
@@ -284,10 +284,10 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                     deploy.addAll(guildCommands.get(guild.getIdLong()));
                 }
                 log.debug("Published {} commands on {}.", deploy.size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(deploy).queue();
+                guild.updateCommands().addCommands(deploy).complete();
             }
             log.debug("Global slash commands were unregistered.");
-            shardManager.getShards().get(0).updateCommands().queue();
+            shardManager.getShards().get(0).updateCommands().complete();
             return;
         }
 
@@ -311,7 +311,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
             for (var guild : shardManager.getGuilds()) {
                 var cmds = guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList());
                 log.debug("Cleaning and updating {} guild commands for {}.", cmds.size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(cmds).queue();
+                guild.updateCommands().addCommands(cmds).complete();
             }
         } else {
             for (var entry : guildCommands.entrySet()) {
@@ -321,7 +321,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                     continue;
                 }
                 log.debug("Updating {} guild commands for {}.", entry.getValue().size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(entry.getValue()).queue();
+                guild.updateCommands().addCommands(entry.getValue()).complete();
             }
         }
     }
@@ -329,10 +329,10 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public void refreshGuildCommands(Guild guild) {
         var guildData = getGuildData();
         if (!guildData.containsKey(guild.getIdLong())) {
-            guild.updateCommands().queue();
+            guild.updateCommands().complete();
             return;
         }
-        guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).queue();
+        guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).complete();
     }
 
     @SubscribeEvent

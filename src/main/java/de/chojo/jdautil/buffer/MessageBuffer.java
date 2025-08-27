@@ -55,7 +55,7 @@ public class MessageBuffer implements Runnable {
         oldest = null;
         var string = buffer.toString();
         buffer.setLength(0);
-        shardManager.getTextChannelById(channelId).sendMessage(string).queue();
+        shardManager.getTextChannelById(channelId).sendMessage(string).complete();
     }
 
     private String timestamp() {
