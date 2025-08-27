@@ -93,25 +93,34 @@ public class PageService extends ListenerAdapter {
                             event.getHook().editOriginal(embed)
                                  .queue();
                         },
-                        err -> log.error("Could not build page", err)));
+                        err -> log.error("Could not build page", err)))
+                .exceptionally(ex -> {
+                    log.error("Could not send page", ex);
+                    return null;
+                });
+            ;
             return;
         }
 
         var id = nextId();
 
         page.buildPage().whenComplete(Futures.whenComplete(embed -> {
-            cache.put(id, page);
-            if (!event.isAcknowledged()) {
-                event.reply(MessageCreateData.fromEditData(embed))
+                cache.put(id, page);
+                if (!event.isAcknowledged()) {
+                    event.reply(MessageCreateData.fromEditData(embed))
+                         .setComponents(getPageButtons(event.getGuild(), page, id))
+                         .setEphemeral(ephemeral)
+                         .complete();
+                    return;
+                }
+                event.getHook().editOriginal(embed)
                      .setComponents(getPageButtons(event.getGuild(), page, id))
-                     .setEphemeral(ephemeral)
-                     .queue();
-                return;
-            }
-            event.getHook().editOriginal(embed)
-                 .setComponents(getPageButtons(event.getGuild(), page, id))
-                 .queue();
-        }, err -> log.error("Could not build page", err)));
+                     .complete();
+            }, err -> log.error("Could not build page", err)))
+            .exceptionally(ex -> {
+                log.error("Could not send page", ex);
+                return null;
+            });
     }
 
     /**
@@ -200,6 +209,7 @@ public class PageService extends ListenerAdapter {
         var buttons = page.buttons().stream()
                           .map(b -> b.component(page, id, localizer.context(LocaleProvider.guild(guild))))
                           .toList();
+        if (buttons.isEmpty()) return actionRows;
         actionRows.addAll(ActionRow.partitionOf(buttons));
         return actionRows;
     }
