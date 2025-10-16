@@ -24,7 +24,7 @@ dependencyResolutionManagement {
             library("javalin-openapi", "io.javalin.community.openapi", "javalin-openapi-plugin").versionRef("javalin")
             bundle("javalin", listOf("javalin-core", "javalin-openapi"))
 
-            version("jda", "6.0.0-rc.3")
+            version("jda", "6.0.0")
             library("jda", "net.dv8tion", "JDA").versionRef("jda")
 
             plugin("spotless", "com.diffplug.spotless").version("6.25.0")
