@@ -21,12 +21,12 @@ public class ButtonDialog {
     private final Map<String, ComponenAction> components = new HashMap<>();
 
     public ButtonDialog add(ComponenAction action) {
-        components.put(action.component().getId(), action);
+        components.put(action.component().getCustomId(), action);
         return this;
     }
 
     public ButtonDialog add(ActionComponent component, Function<InteractionContext, Result> onClick) {
-        components.put(component.getId(), new ComponenAction(component, onClick));
+        components.put(component.getCustomId(), new ComponenAction(component, onClick));
         return this;
     }
 
