@@ -27,7 +27,7 @@ dependencies {
 
     // unit testing
     testImplementation(libs.bundles.junit)
-    testImplementation("org.mockito", "mockito-core", "5.18.0")
+    testImplementation("org.mockito", "mockito-core", "5.20.0")
 }
 
 spotless {
