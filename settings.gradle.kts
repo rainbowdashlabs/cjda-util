@@ -27,7 +27,7 @@ dependencyResolutionManagement {
             version("jda", "6.0.0")
             library("jda", "net.dv8tion", "JDA").versionRef("jda")
 
-            plugin("spotless", "com.diffplug.spotless").version("6.25.0")
+            plugin("spotless", "com.diffplug.spotless").version("8.0.0")
 
         }
     }
