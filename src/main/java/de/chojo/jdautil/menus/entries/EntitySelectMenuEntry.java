@@ -21,7 +21,7 @@ public class EntitySelectMenuEntry extends MenuEntry<EntitySelectMenu, EntitySel
 
     @Override
     public ActionRowChildComponent component(long id, LocalizationContext localizer) {
-        return component().createCopy().setId(String.format("%s:%s", id, component().getId()))
+        return component().createCopy().setCustomId(String.format("%s:%s", id, component().getCustomId()))
                           .setPlaceholder(localizer.localize(component().getPlaceholder()))
                           .build();
     }

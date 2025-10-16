@@ -166,7 +166,7 @@ public class PageService extends ListenerAdapter {
             sendPage(event, pageId.get());
         } else {
             page.buttons().stream()
-                .filter(button -> Objects.equals(button.button(page).getId(), id))
+                .filter(button -> Objects.equals(button.button(page).getCustomId(), id))
                 .findFirst()
                 .ifPresent(button -> button.invoke(page, event));
         }

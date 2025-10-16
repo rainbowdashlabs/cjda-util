@@ -6,6 +6,7 @@ plugins {
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
     alias(libs.plugins.spotless)
+    id ("org.openrewrite.rewrite") version "7.18.0"
 }
 
 repositories {
@@ -14,6 +15,7 @@ repositories {
 }
 
 dependencies {
+    rewrite(libs.jda)
     api(libs.jda)
     api("org.apache.commons", "commons-text", "1.14.0")
 
@@ -47,6 +49,9 @@ publishData {
     publishComponent("java")
 }
 
+rewrite{
+    activeRecipe("net.dv8tion.MigrateComponentsV2", "net.dv8tion.MigrateComponentsV2Packages", "net.dv8tion.MigrateComponentsV2CustomIdGetters")
+}
 
 publishing {
     publications.create<MavenPublication>("maven") {

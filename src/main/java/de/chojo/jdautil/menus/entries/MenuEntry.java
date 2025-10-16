@@ -63,7 +63,7 @@ public abstract class MenuEntry<Component extends ActionComponent, Event extends
     }
 
     public String id() {
-        return component.getId();
+        return component.getCustomId();
     }
 
     public Type type() {

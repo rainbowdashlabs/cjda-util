@@ -24,7 +24,7 @@ public class StringSelectMenuEntry extends MenuEntry<StringSelectMenu, StringSel
         var options = component().getOptions().stream().map(opt -> opt.withLabel(localizer.localize(opt.getLabel()))
                                                                       .withDescription(localizer.localize(opt.getDescription())))
                                  .toList();
-        return StringSelectMenu.create(String.format("%s:%s", id, component().getId()))
+        return StringSelectMenu.create(String.format("%s:%s", id, component().getCustomId()))
                                .addOptions(options)
                                .setPlaceholder(localizer.localize(component().getPlaceholder()))
                                .build();
