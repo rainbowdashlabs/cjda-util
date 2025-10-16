@@ -1,12 +1,10 @@
-import org.gradle.internal.impldep.org.apache.commons.lang.CharEncoding
-
 plugins {
     java
     `maven-publish`
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
     alias(libs.plugins.spotless)
-    id ("org.openrewrite.rewrite") version "7.18.0"
+    id("org.openrewrite.rewrite") version "7.18.0"
 }
 
 repositories {
@@ -28,17 +26,16 @@ dependencies {
     annotationProcessor(libs.javalin.openapiannotation)
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
-    testImplementation("org.junit.jupiter", "junit-jupiter")
+    testImplementation(libs.bundles.junit)
     testImplementation("org.mockito", "mockito-core", "5.18.0")
 }
 
-    spotless {
-        java {
-            licenseHeaderFile(rootProject.file("HEADER.txt"))
-            target("**/*.java")
-        }
+spotless {
+    java {
+        licenseHeaderFile(rootProject.file("HEADER.txt"))
+        target("**/*.java")
     }
+}
 
 group = "de.chojo"
 version = "2.12.0+jda-${libs.versions.jda.get()}"
@@ -49,8 +46,12 @@ publishData {
     publishComponent("java")
 }
 
-rewrite{
-    activeRecipe("net.dv8tion.MigrateComponentsV2", "net.dv8tion.MigrateComponentsV2Packages", "net.dv8tion.MigrateComponentsV2CustomIdGetters")
+rewrite {
+    activeRecipe(
+        "net.dv8tion.MigrateComponentsV2",
+        "net.dv8tion.MigrateComponentsV2Packages",
+        "net.dv8tion.MigrateComponentsV2CustomIdGetters"
+    )
 }
 
 publishing {
@@ -77,7 +78,7 @@ java {
     withSourcesJar()
     withJavadocJar()
 
-    toolchain{
+    toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
@@ -91,12 +92,12 @@ tasks {
     }
 
     compileJava {
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
     }
 
     javadoc {
         val options = options as StandardJavadocDocletOptions
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
         options.links(
             "https://ci.dv8tion.net/job/JDA/javadoc/",
             "https://javadoc.io/doc/io.javalin/javalin/6.2.0/",

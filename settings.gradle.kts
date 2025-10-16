@@ -27,6 +27,11 @@ dependencyResolutionManagement {
             version("jda", "6.0.0")
             library("jda", "net.dv8tion", "JDA").versionRef("jda")
 
+            version("junit", "6.0.0")
+            library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").versionRef("junit")
+            library("junit-platform", "org.junit.platform", "junit-platform-launcher").versionRef("junit")
+            bundle("junit", listOf("junit-jupiter", "junit-platform"))
+
             plugin("spotless", "com.diffplug.spotless").version("6.25.0")
 
         }
