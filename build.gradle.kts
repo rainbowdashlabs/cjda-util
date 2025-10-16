@@ -26,9 +26,7 @@ dependencies {
     annotationProcessor(libs.javalin.openapiannotation)
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
-    testImplementation("org.junit.platform:junit-platform-launcher:6.0.0")
-    testImplementation("org.junit.jupiter", "junit-jupiter")
+    testImplementation(libs.bundles.junit)
     testImplementation("org.mockito", "mockito-core", "5.18.0")
 }
 
