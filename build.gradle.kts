@@ -1,5 +1,3 @@
-import org.gradle.internal.impldep.org.apache.commons.lang.CharEncoding
-
 plugins {
     java
     `maven-publish`
@@ -91,12 +89,12 @@ tasks {
     }
 
     compileJava {
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
     }
 
     javadoc {
         val options = options as StandardJavadocDocletOptions
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
         options.links(
             "https://ci.dv8tion.net/job/JDA/javadoc/",
             "https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
