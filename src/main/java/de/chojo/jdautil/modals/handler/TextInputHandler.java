@@ -7,6 +7,8 @@
 package de.chojo.jdautil.modals.handler;
 
 import de.chojo.jdautil.localization.LocalizationContext;
+import net.dv8tion.jda.api.components.ModalTopLevelComponent;
+import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
@@ -17,10 +19,12 @@ import java.util.function.Consumer;
 public class TextInputHandler {
     private final TextInput.Builder input;
     private final Consumer<ModalMapping> mapping;
+    private final String label;
 
-    TextInputHandler(@NotNull TextInput.Builder input, @NotNull Consumer<ModalMapping> mapping) {
+    TextInputHandler(@NotNull TextInput.Builder input, @NotNull Consumer<ModalMapping> mapping, String label) {
         this.input = input;
         this.mapping = mapping;
+        this.label = label;
     }
 
     public static TextInputHandlerBuilder builder(String id, String label, TextInputStyle style) {
@@ -31,13 +35,13 @@ public class TextInputHandler {
         this.mapping.accept(mapping);
     }
 
-    public TextInput input(LocalizationContext localizer) {
-        return input.setLabel(localizer.localize(input.getLabel()))
-                    .setPlaceholder(localizer.localize(input.getPlaceholder()))
-                    .build();
+    public ModalTopLevelComponent input(LocalizationContext localizer) {
+        var textInput = input.setPlaceholder(localizer.localize(input.getPlaceholder()))
+             .build();
+        return Label.of(localizer.localize(label), textInput);
     }
 
     public String id() {
-        return input.getId();
+        return input.getCustomId();
     }
 }

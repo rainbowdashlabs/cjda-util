@@ -7,6 +7,8 @@
 package de.chojo.jdautil.modals.handler;
 
 import de.chojo.jdautil.localization.LocalizationContext;
+import net.dv8tion.jda.api.components.ModalTopLevelComponent;
+import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.modals.Modal;
@@ -31,7 +33,8 @@ public class ModalHandler {
     }
 
     public Modal createModal(String id, LocalizationContext localizer) {
-        var inputs = this.inputs.values().stream().map(input -> ActionRow.of(input.input(localizer))).toList();
+        var inputs = this.inputs.values().stream().map(input -> input.input(localizer)).toArray(ModalTopLevelComponent[]::new);
+
         return Modal.create(id, localizer.localize(label))
                 .addComponents(inputs)
                 .build();
@@ -39,7 +42,7 @@ public class ModalHandler {
 
     public void handle(ModalInteractionEvent event) {
         for (var mapping : event.getValues()) {
-            Optional.ofNullable(inputs.get(mapping.getId())).ifPresent(handler -> handler.handle(mapping));
+            Optional.ofNullable(inputs.get(mapping.getCustomId())).ifPresent(handler -> handler.handle(mapping));
         }
         handler.accept(event);
     }

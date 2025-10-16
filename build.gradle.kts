@@ -1,11 +1,10 @@
-import org.gradle.internal.impldep.org.apache.commons.lang.CharEncoding
-
 plugins {
     java
     `maven-publish`
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
     alias(libs.plugins.spotless)
+    id("org.openrewrite.rewrite") version "7.18.0"
 }
 
 repositories {
@@ -14,29 +13,29 @@ repositories {
 }
 
 dependencies {
+    rewrite(libs.jda)
     api(libs.jda)
     api("org.apache.commons", "commons-text", "1.14.0")
 
     // Serialization
     api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.19.2")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.20.0")
 
     // web api
     api(libs.bundles.javalin)
     annotationProcessor(libs.javalin.openapiannotation)
 
     // unit testing
-    testImplementation(platform("org.junit:junit-bom:5.11.4"))
-    testImplementation("org.junit.jupiter", "junit-jupiter")
-    testImplementation("org.mockito", "mockito-core", "5.18.0")
+    testImplementation(libs.bundles.junit)
+    testImplementation("org.mockito", "mockito-core", "5.20.0")
 }
 
-    spotless {
-        java {
-            licenseHeaderFile(rootProject.file("HEADER.txt"))
-            target("**/*.java")
-        }
+spotless {
+    java {
+        licenseHeaderFile(rootProject.file("HEADER.txt"))
+        target("**/*.java")
     }
+}
 
 group = "de.chojo"
 version = "2.12.0+jda-${libs.versions.jda.get()}"
@@ -47,6 +46,13 @@ publishData {
     publishComponent("java")
 }
 
+rewrite {
+    activeRecipe(
+        "net.dv8tion.MigrateComponentsV2",
+        "net.dv8tion.MigrateComponentsV2Packages",
+        "net.dv8tion.MigrateComponentsV2CustomIdGetters"
+    )
+}
 
 publishing {
     publications.create<MavenPublication>("maven") {
@@ -72,7 +78,7 @@ java {
     withSourcesJar()
     withJavadocJar()
 
-    toolchain{
+    toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
@@ -86,12 +92,12 @@ tasks {
     }
 
     compileJava {
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
     }
 
     javadoc {
         val options = options as StandardJavadocDocletOptions
-        options.encoding = CharEncoding.UTF_8
+        options.encoding = "utf-8"
         options.links(
             "https://ci.dv8tion.net/job/JDA/javadoc/",
             "https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
