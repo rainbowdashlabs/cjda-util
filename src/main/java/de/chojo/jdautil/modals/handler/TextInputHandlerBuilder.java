@@ -17,11 +17,13 @@ import java.util.function.Consumer;
 
 public class TextInputHandlerBuilder {
     private final TextInput.Builder builder;
+    private final String label;
     private Consumer<ModalMapping> handler = Consumers.empty();
 
 
     public TextInputHandlerBuilder(String id, String label, TextInputStyle style) {
-        builder = TextInput.create(id, label, style);
+        this.label = label;
+        builder = TextInput.create(id, style);
     }
 
     /**
@@ -102,6 +104,6 @@ public class TextInputHandlerBuilder {
     }
 
     public TextInputHandler build() {
-        return new TextInputHandler(builder, handler);
+        return new TextInputHandler(builder, handler, label);
     }
 }

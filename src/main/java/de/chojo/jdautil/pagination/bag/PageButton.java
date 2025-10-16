@@ -48,16 +48,16 @@ public interface PageButton {
 
     default Button component(IPageBag page, long id, LocalizationContext localizer) {
         Button button = button(page);
-        if (button.getId() == null) {
+        if (button.getCustomId() == null) {
             if (button.getLabel().isBlank()) {
                 return button;
             }
             return button.withLabel(localizer.localize(button.getLabel()));
         }
         if (button.getLabel().isBlank()) {
-            return button.withId(String.format("%s:%s", id, button.getId()));
+            return button.withCustomId(String.format("%s:%s", id, button.getCustomId()));
         }
-        return button.withId(String.format("%s:%s", id, button.getId()))
+        return button.withCustomId(String.format("%s:%s", id, button.getCustomId()))
                      .withLabel(localizer.localize(button.getLabel()));
     }
 }
