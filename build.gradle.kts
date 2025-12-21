@@ -15,7 +15,7 @@ repositories {
 dependencies {
     rewrite(libs.jda)
     api(libs.jda)
-    api("org.apache.commons", "commons-text", "1.14.0")
+    api("org.apache.commons", "commons-text", "1.15.0")
 
     // Serialization
     api("com.google.guava", "guava", "33.3.0-jre")
