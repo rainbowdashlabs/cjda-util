@@ -24,7 +24,7 @@ dependencyResolutionManagement {
             library("javalin-openapi", "io.javalin.community.openapi", "javalin-openapi-plugin").versionRef("javalin")
             bundle("javalin", listOf("javalin-core", "javalin-openapi"))
 
-            version("jda", "6.0.0")
+            version("jda", "6.2.0")
             library("jda", "net.dv8tion", "JDA").versionRef("jda")
 
             version("junit", "6.0.0")
