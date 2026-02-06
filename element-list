@@ -15,6 +15,7 @@ de.chojo.jdautil.container
 de.chojo.jdautil.conversation
 de.chojo.jdautil.conversation.builder
 de.chojo.jdautil.conversation.elements
+de.chojo.jdautil.eventmanager
 de.chojo.jdautil.functions
 de.chojo.jdautil.interactions.base
 de.chojo.jdautil.interactions.dispatching
