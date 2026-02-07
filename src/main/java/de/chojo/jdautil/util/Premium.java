@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 
 public final class Premium {
+    public static boolean SKIP_ENTITLED_CHECK = SysVar.envOrProp("CJDA_PREMIUM_SKIP_ENTITLED_CHECK", "cjda.premium.skipEntitledCheck", "false").equalsIgnoreCase("true");
+
     private Premium() {
         throw new UnsupportedOperationException("This is a utility class.");
     }
@@ -73,14 +75,17 @@ public final class Premium {
 
     @Deprecated(forRemoval = true)
     public static boolean isNotEntitled(Interaction interaction, SkuMeta meta) {
+        if (SKIP_ENTITLED_CHECK) return false;
         return !meta.isEntitled(interaction.getEntitlements());
     }
 
     public static boolean isNotEntitled(EventContext context, SkuMeta expected) {
+        if (SKIP_ENTITLED_CHECK) return false;
         return !context.entitlements().isEntitled(expected);
     }
 
     public static boolean isNotEntitled(SkuMeta current, SkuMeta expected) {
+        if (SKIP_ENTITLED_CHECK) return false;
         return !current.isEntitled(expected);
     }
 }
