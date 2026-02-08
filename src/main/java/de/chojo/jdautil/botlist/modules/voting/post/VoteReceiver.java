@@ -45,7 +45,7 @@ public abstract class VoteReceiver<T extends VoteDataAdapter> {
         return new VoteReceiver<>(clazz, authHandler) {
             @Override
             public VoteData toVoteData(T data) {
-                return data.toVotaData();
+                return data.toVoteData();
             }
         };
     }

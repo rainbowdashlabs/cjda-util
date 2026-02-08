@@ -14,7 +14,12 @@ public class BotlistMe implements VoteDataAdapter {
     public String type;
 
     @Override
-    public VoteData toVotaData() {
-        return new VoteData(user, false);
+    public VoteData toVoteData() {
+        return new VoteData("botlist.me",user, false,0);
+    }
+
+    @Override
+    public void injectGuild(long guildId) {
+
     }
 }

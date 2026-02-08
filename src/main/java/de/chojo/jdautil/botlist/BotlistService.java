@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -36,10 +37,10 @@ public class BotlistService implements Runnable {
     private final SubmissionService submissionService;
     private Consumer<VoteData> data;
 
-    private BotlistService(ShardManager shardManager, Set<BotList> botLists, VoteService voteService) {
+    private BotlistService(Supplier<Integer> guildCount, Supplier<Integer> userCount, Set<BotList> botLists, VoteService voteService) {
         this.botLists = botLists;
         this.voteService = voteService;
-        this.submissionService = new SubmissionService(this, shardManager);
+        this.submissionService = new SubmissionService(this, guildCount, userCount);
     }
 
     /**

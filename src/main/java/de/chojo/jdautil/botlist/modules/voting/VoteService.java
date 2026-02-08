@@ -68,7 +68,13 @@ public class VoteService {
                 ctx.status(HttpStatus.UNAUTHORIZED_401);
                 return;
             }
+            String guildIdString = ctx.queryParam("guildId");
+            long guildId = 0;
+            if(guildIdString != null) {
+                guildId = Long.parseLong(guildIdString);
+            }
             var data = OBJECT_MAPPER.readValue(ctx.body(), botList.voteReceiver().payload());
+            data.injectGuild(guildId);
             var voteData = botList.voteReceiver().mapToVoteData(data);
             voted(voteData);
             ctx.status(HttpStatus.OK_200);

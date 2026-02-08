@@ -13,9 +13,15 @@ public class TopGg implements VoteDataAdapter {
     public long user;
     public String type;
     public boolean isWeekend;
+    public long guildId = 0;
 
     @Override
-    public VoteData toVotaData() {
-        return new VoteData(user, isWeekend);
+    public VoteData toVoteData() {
+        return new VoteData("top.gg",user, isWeekend, guildId);
+    }
+
+    @Override
+    public void injectGuild(long guildId) {
+        this.guildId = guildId;
     }
 }

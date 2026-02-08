@@ -12,7 +12,7 @@ public class DiscordbotlistCom implements VoteDataAdapter {
     public long id;
 
     @Override
-    public VoteData toVotaData() {
-        return new VoteData(id, false);
+    public VoteData toVoteData() {
+        return new VoteData("discordbotlist.com", id, false, 0);
     }
 }
