@@ -121,7 +121,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
         var name = event.getName();
         var message = getMessage(name).get();
-        var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+        var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
@@ -143,7 +143,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
         var name = event.getName();
         var user = getUser(name).get();
-        var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
+        var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
@@ -165,7 +165,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
 
         var name = event.getName();
         var command = getSlash(name).get();
-        var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel());
+        var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
@@ -193,7 +193,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
             }
             command.onAutoComplete(event, context);
         } catch (Throwable t) {
-            var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel());
+            var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel(), event.getUser());
             commandErrorHandler.accept(executionContext, t);
         }
     }

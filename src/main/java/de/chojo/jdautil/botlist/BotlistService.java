@@ -32,12 +32,14 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class BotlistService implements Runnable {
     private static final Logger log = getLogger(BotlistService.class);
+    private final ShardManager shardManager;
     private final Set<BotList> botLists;
     private final VoteService voteService;
     private final SubmissionService submissionService;
     private Consumer<VoteData> data;
 
-    private BotlistService(Supplier<Integer> guildCount, Supplier<Integer> userCount, Set<BotList> botLists, VoteService voteService) {
+    private BotlistService(ShardManager shardManager, Supplier<Integer> guildCount, Supplier<Integer> userCount, Set<BotList> botLists, VoteService voteService) {
+        this.shardManager = shardManager;
         this.botLists = botLists;
         this.voteService = voteService;
         this.submissionService = new SubmissionService(this, guildCount, userCount);
@@ -49,8 +51,8 @@ public class BotlistService implements Runnable {
      * @param shardManager shardmanager to use for statistics
      * @return builder instance
      */
-    public static Builder build(ShardManager shardManager) {
-        return new Builder(shardManager);
+    public static Builder build(ShardManager shardManager, Supplier<Integer> guildCount, Supplier<Integer> userCount) {
+        return new Builder(shardManager, guildCount, userCount);
     }
 
     @Override
@@ -82,9 +84,13 @@ public class BotlistService implements Runnable {
         private ScheduledExecutorService executorService;
         private final Set<BotList> botLists = new HashSet<>();
         private VoteService voteService;
+        private final Supplier<Integer> guildCount;
+        private final Supplier<Integer> userCount;
 
-        public Builder(ShardManager shardManager) {
+        public Builder(ShardManager shardManager, Supplier<Integer> guildCount, Supplier<Integer> userCount) {
             this.shardManager = shardManager;
+            this.guildCount = guildCount;
+            this.userCount = userCount;
         }
 
         /**
@@ -125,7 +131,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forDiscordBotsGG(BotListConfig config) {
-            return forBotlist(BotListFactory.DISCORDBOTS_GG.build(shardManager, config));
+            return forBotlist(BotListFactory.DISCORD_BOTS_GG.build(shardManager, config));
         }
 
         /**
@@ -179,7 +185,7 @@ public class BotlistService implements Runnable {
                 executorService = Executors.newSingleThreadScheduledExecutor();
             }
             log.info("Started BotlistReporter for {} lists. Sending data every {} {}", botLists.size(), interval, unit.name());
-            var botlistService = new BotlistService(shardManager, botLists, voteService);
+            var botlistService = new BotlistService(shardManager, guildCount, userCount, botLists, voteService);
             executorService.scheduleAtFixedRate(botlistService, 1, interval, unit);
             botlistService.ignite();
             return botlistService;
