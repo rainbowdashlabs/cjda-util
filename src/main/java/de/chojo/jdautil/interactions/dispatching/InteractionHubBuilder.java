@@ -54,7 +54,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
 
-    private Consumer<InteractionResult<T>> postCommandHook = r -> {
+    private Consumer<InteractionResult> postCommandHook = r -> {
     };
     private boolean withConversations;
     @Deprecated
@@ -243,7 +243,7 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
      * @param postCommandHook handler
      * @return builder instance
      */
-    public InteractionHubBuilder<T, M, U> withPostCommandHook(Consumer<InteractionResult<T>> postCommandHook) {
+    public InteractionHubBuilder<T, M, U> withPostCommandHook(Consumer<InteractionResult> postCommandHook) {
         this.postCommandHook = postCommandHook;
         return this;
     }

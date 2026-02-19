@@ -10,9 +10,9 @@ import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
 import de.chojo.jdautil.interactions.base.InteractionScope;
+import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.premium.SKUConfiguration;
-import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.user.User;
 import de.chojo.jdautil.localization.ILocalizer;
@@ -54,6 +54,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static de.chojo.jdautil.interactions.dispatching.InteractionResult.failed;
+import static de.chojo.jdautil.interactions.dispatching.InteractionResult.success;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class InteractionHub<C extends Slash, M extends Message, U extends User> extends ListenerAdapter {
@@ -69,7 +71,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final MenuService buttons;
     private final PageService pages;
     private final ModalService modalService;
-    private final Consumer<InteractionResult<C>> postCommandHook;
+    private final Consumer<InteractionResult> postCommandHook;
     private final Function<InteractionMeta, List<Long>> guildCommandMapper;
     private final boolean cleanGuildCommands;
     private final boolean testMode;
@@ -81,7 +83,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
-                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult<C>> postCommandHook,
+                          MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult> postCommandHook,
                           Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage,
                           SKUConfiguration skuConfiguration,
                           BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider) {
@@ -111,7 +113,7 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
 
     private EventContext buildContext(GenericInteractionCreateEvent event) {
         if (event instanceof IReplyCallback callback) {
-        return new EventContext(callback, conversationService, localizer, buttons, pages, modalService, this, entitlementProvider.apply(event.getUser(), event.getGuild()));
+            return new EventContext(callback, conversationService, localizer, buttons, pages, modalService, this, entitlementProvider.apply(event.getUser(), event.getGuild()));
         }
         return new EventContext(null, conversationService, localizer, buttons, pages, modalService, this, entitlementProvider.apply(event.getUser(), event.getGuild()));
     }
@@ -120,7 +122,11 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @Override
     public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
         var name = event.getName();
-        var message = getMessage(name).get();
+        var message = getMessage(name).orElseThrow(() -> {
+            event.reply("Unknown Interaction.").setEphemeral(true).complete();
+            return new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
+        });
+
         var executionContext = new InteractionContext(message, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
@@ -131,10 +137,11 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
 
             message.onMessage(event, context);
         } catch (Throwable t) {
+            postCommandHook.accept(failed(event, executionContext, t));
             commandErrorHandler.accept(executionContext, t);
             return;
         }
-        postCommandHook.accept(InteractionResult.success(event, executionContext));
+        postCommandHook.accept(success(event, executionContext));
     }
 
 
@@ -142,7 +149,10 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @Override
     public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
         var name = event.getName();
-        var user = getUser(name).get();
+        var user = getUser(name).orElseThrow(() -> {
+            event.reply("Unknown Interaction.").setEphemeral(true).complete();
+            return new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
+        });
         var executionContext = new InteractionContext(user, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getMessageChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
@@ -153,18 +163,21 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
             user.onUser(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
+            postCommandHook.accept(failed(event, executionContext, t));
             return;
         }
-        postCommandHook.accept(InteractionResult.success(event, executionContext));
+        postCommandHook.accept(success(event, executionContext));
     }
 
 
     @SubscribeEvent
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-
         var name = event.getName();
-        var command = getSlash(name).get();
+        var command = getSlash(name).orElseThrow(() -> {
+            event.reply("Unknown Interaction.").setEphemeral(true).complete();
+            return new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
+        });
         var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
@@ -175,16 +188,21 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
             command.onSlashCommand(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
+            postCommandHook.accept(failed(event, executionContext, t));
             return;
         }
-        postCommandHook.accept(InteractionResult.success(event, executionContext));
+        postCommandHook.accept(success(event, executionContext));
     }
 
     @SubscribeEvent
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
         var name = event.getName();
-        var command = getSlash(name).get();
+        var optCommand = getSlash(name);
+        if (optCommand.isEmpty()) {
+            throw new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
+        }
+        var command = optCommand.get();
         try {
             EventContext context = buildContext(event);
             if (!skuConfiguration.isEntitled(event)) {
