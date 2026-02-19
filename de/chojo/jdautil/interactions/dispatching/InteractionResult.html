@@ -83,16 +83,16 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">de.chojo.jdautil.interactions.dispatching</a></div>
-<h1 title="Record Class InteractionResult" class="title">Record Class InteractionResult&lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;</h1>
+<h1 title="Record Class InteractionResult" class="title">Record Class InteractionResult</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">java.lang.Record</a>
-<div class="inheritance">de.chojo.jdautil.interactions.dispatching.InteractionResult&lt;T&gt;</div>
+<div class="inheritance">de.chojo.jdautil.interactions.dispatching.InteractionResult</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">InteractionResult&lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;</span>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event, boolean&nbsp;failed, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;exception, <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context)
+<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">InteractionResult</span>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event, boolean&nbsp;failed, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;exception, <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
 </section>
 <section class="summary">
@@ -126,48 +126,51 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#context()" class="member-name-link">context</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandAsString()" class="member-name-link">commandAsString</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#context()" class="member-name-link">context</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>context</code> record component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#event()" class="member-name-link">event</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#event()" class="member-name-link">event</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>event</code> record component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exception()" class="member-name-link">exception</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#exception()" class="member-name-link">exception</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>exception</code> record component.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#failed()" class="member-name-link">failed</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#failed()" class="member-name-link">failed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>failed</code> record component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;<br><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#failed(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext,java.lang.Throwable)" class="member-name-link">failed</a><wbr>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#failed(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext,java.lang.Throwable)" class="member-name-link">failed</a><wbr>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
  <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;exception)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a hash code value for this object.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static &lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;<br><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#success(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext)" class="member-name-link">success</a><wbr>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#success(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext)" class="member-name-link">success</a><wbr>(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
  <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a string representation of this record class.</div>
 </div>
 </div>
@@ -215,18 +218,22 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="success(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext)">
 <h3>success</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;</span>
-<span class="return-type"><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a>&lt;T&gt;</span>&nbsp;<span class="element-name">success</span><wbr><span class="parameters">(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a></span>&nbsp;<span class="element-name">success</span><wbr><span class="parameters">(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
  <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="failed(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent,de.chojo.jdautil.interactions.dispatching.InteractionContext,java.lang.Throwable)">
 <h3>failed</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="../slash/Slash.html" title="class in de.chojo.jdautil.interactions.slash">Slash</a>&gt;</span>
-<span class="return-type"><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a>&lt;T&gt;</span>&nbsp;<span class="element-name">failed</span><wbr><span class="parameters">(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="InteractionResult.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionResult</a></span>&nbsp;<span class="element-name">failed</span><wbr><span class="parameters">(net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent&nbsp;event,
  <a href="InteractionContext.html" title="class in de.chojo.jdautil.interactions.dispatching">InteractionContext</a>&nbsp;context,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;exception)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="commandAsString()">
+<h3>commandAsString</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">commandAsString</span>()</div>
 </section>
 </li>
 <li>
