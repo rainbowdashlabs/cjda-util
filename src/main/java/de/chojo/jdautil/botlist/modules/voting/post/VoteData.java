@@ -6,8 +6,6 @@
 
 package de.chojo.jdautil.botlist.modules.voting.post;
 
-import java.util.Map;
-
 public class VoteData {
     private final String listId;
     private final long userId;
@@ -25,11 +23,15 @@ public class VoteData {
         return userId;
     }
 
-    public boolean isBonus() {
+    public boolean bonus() {
         return bonus;
     }
 
     public long guildId() {
         return guildId;
+    }
+
+    public String listId() {
+        return listId;
     }
 }

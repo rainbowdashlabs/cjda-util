@@ -38,7 +38,7 @@ spotless {
 }
 
 group = "de.chojo"
-version = "2.14.1+jda-${libs.versions.jda.get()}"
+version = "2.14.2+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
@@ -100,8 +100,8 @@ tasks {
         options.encoding = "utf-8"
         options.links(
             "https://ci.dv8tion.net/job/JDA/javadoc/",
-            "https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
-            "https://javadoc.io/doc/com.google.guava/guava/latest/"
+            //"https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
+            //"https://javadoc.io/doc/com.google.guava/guava/latest/"
         )
     }
 }
