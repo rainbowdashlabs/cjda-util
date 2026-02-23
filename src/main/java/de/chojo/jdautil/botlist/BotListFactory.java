@@ -73,7 +73,7 @@ public interface BotListFactory {
                             .add("server_count", shard.guilds())
             ))
             .useShardStats(false)
-            .withVoteReceiver(VoteReceiverFactory.BOTLIST_ME.build(config.statsToken()))
+            .withVoteReceiver(VoteReceiverFactory.BOTLIST_ME.build(config.voteToken()))
             .build();
 
     /**
