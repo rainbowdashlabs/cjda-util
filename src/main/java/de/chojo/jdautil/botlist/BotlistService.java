@@ -111,6 +111,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forTopGG(BotListConfig config) {
+            validateUrls(config, "https://top.gg");
             return forBotlist(BotListFactory.TOP_GG.build(shardManager, config));
         }
 
@@ -121,6 +122,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forDiscordBotListCOM(BotListConfig config) {
+            validateUrls(config, "https://discordbotlist.com");
             return forBotlist(BotListFactory.DISCORDBOTLIST_COM.build(shardManager, config));
         }
 
@@ -131,6 +133,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forDiscordBotsGG(BotListConfig config) {
+            validateUrls(config, "https://discord.bots.gg");
             return forBotlist(BotListFactory.DISCORD_BOTS_GG.build(shardManager, config));
         }
 
@@ -141,6 +144,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forBotlistMe(BotListConfig config) {
+            validateUrls(config, "https://botlist.me/");
             return forBotlist(BotListFactory.BOTLIST_ME.build(shardManager, config));
         }
 
@@ -173,6 +177,15 @@ public class BotlistService implements Runnable {
         public Builder withVoteService(Function<VoteService.Builder, VoteService> voteService) {
             this.voteService = voteService.apply(VoteService.builder());
             return this;
+        }
+
+        private void validateUrls(BotListConfig config, String base) {
+            if (!config.profileUrl().isBlank() && !config.profileUrl().startsWith(base)) {
+                throw new IllegalArgumentException("Profile URL must start with " + base);
+            }
+            if (!config.voteUrl().isBlank() && !config.voteUrl().startsWith(base)) {
+                throw new IllegalArgumentException("Vote URL must start with " + base);
+            }
         }
 
         /**

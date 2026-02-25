@@ -61,7 +61,7 @@ public interface BotListFactory {
             .build();
 
     /**
-     * Build a discordbotlist.com botlist
+     * Build a botlist.me botlist
      */
     BotListFactory BOTLIST_ME = (shardManager, config) -> BotlistBuilder.builder("botlist.me")
             .forClient(shardManager)
