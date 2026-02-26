@@ -7,9 +7,11 @@
 package de.chojo.jdautil.util;
 
 import de.chojo.jdautil.interactions.base.SkuMeta;
+import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.SkuSnowflake;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
@@ -27,13 +29,12 @@ public final class Premium {
     }
 
     public static List<ActionRow> buildEntitlementButtons(SkuMeta meta) {
-        return ActionRow.partitionOf(meta.sku().stream()
-                                         .map(e -> Button.premium(SkuSnowflake.fromId(e.skuId())))
-                                         .toList());
+        return buildEntitlementButtons(meta.sku().stream().map(SKU::skuId).toList());
     }
 
     public static List<ActionRow> buildEntitlementButtons(Collection<Long> meta) {
         return ActionRow.partitionOf(meta.stream()
+                                .filter(e -> e > 1_000_000) // This is to filter out custom sku ids
                                          .map(e -> Button.premium(SkuSnowflake.fromId(e)))
                                          .toList());
     }
