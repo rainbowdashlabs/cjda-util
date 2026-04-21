@@ -4,7 +4,7 @@ plugins {
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
     alias(libs.plugins.spotless)
-    id("org.openrewrite.rewrite") version "7.30.0"
+    id("org.openrewrite.rewrite") version "7.31.0"
 }
 
 repositories {
