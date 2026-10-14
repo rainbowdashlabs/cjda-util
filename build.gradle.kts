@@ -2,7 +2,7 @@ plugins {
     java
     `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.4.0"
+    id("de.chojo.publishdata") version "2.0.0"
     alias(libs.plugins.spotless)
     id("org.openrewrite.rewrite") version "7.32.1"
 }
