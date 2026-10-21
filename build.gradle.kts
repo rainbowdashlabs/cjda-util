@@ -38,7 +38,7 @@ spotless {
 }
 
 group = "de.chojo"
-version = "2.14.5+jda-${libs.versions.jda.get()}"
+version = "2.15.0+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
