@@ -41,6 +41,18 @@ public class SKUConfiguration {
         return isEntitled(users, interaction);
     }
 
+    /**
+     * Checks the entitlement of a slash command or its autocompletion under a given full command name.
+     * Used when the command was invoked under an alias, since the payload only knows the alias.
+     *
+     * @param interaction     interaction payload
+     * @param fullCommandName full command name with the name of the command instead of the alias
+     * @return true if the user is entitled to use the command
+     */
+    public boolean isCommandEntitled(CommandInteractionPayload interaction, String fullCommandName) {
+        return isEntitled(slash, interaction, fullCommandName);
+    }
+
     public Set<Long> commands(String name) {
         return slash.get(name);
     }
@@ -54,7 +66,11 @@ public class SKUConfiguration {
     }
 
     private boolean isEntitled(Map<String, Set<Long>> map, CommandInteractionPayload payload) {
-        Set<Long> entitlements = map.getOrDefault(payload.getFullCommandName(), Collections.emptySet());
+        return isEntitled(map, payload, payload.getFullCommandName());
+    }
+
+    private boolean isEntitled(Map<String, Set<Long>> map, CommandInteractionPayload payload, String fullCommandName) {
+        Set<Long> entitlements = map.getOrDefault(fullCommandName, Collections.emptySet());
         if (!entitlements.isEmpty()) {
             return payload.getEntitlements().stream()
                           .anyMatch(e -> entitlements.contains(e.getIdLong()));

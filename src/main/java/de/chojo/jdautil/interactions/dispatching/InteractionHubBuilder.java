@@ -64,6 +64,7 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
+    private Function<InteractionMeta, Map<Long, String>> aliasMapper = meta -> Collections.emptyMap();
     private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS", "cjda.interactions.cleanguildcommands", "false"));
     ;
     private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE", "cjda.interactions.testmode", "false"));
@@ -76,6 +77,24 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
 
     public InteractionHubBuilder<T, M, U> withGuildCommandMapper(Function<InteractionMeta, List<Long>> commandMapper) {
         this.guildCommandMapper = commandMapper;
+        return this;
+    }
+
+    /**
+     * Defines guild specific names for slash commands.
+     * <p>
+     * A private command is registered under its alias instead of its name on that guild. The guilds of a private
+     * command are still defined by the {@link #withGuildCommandMapper(Function) guild command mapper}.
+     * A global command stays global and is additionally registered as a guild command under its alias.
+     * <p>
+     * The mapper is called for every slash command whenever guild commands are built, which happens on startup and on
+     * every {@link InteractionHub#refreshGuildCommands(Guild) refresh}.
+     *
+     * @param aliasMapper maps a command to the alias it has on each guild, keyed by guild id
+     * @return builder instance
+     */
+    public InteractionHubBuilder<T, M, U> withCommandAliases(Function<InteractionMeta, Map<Long, String>> aliasMapper) {
+        this.aliasMapper = aliasMapper;
         return this;
     }
 
@@ -301,7 +320,7 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
      * <p>
      * This will register the command hub as a listener.
      * <p>
-     * This will also register slash commands, if slash commands are active.
+     * This will also deploy the commands. The deployment runs on a separate thread, see {@link InteractionHub#deployment()}.
      *
      * @return command hub instance
      */
@@ -327,10 +346,10 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
             modals = modalService.build();
         }
         var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, cleanGuildCommands,
+                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, aliasMapper, cleanGuildCommands,
                 testMode, premiumErrorMessage, skuConfiguration, entitlementProvider);
-        shardManager.addEventListener(commandListener);
         commandListener.updateCommands();
+        shardManager.addEventListener(commandListener);
         return commandListener;
     }
 }

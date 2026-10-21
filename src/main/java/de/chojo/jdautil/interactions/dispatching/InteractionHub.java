@@ -9,7 +9,6 @@ package de.chojo.jdautil.interactions.dispatching;
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.CommandDataProvider;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
-import de.chojo.jdautil.interactions.base.InteractionScope;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.interactions.premium.SKUConfiguration;
@@ -19,7 +18,6 @@ import de.chojo.jdautil.localization.ILocalizer;
 import de.chojo.jdautil.menus.MenuService;
 import de.chojo.jdautil.modals.service.ModalService;
 import de.chojo.jdautil.pagination.PageService;
-import de.chojo.jdautil.util.Guilds;
 import de.chojo.jdautil.util.Premium;
 import de.chojo.jdautil.util.SlashCommandUtil;
 import de.chojo.jdautil.wrapper.EventContext;
@@ -31,24 +29,21 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -72,19 +67,19 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     private final PageService pages;
     private final ModalService modalService;
     private final Consumer<InteractionResult> postCommandHook;
-    private final Function<InteractionMeta, List<Long>> guildCommandMapper;
-    private final boolean cleanGuildCommands;
-    private final boolean testMode;
     private final String premiumErrorMessage;
     private final SKUConfiguration skuConfiguration;
     private final BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider;
+    private final CommandDeployer deployer;
 
     public InteractionHub(ShardManager shardManager,
                           Map<String, C> slash, Map<String, M> messages, Map<String, U> users,
                           ConversationService conversationService, ILocalizer localizer,
                           BiConsumer<InteractionContext, Throwable> commandErrorHandler,
                           MenuService buttons, PageService pages, ModalService modalService, Consumer<InteractionResult> postCommandHook,
-                          Function<InteractionMeta, List<Long>> guildCommandMapper, boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage,
+                          Function<InteractionMeta, List<Long>> guildCommandMapper,
+                          Function<InteractionMeta, Map<Long, String>> aliasMapper,
+                          boolean cleanGuildCommands, boolean testMode, String premiumErrorMessage,
                           SKUConfiguration skuConfiguration,
                           BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider) {
         this.shardManager = shardManager;
@@ -98,12 +93,13 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         this.pages = pages;
         this.modalService = modalService;
         this.postCommandHook = postCommandHook;
-        this.guildCommandMapper = guildCommandMapper;
-        this.cleanGuildCommands = cleanGuildCommands;
-        this.testMode = testMode;
         this.premiumErrorMessage = premiumErrorMessage;
         this.skuConfiguration = skuConfiguration;
         this.entitlementProvider = entitlementProvider;
+        var contextInteractions = new ArrayList<CommandDataProvider>(messages.values());
+        contextInteractions.addAll(users.values());
+        this.deployer = new CommandDeployer(shardManager, localizer, Set.copyOf(slash.values()), Set.copyOf(contextInteractions),
+                guildCommandMapper, aliasMapper, cleanGuildCommands, testMode);
     }
 
 
@@ -173,16 +169,16 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @SubscribeEvent
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        var name = event.getName();
-        var command = getSlash(name).orElseThrow(() -> {
+        var command = resolveSlash(event).orElseThrow(() -> {
             event.reply("Unknown Interaction.").setEphemeral(true).complete();
             return new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
         });
         var executionContext = new InteractionContext(command, SlashCommandUtil.commandAsString(event), event.getGuild(), event.getChannel(), event.getUser());
         try {
             EventContext context = buildContext(event);
-            if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(context, skuConfiguration.commands(event.getFullCommandName()));
+            var fullCommandName = canonicalFullCommandName(event, command);
+            if (!skuConfiguration.isCommandEntitled(event, fullCommandName)) {
+                Premium.replyPremium(context, skuConfiguration.commands(fullCommandName));
                 return;
             }
             command.onSlashCommand(event, context);
@@ -197,15 +193,14 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     @SubscribeEvent
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
-        var name = event.getName();
-        var optCommand = getSlash(name);
+        var optCommand = resolveSlash(event);
         if (optCommand.isEmpty()) {
             throw new UnknownInteractionException(event.getGuild(), event.getUser(), event.getChannel(), SlashCommandUtil.commandAsString(event));
         }
         var command = optCommand.get();
         try {
             EventContext context = buildContext(event);
-            if (!skuConfiguration.isEntitled(event)) {
+            if (!skuConfiguration.isCommandEntitled(event, canonicalFullCommandName(event, command))) {
                 event.replyChoices().complete();
                 return;
             }
@@ -226,131 +221,33 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         return premiumErrorMessage;
     }
 
-    private void buildGuildData(Collection<? extends CommandDataProvider> interactions, Map<Long, List<CommandData>> guildCommands) {
-        for (var command : interactions) {
-            try {
-                if (command.meta().scope() == InteractionScope.PRIVATE) {
-                    var data = command.toCommandData(localizer);
-                    for (var guildId : guildCommandMapper.apply(command.meta())) {
-                        guildCommands.computeIfAbsent(guildId, k -> new ArrayList<>()).add(data);
-                    }
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
-            }
-        }
+    /**
+     * Deploys all commands on a separate thread. Interactions are dispatched while the deployment is running.
+     *
+     * @return future completing once every command is deployed
+     */
+    CompletableFuture<Void> updateCommands() {
+        return deployer.start();
     }
 
-    private void buildGlobalData(Collection<? extends CommandDataProvider> interactions, List<CommandData> global) {
-        for (var command : interactions) {
-            try {
-                if (command.meta().scope() == InteractionScope.GLOBAL) {
-                    var data = command.toCommandData(localizer);
-                    global.add(data);
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
-            }
-        }
+    /**
+     * Future of the command deployment started when the hub was built.
+     *
+     * @return future completing once every command is deployed
+     */
+    public CompletableFuture<Void> deployment() {
+        return deployer.deployment();
     }
 
-    private List<CommandData> getGlobalData() {
-        List<CommandData> global = new ArrayList<>();
-        buildGlobalData(getSlash(), global);
-        buildGlobalData(getMessage(), global);
-        buildGlobalData(getUser(), global);
-        return global;
-    }
-
-    private Map<Long, List<CommandData>> getGuildData() {
-        Map<Long, List<CommandData>> guildCommands = new HashMap<>();
-        buildGuildData(getSlash(), guildCommands);
-        buildGuildData(getMessage(), guildCommands);
-        buildGuildData(getUser(), guildCommands);
-        return guildCommands;
-    }
-
-
-    void updateCommands() {
-        log.info("Updating slash commands.");
-        var guildCommands = getGuildData();
-        var global = getGlobalData();
-
-        // Wait for shards to be ready
-        for (var shard : shardManager.getShards()) {
-            try {
-                shard.awaitReady();
-                log.info("Shard {} is ready.", shard.getShardInfo().getShardId());
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        }
-
-        for (var command : global) {
-            log.info("Registering command {}.", command.getName());
-        }
-
-        if (testMode) {
-            // All commands with global scope will be published directly on the guilds
-            // Commands which are on private scope will still only be published on the defined guilds.
-            log.warn("Interactions hub is running in test mode. All interactions will be published on guilds and not globally");
-            for (var guild : shardManager.getGuilds()) {
-                var deploy = global;
-                if (guildCommands.containsKey(guild.getIdLong())) {
-                    log.debug("Adding {} private commands on {}", guildCommands.get(guild.getIdLong()).size(), Guilds.prettyName(guild));
-                    deploy = new ArrayList<>(deploy);
-                    deploy.addAll(guildCommands.get(guild.getIdLong()));
-                }
-                log.debug("Published {} commands on {}.", deploy.size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(deploy).complete();
-            }
-            log.debug("Global slash commands were unregistered.");
-            shardManager.getShards().get(0).updateCommands().complete();
-            return;
-        }
-
-        var baseShard = shardManager.getShards().get(0);
-        log.info("Updating {} global commands.", global.size());
-        baseShard.updateCommands().addCommands(global).queue(RestAction.getDefaultSuccess(), err -> {
-            if (err instanceof ErrorResponseException e && e.getErrorCode() == 50035) {
-                for (var error : e.getSchemaErrors()) {
-                    var loc = error.getLocation().split("\\.", 2);
-                    var commandIndex = Integer.parseInt(loc[0]);
-                    var command = global.get(commandIndex);
-                    log.error("Invalid values in command {} at {}. Caused by:\n{}", command.getName(), loc[1], error.getErrors());
-                }
-                return;
-            }
-            log.error("Could not deploy commands", err);
-        });
-
-        if (cleanGuildCommands) {
-            log.warn("Clean guild command deployment requested. Updating commands for all guilds.");
-            for (var guild : shardManager.getGuilds()) {
-                var cmds = guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList());
-                log.debug("Cleaning and updating {} guild commands for {}.", cmds.size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(cmds).complete();
-            }
-        } else {
-            for (var entry : guildCommands.entrySet()) {
-                var guild = shardManager.getGuildById(entry.getKey());
-                if (guild == null) {
-                    log.warn("Guild {} not found. Can't deploy commands.", entry.getKey());
-                    continue;
-                }
-                log.debug("Updating {} guild commands for {}.", entry.getValue().size(), Guilds.prettyName(guild));
-                guild.updateCommands().addCommands(entry.getValue()).complete();
-            }
-        }
-    }
-
+    /**
+     * Rebuilds and deploys the guild commands of a guild, including its aliases.
+     * <p>
+     * Blocks until discord accepted the commands. Only waits for a deployment running on the same guild.
+     *
+     * @param guild guild to refresh
+     */
     public void refreshGuildCommands(Guild guild) {
-        var guildData = getGuildData();
-        if (!guildData.containsKey(guild.getIdLong())) {
-            guild.updateCommands().complete();
-            return;
-        }
-        guild.updateCommands().addCommands(guildData.get(guild.getIdLong())).complete();
+        deployer.refresh(guild);
     }
 
     @SubscribeEvent
@@ -361,6 +258,22 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         if (conversationService != null) {
             conversationService.invoke(event);
         }
+    }
+
+    /**
+     * Resolves the command of an interaction, either by its own name or by an alias of the guild it was used on.
+     */
+    private Optional<C> resolveSlash(CommandInteractionPayload event) {
+        var command = getSlash(event.getName());
+        if (command.isPresent() || event.getGuild() == null) return command;
+        return deployer.canonicalName(event.getGuild().getIdLong(), event.getName()).flatMap(this::getSlash);
+    }
+
+    /**
+     * The full command name with the alias, if one was used, replaced by the name of the command.
+     */
+    private static String canonicalFullCommandName(CommandInteractionPayload event, Slash command) {
+        return command.meta().name() + event.getFullCommandName().substring(event.getName().length());
     }
 
     public Optional<C> getSlash(String name) {
