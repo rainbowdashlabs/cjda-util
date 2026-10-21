@@ -99,7 +99,7 @@ tasks {
         val options = options as StandardJavadocDocletOptions
         options.encoding = "utf-8"
         options.links(
-            "https://ci.dv8tion.net/job/JDA/javadoc/",
+            "https://docs.jda.wiki/",
             //"https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
             //"https://javadoc.io/doc/com.google.guava/guava/latest/"
         )
