@@ -4,7 +4,7 @@ plugins {
     `java-library`
     id("de.chojo.publishdata") version "1.4.0"
     alias(libs.plugins.spotless)
-    id("org.openrewrite.rewrite") version "7.32.1"
+    id("org.openrewrite.rewrite") version "7.41.0"
 }
 
 repositories {
@@ -18,8 +18,8 @@ dependencies {
     api("org.apache.commons", "commons-text", "1.15.0")
 
     // Serialization
-    api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.21.3")
+    api("com.google.guava", "guava", "33.7.2-jre")
+    api("com.fasterxml.jackson.core", "jackson-databind", "2.22.4")
 
     // web api
     api(libs.bundles.javalin)
@@ -27,7 +27,7 @@ dependencies {
 
     // unit testing
     testImplementation(libs.bundles.junit)
-    testImplementation("org.mockito", "mockito-core", "5.23.0")
+    testImplementation("org.mockito", "mockito-core", "5.24.0")
 }
 
 spotless {
