@@ -179,7 +179,8 @@ public class EventContext {
     }
 
     /**
-     * Returns a guild localizer, which uses the {@link Guild#getLocale()}
+     * Returns a guild localizer. It uses the language from the language provider, else the guild's Discord locale
+     * ({@link Guild#getLocale()}), else the default language.
      *
      * @return localizer with guild locale linked
      */
@@ -197,7 +198,7 @@ public class EventContext {
     }
 
     /**
-     * Returns a guild localizer, which uses the {@link Interaction#getUserLocale()}
+     * Returns a user localizer, which uses the {@link Interaction#getUserLocale()}
      *
      * @return localizer with user locale linked
      */

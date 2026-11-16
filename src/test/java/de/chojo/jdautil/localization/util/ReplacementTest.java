@@ -32,4 +32,24 @@ class ReplacementTest {
 
         Assertions.assertEquals(replacement, deserialized);
     }
+
+    @Test
+    public void ignoresCaseByDefault() {
+        Assertions.assertEquals("Hi Nora", Replacement.create("NAME", "Nora").invoke("Hi %name%"));
+    }
+
+    @Test
+    public void matchCaseOnlyReplacesExactCase() {
+        var replacement = Replacement.create("NAME", "Nora").matchCase();
+
+        Assertions.assertEquals("Hi %name%", replacement.invoke("Hi %name%"));
+        Assertions.assertEquals("Hi Nora", replacement.invoke("Hi %NAME%"));
+    }
+
+    @Test
+    public void keysAndValuesAreLiteral() {
+        Assertions.assertEquals("Costs $5", Replacement.create("PRICE.", "$5").invoke("Costs %PRICE.%"));
+        Assertions.assertEquals(
+                "Costs %PRICEX%", Replacement.create("PRICE.", "$5").invoke("Costs %PRICEX%"));
+    }
 }

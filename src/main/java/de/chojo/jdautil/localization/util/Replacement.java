@@ -14,6 +14,9 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public final class Replacement {
     private final String key;
     private String value;
@@ -137,12 +140,12 @@ public final class Replacement {
     }
 
     /**
-     * Set the replacement to ignore case of placeholder value
+     * Only replace the placeholder when its case matches exactly. By default the case is ignored.
      *
      * @return Replacement with value changed
      */
     public Replacement matchCase() {
-        this.caseSensitive = false;
+        this.caseSensitive = true;
         return this;
     }
 
@@ -153,10 +156,12 @@ public final class Replacement {
      * @return string with key replaced by value.
      */
     public String invoke(String string) {
-        if (!caseSensitive) {
-            return string.replaceAll("(?i)" + key, "{PL}").replace("{PL}", value);
+        if (caseSensitive) {
+            return string.replace(key, value);
         }
-        return string.replace(key, value);
+        return Pattern.compile(Pattern.quote(key), Pattern.CASE_INSENSITIVE)
+                .matcher(string)
+                .replaceAll(Matcher.quoteReplacement(value));
     }
 
     @Override
