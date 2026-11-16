@@ -25,13 +25,13 @@ public class MenuServiceBuilder implements MenuServiceModifier {
     }
 
     @Override
-    public MenuServiceModifier withCache(Cache<Long, MenuContainer> cache) {
+    public MenuServiceBuilder withCache(Cache<Long, MenuContainer> cache) {
         this.cache = cache;
         return this;
     }
 
     @Override
-    public MenuServiceModifier withCache(Consumer<CacheBuilder<Object, Object>> cache) {
+    public MenuServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache) {
         var builder = CacheBuilder.newBuilder();
         cache.accept(builder);
         this.cache = builder.build();
@@ -39,7 +39,7 @@ public class MenuServiceBuilder implements MenuServiceModifier {
     }
 
     @Override
-    public MenuServiceModifier withLocalizer(ILocalizer localizer) {
+    public MenuServiceBuilder withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }

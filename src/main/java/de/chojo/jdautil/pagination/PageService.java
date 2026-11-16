@@ -44,22 +44,22 @@ public class PageService extends ListenerAdapter {
     private final SnowflakeCreator snowflakeCreator = SnowflakeCreator.builder().build();
     private final String previousId;
     private final String nextId;
-    private final String previousLabel;
-    private final String nextLabel;
+    private final String previousText;
+    private final String nextText;
     private final Cache<Long, IPageBag> cache;
     private final ILocalizer localizer;
 
     PageService(
             String previousId,
             String nextId,
-            String previousLabel,
-            String nextLabel,
+            String previousText,
+            String nextText,
             Cache<Long, IPageBag> cache,
             ILocalizer localizer) {
         this.previousId = previousId;
         this.nextId = nextId;
-        this.previousLabel = previousLabel;
-        this.nextLabel = nextLabel;
+        this.previousText = previousText;
+        this.nextText = nextText;
         this.cache = cache;
         this.localizer = localizer;
     }
@@ -186,13 +186,13 @@ public class PageService extends ListenerAdapter {
 
     private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
         var actionRows = new ArrayList<ActionRow>();
-        var previous = localizer.localize(previousLabel, guild).isBlank()
+        var previous = localizer.localize(previousText, guild).isBlank()
                 ? Button.success(addId(id, previousId), Emoji.fromUnicode("⬅"))
-                : Button.success(addId(id, previousId), localizer.localize(previousLabel, guild))
+                : Button.success(addId(id, previousId), localizer.localize(previousText, guild))
                         .withEmoji(Emoji.fromUnicode("⬅"));
-        var next = localizer.localize(nextLabel, guild).isBlank()
+        var next = localizer.localize(nextText, guild).isBlank()
                 ? Button.success(addId(id, nextId), Emoji.fromUnicode("➡️"))
-                : Button.success(addId(id, nextId), localizer.localize(nextLabel, guild))
+                : Button.success(addId(id, nextId), localizer.localize(nextText, guild))
                         .withEmoji(Emoji.fromUnicode("➡️"));
         actionRows.add(ActionRow.of(
                 previous.withDisabled(!page.hasPrevious()),

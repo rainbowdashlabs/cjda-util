@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 
 public class PageServiceBuilder implements PageServiceModifier {
     private final ShardManager shardManager;
-    private String previousLabel = "pageService:previous";
-    private String nextLabel = "pageService:next";
+    private String previousId = "pageService:previous";
+    private String nextId = "pageService:next";
     private String previousText = "Previous";
     private String nextText = "Next";
     private Cache<Long, IPageBag> cache =
@@ -30,26 +30,26 @@ public class PageServiceBuilder implements PageServiceModifier {
     }
 
     /**
-     * Sets the button label of the previous button.
+     * Sets the custom id of the previous button.
      *
-     * @param label button label
+     * @param id custom id
      * @return builder instance
      */
     @Override
-    public PageServiceModifier previousLabel(String label) {
-        this.previousLabel = label;
+    public PageServiceBuilder previousId(String id) {
+        this.previousId = id;
         return this;
     }
 
     /**
-     * Sets the button label of the next button.
+     * Sets the custom id of the next button.
      *
-     * @param label button label
+     * @param id custom id
      * @return builder instance
      */
     @Override
-    public PageServiceModifier nextLabel(String label) {
-        this.nextLabel = label;
+    public PageServiceBuilder nextId(String id) {
+        this.nextId = id;
         return this;
     }
 
@@ -60,7 +60,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return builder instance
      */
     @Override
-    public PageServiceModifier previousText(String text) {
+    public PageServiceBuilder previousText(String text) {
         this.previousText = text;
         return this;
     }
@@ -72,7 +72,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return builder instance
      */
     @Override
-    public PageServiceModifier nextText(String text) {
+    public PageServiceBuilder nextText(String text) {
         this.nextText = text;
         return this;
     }
@@ -84,7 +84,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return builder instance
      */
     @Override
-    public PageServiceModifier withCache(Cache<Long, IPageBag> cache) {
+    public PageServiceBuilder withCache(Cache<Long, IPageBag> cache) {
         this.cache = cache;
         return this;
     }
@@ -96,7 +96,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return builder instance
      */
     @Override
-    public PageServiceModifier withCache(Consumer<CacheBuilder<Object, Object>> cache) {
+    public PageServiceBuilder withCache(Consumer<CacheBuilder<Object, Object>> cache) {
         var builder = CacheBuilder.newBuilder();
         cache.accept(builder);
         this.cache = builder.build();
@@ -110,7 +110,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return builder instance
      */
     @Override
-    public PageServiceModifier withLocalizer(ILocalizer localizer) {
+    public PageServiceBuilder withLocalizer(ILocalizer localizer) {
         this.localizer = localizer;
         return this;
     }
@@ -121,7 +121,7 @@ public class PageServiceBuilder implements PageServiceModifier {
      * @return a new page service instance
      */
     public PageService build() {
-        var service = new PageService(previousLabel, nextLabel, previousText, nextText, cache, localizer);
+        var service = new PageService(previousId, nextId, previousText, nextText, cache, localizer);
         shardManager.addEventListener(service);
         return service;
     }
