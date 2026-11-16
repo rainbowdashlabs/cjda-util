@@ -10,11 +10,10 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.hooks.InterfacedEventManager;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import javax.annotation.Nonnull;
 
 public class InterceptingEventManager implements IEventManager {
     private final InterfacedEventManager eventManager = new InterfacedEventManager();
@@ -25,23 +24,23 @@ public class InterceptingEventManager implements IEventManager {
     }
 
     @Override
-    public void register(@Nonnull Object listener) {
+    public void register(@NonNull Object listener) {
         eventManager.register(listener);
     }
 
     @Override
-    public void unregister(@Nonnull Object listener) {
+    public void unregister(@NonNull Object listener) {
         eventManager.unregister(listener);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public List<Object> getRegisteredListeners() {
         return eventManager.getRegisteredListeners();
     }
 
     @Override
-    public void handle(@Nonnull GenericEvent event) {
+    public void handle(@NonNull GenericEvent event) {
         for (Object obj : getRegisteredListeners()) {
             if (!(obj instanceof EventListener listener)) continue;
             try {

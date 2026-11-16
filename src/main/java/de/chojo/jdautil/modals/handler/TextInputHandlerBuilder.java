@@ -11,10 +11,9 @@ import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Consumer;
-
-import javax.annotation.Nonnull;
 
 public class TextInputHandlerBuilder {
     private final TextInput.Builder builder;
@@ -31,7 +30,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder asOptional() {
         builder.setRequired(false);
         return this;
@@ -42,7 +41,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder withMinLength(int minLength) {
         builder.setMinLength(minLength);
         return this;
@@ -53,7 +52,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder withMaxLength(int maxLength) {
         builder.setMaxLength(maxLength);
         return this;
@@ -64,7 +63,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder withRequiredRange(int min, int max) {
         builder.setRequiredRange(min, max);
         return this;
@@ -75,7 +74,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder withValue(@Nullable String value) {
         builder.setValue(value);
         return this;
@@ -86,7 +85,7 @@ public class TextInputHandlerBuilder {
      *
      * @return builder instance
      */
-    @Nonnull
+    @NonNull
     public TextInputHandlerBuilder withPlaceholder(@Nullable String placeholder) {
         builder.setPlaceholder(placeholder);
         return this;

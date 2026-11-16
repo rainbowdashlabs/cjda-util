@@ -22,10 +22,9 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
-
-import javax.annotation.Nonnull;
 
 public class InteractionContext extends Context {
     private final ComponentInteraction interaction;
@@ -97,13 +96,12 @@ public class InteractionContext extends Context {
         return interaction.getChannel().sendMessage(MessageCreateData.fromMessage(content));
     }
 
-    @Nonnull
+    @NonNull
     public String getComponentId() {
         return interaction.getComponentId();
     }
 
-    @Nonnull
-    public Component.Type getComponentType() {
+    public Component.@NonNull Type getComponentType() {
         return interaction.getComponentType();
     }
 

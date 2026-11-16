@@ -12,12 +12,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 import java.time.temporal.TemporalAccessor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Wrapper for auto localization of embeds.
@@ -53,16 +52,16 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline) {
         return addField(name, value, inline, new Replacement[0]);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     @Deprecated
-    public LocalizedEmbedBuilder addField(@Nullable MessageEmbed.Field field) {
+    public LocalizedEmbedBuilder addField(MessageEmbed.@Nullable Field field) {
         return addField(field.getName(), field.getValue(), field.isInline());
     }
 
@@ -77,49 +76,49 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title) {
         return setTitle(title, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setTitle(@Nullable String title, Replacement... replacements) {
         super.setTitle(localize(title, replacements));
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url) {
         return setTitle(localize(title), url, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setTitle(@Nullable String title, @Nullable String url, Replacement... replacements) {
         super.setTitle(localize(title, replacements), url);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text) {
         return setFooter(text, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setFooter(@Nullable String text, Replacement... replacements) {
         super.setFooter(localize(text, replacements));
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl) {
         return setFooter(text, iconUrl, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setFooter(
             @Nullable String text, @Nullable String iconUrl, Replacement... replacements) {
         super.setFooter(localize(text, replacements), iconUrl);
@@ -141,105 +140,105 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description) {
+    public LocalizedEmbedBuilder appendDescription(@NonNull CharSequence description) {
         return appendDescription(description.toString(), NONE);
     }
 
-    @Nonnull
-    public LocalizedEmbedBuilder appendDescription(@Nonnull CharSequence description, Replacement... replacements) {
+    @NonNull
+    public LocalizedEmbedBuilder appendDescription(@NonNull CharSequence description, Replacement... replacements) {
         super.appendDescription(localize(description.toString(), replacements));
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder clear() {
         super.clear();
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setTimestamp(@Nullable TemporalAccessor temporal) {
         super.setTimestamp(temporal);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setColor(@Nullable Color color) {
         super.setColor(color);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setColor(int color) {
         super.setColor(color);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setThumbnail(@Nullable String url) {
         super.setThumbnail(url);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setImage(@Nullable String url) {
         super.setImage(url);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name) {
         return setAuthor(name, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, Replacement... replacements) {
         super.setAuthor(localize(name, replacements));
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url) {
         return setAuthor(name, url, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, Replacement... replacements) {
         super.setAuthor(localize(name, replacements), url);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl) {
         return setAuthor(name, url, iconUrl, NONE);
     }
 
-    @Nonnull
+    @NonNull
     public LocalizedEmbedBuilder setAuthor(
             @Nullable String name, @Nullable String url, @Nullable String iconUrl, Replacement... replacements) {
         super.setAuthor(localize(name, replacements), url, iconUrl);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder addBlankField(boolean inline) {
         super.addBlankField(inline);
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public LocalizedEmbedBuilder clearFields() {
         super.clearFields();

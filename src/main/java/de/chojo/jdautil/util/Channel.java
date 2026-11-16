@@ -9,8 +9,7 @@ package de.chojo.jdautil.util;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public final class Channel {
     @Nullable

@@ -16,7 +16,8 @@ dependencies {
     api(libs.google.guava)
     api(libs.jackson.databind)
     api(libs.bundles.javalin)
-    compileOnly(libs.jsr305)
+    api(libs.jspecify)
+    compileOnly(libs.jetbrains.annotations)
     annotationProcessor(libs.javalin.openapi.annotation)
 
     testImplementation(platform(libs.junit.bom))
@@ -73,7 +74,7 @@ java {
     withJavadocJar()
 
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -85,13 +86,14 @@ tasks {
         }
     }
 
-    compileJava {
-        options.encoding = "utf-8"
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.release = 21
     }
 
     javadoc {
         val options = options as StandardJavadocDocletOptions
         options.encoding = "utf-8"
-        options.links("https://docs.jda.wiki/")
+        options.links("https://docs.oracle.com/en/java/javase/21/docs/api/", "https://docs.jda.wiki/")
     }
 }

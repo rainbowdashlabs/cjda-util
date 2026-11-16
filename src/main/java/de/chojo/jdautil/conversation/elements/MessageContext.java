@@ -18,13 +18,12 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class MessageContext extends Context {
     private final Message message;
@@ -42,7 +41,7 @@ public class MessageContext extends Context {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public User getAuthor() {
         return message.getAuthor();
     }
@@ -54,46 +53,46 @@ public class MessageContext extends Context {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public String getContentDisplay() {
         return message.getContentDisplay();
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public String getContentRaw() {
         return message.getContentRaw();
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public String getContentStripped() {
         return message.getContentStripped();
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Guild getGuild() {
         return message.getGuild();
     }
 
     @Override
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     public @NotNull MessageCreateAction reply(@NotNull String content) {
         return message.reply(MessageCreateData.fromContent(content));
     }
 
     @Override
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     public @NotNull MessageCreateAction reply(@NotNull MessageEmbed content) {
         return message.replyEmbeds(content);
     }
 
     @Override
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     public @NotNull MessageCreateAction reply(@NotNull Message content) {
         return message.reply(MessageCreateData.fromMessage(content));
     }
