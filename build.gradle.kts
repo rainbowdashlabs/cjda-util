@@ -1,33 +1,28 @@
 plugins {
-    java
-    `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.4.0"
+    `maven-publish`
+    alias(libs.plugins.publishdata)
     alias(libs.plugins.spotless)
-    id("org.openrewrite.rewrite") version "7.32.1"
 }
 
 repositories {
-    maven("https://eldonexus.de/repository/maven-proxies/")
-    maven("https://m2.dv8tion.net/releases")
+    mavenCentral()
+    maven("https://eldonexus.de/repository/maven-public/")
 }
 
 dependencies {
-    rewrite(libs.jda)
     api(libs.jda)
-    api("org.apache.commons", "commons-text", "1.15.0")
-
-    // Serialization
-    api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.21.3")
-
-    // web api
+    api(libs.apache.commons.text)
+    api(libs.google.guava)
+    api(libs.jackson.databind)
     api(libs.bundles.javalin)
-    annotationProcessor(libs.javalin.openapiannotation)
+    compileOnly(libs.jsr305)
+    annotationProcessor(libs.javalin.openapi.annotation)
 
-    // unit testing
-    testImplementation(libs.bundles.junit)
-    testImplementation("org.mockito", "mockito-core", "5.23.0")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.core)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 spotless {
@@ -44,14 +39,6 @@ description = "Discord utilities for use with JDA"
 publishData {
     useEldoNexusRepos(false)
     publishComponent("java")
-}
-
-rewrite {
-    activeRecipe(
-        "net.dv8tion.MigrateComponentsV2",
-        "net.dv8tion.MigrateComponentsV2Packages",
-        "net.dv8tion.MigrateComponentsV2CustomIdGetters"
-    )
 }
 
 publishing {
@@ -98,10 +85,6 @@ tasks {
     javadoc {
         val options = options as StandardJavadocDocletOptions
         options.encoding = "utf-8"
-        options.links(
-            "https://docs.jda.wiki/",
-            //"https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
-            //"https://javadoc.io/doc/com.google.guava/guava/latest/"
-        )
+        options.links("https://docs.jda.wiki/")
     }
 }
