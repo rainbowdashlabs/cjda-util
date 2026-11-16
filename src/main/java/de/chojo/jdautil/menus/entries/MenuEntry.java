@@ -11,13 +11,13 @@ import de.chojo.jdautil.menus.EntryContext;
 import net.dv8tion.jda.api.components.ActionComponent;
 import net.dv8tion.jda.api.components.Component.Type;
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
-import net.dv8tion.jda.api.components.buttons.Button;
 
 import java.util.function.Consumer;
 
@@ -34,15 +34,20 @@ public abstract class MenuEntry<Component extends ActionComponent, Event extends
 
     public abstract ActionRowChildComponent component(long id, LocalizationContext localizer);
 
-    public static MenuEntry<?, ?> of(Button component, Consumer<EntryContext<ButtonInteractionEvent, Button>> eventConsumer) {
+    public static MenuEntry<?, ?> of(
+            Button component, Consumer<EntryContext<ButtonInteractionEvent, Button>> eventConsumer) {
         return new ButtonEntry(component, eventConsumer);
     }
 
-    public static MenuEntry<?, ?> of(StringSelectMenu component, Consumer<EntryContext<StringSelectInteractionEvent, StringSelectMenu>> eventConsumer) {
+    public static MenuEntry<?, ?> of(
+            StringSelectMenu component,
+            Consumer<EntryContext<StringSelectInteractionEvent, StringSelectMenu>> eventConsumer) {
         return new StringSelectMenuEntry(component, eventConsumer);
     }
 
-    public static MenuEntry<?, ?> of(EntitySelectMenu component, Consumer<EntryContext<EntitySelectInteractionEvent, EntitySelectMenu>> eventConsumer) {
+    public static MenuEntry<?, ?> of(
+            EntitySelectMenu component,
+            Consumer<EntryContext<EntitySelectInteractionEvent, EntitySelectMenu>> eventConsumer) {
         return new EntitySelectMenuEntry(component, eventConsumer);
     }
 

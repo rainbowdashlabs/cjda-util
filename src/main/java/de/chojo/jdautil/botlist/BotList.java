@@ -47,9 +47,18 @@ public class BotList {
 
     private final boolean shardStats;
 
-    public BotList(ObjectMapper objectMapper, HttpClient httpClient, long clientId, String name, String baseUrl,
-                   StatusCodeHandler statusCodeHandler, AuthHandler authHandler, StatsMapper statsMapper,
-                   VoteChecker voteChecker, VoteReceiver<?> voteReceiver, boolean shardStats) {
+    public BotList(
+            ObjectMapper objectMapper,
+            HttpClient httpClient,
+            long clientId,
+            String name,
+            String baseUrl,
+            StatusCodeHandler statusCodeHandler,
+            AuthHandler authHandler,
+            StatsMapper statsMapper,
+            VoteChecker voteChecker,
+            VoteReceiver<?> voteReceiver,
+            boolean shardStats) {
         this.mapper = objectMapper;
         this.httpClient = httpClient;
         this.clientId = clientId;

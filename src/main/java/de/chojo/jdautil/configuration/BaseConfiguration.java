@@ -36,13 +36,15 @@ public abstract class BaseConfiguration<T> {
     }
 
     protected BaseConfiguration(T config) {
-        this(config, JsonMapper.builder()
-                .configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true)
-                .build()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
-                .setDefaultPrettyPrinter(new DefaultPrettyPrinter()));
+        this(
+                config,
+                JsonMapper.builder()
+                        .configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true)
+                        .build()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+                        .setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE)
+                        .setDefaultPrettyPrinter(new DefaultPrettyPrinter()));
     }
 
     public void reload() {
@@ -60,7 +62,9 @@ public abstract class BaseConfiguration<T> {
     }
 
     private void save() throws IOException {
-        try (var writer = objectMapper.writerWithDefaultPrettyPrinter().writeValues(getConfig().toFile())) {
+        try (var writer = objectMapper
+                .writerWithDefaultPrettyPrinter()
+                .writeValues(getConfig().toFile())) {
             writer.write(config);
         }
     }
@@ -82,8 +86,11 @@ public abstract class BaseConfiguration<T> {
 
     private Path getConfig() {
         var home = new File(".").getAbsoluteFile().getParentFile().toPath();
-        var variable = SysVar.envOrPropOrThrow("BOT_CONFIG", "bot.config",
-                () -> new ConfigurationException("Set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
+        var variable = SysVar.envOrPropOrThrow(
+                "BOT_CONFIG",
+                "bot.config",
+                () -> new ConfigurationException(
+                        "Set property -Dbot.config=<config path> or environment variable BOT_CONFIG."));
         log.info("Found variable for config file");
         return Paths.get(home.toString(), variable);
     }

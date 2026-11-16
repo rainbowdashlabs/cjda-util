@@ -6,11 +6,8 @@
 
 package de.chojo.jdautil.localization;
 
-import de.chojo.jdautil.localization.util.GuildLocaleProvider;
 import de.chojo.jdautil.localization.util.LocaleProvider;
 import de.chojo.jdautil.localization.util.Replacement;
-
-import java.util.Objects;
 
 public class LocalizationContext {
     private final ILocalizer localizer;

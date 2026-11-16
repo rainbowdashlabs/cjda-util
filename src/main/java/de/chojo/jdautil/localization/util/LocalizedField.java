@@ -21,8 +21,10 @@ public class LocalizedField {
      * @param inline       true if inline
      * @param eventWrapper message context for language detection
      */
-    public LocalizedField(Localizer localizer, String title, String description, boolean inline, CommandInteraction eventWrapper) {
-        field = new MessageEmbed.Field(localizer.localize(title, LocaleProvider.guild(eventWrapper)),
+    public LocalizedField(
+            Localizer localizer, String title, String description, boolean inline, CommandInteraction eventWrapper) {
+        field = new MessageEmbed.Field(
+                localizer.localize(title, LocaleProvider.guild(eventWrapper)),
                 localizer.localize(description, LocaleProvider.guild(eventWrapper)),
                 inline);
     }

@@ -17,7 +17,7 @@ public class TopGg implements VoteDataAdapter {
 
     @Override
     public VoteData toVoteData() {
-        return new VoteData("top.gg",user, isWeekend, guildId);
+        return new VoteData("top.gg", user, isWeekend, guildId);
     }
 
     @Override

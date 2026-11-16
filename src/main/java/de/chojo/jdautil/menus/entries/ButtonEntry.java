@@ -28,9 +28,11 @@ public class ButtonEntry extends MenuEntry<Button, ButtonInteractionEvent> {
             return component().withLabel(localizer.localize(component().getLabel()));
         }
         if (component().getLabel().isBlank()) {
-            return component().withCustomId(String.format("%s:%s", id, component().getCustomId()));
+            return component()
+                    .withCustomId(String.format("%s:%s", id, component().getCustomId()));
         }
-        return component().withCustomId(String.format("%s:%s", id, component().getCustomId()))
-                          .withLabel(localizer.localize(component().getLabel()));
+        return component()
+                .withCustomId(String.format("%s:%s", id, component().getCustomId()))
+                .withLabel(localizer.localize(component().getLabel()));
     }
 }

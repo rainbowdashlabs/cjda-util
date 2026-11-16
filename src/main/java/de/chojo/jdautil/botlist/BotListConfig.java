@@ -40,9 +40,13 @@ public class BotListConfig {
     private final String voteUrl;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public BotListConfig(@JsonProperty("name") String name, @JsonProperty("statsToken") String statsToken,
-                         @JsonProperty("voteToken") String voteToken, @JsonProperty("guildId") long guildId,
-                         @JsonProperty("profileUrl") String profileUrl, @JsonProperty("voteUrl") String voteUrl) {
+    public BotListConfig(
+            @JsonProperty("name") String name,
+            @JsonProperty("statsToken") String statsToken,
+            @JsonProperty("voteToken") String voteToken,
+            @JsonProperty("guildId") long guildId,
+            @JsonProperty("profileUrl") String profileUrl,
+            @JsonProperty("voteUrl") String voteUrl) {
         this.name = name;
         this.statsToken = statsToken;
         this.voteToken = voteToken;

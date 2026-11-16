@@ -11,7 +11,6 @@ import de.chojo.jdautil.interactions.premium.SKU;
 import de.chojo.jdautil.wrapper.EventContext;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.components.buttons.Button;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.SkuSnowflake;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
@@ -22,7 +21,9 @@ import java.util.Collection;
 import java.util.List;
 
 public final class Premium {
-    public static boolean SKIP_ENTITLED_CHECK = SysVar.envOrProp("CJDA_PREMIUM_SKIP_ENTITLED_CHECK", "cjda.premium.skipEntitledCheck", "false").equalsIgnoreCase("true");
+    public static boolean SKIP_ENTITLED_CHECK = SysVar.envOrProp(
+                    "CJDA_PREMIUM_SKIP_ENTITLED_CHECK", "cjda.premium.skipEntitledCheck", "false")
+            .equalsIgnoreCase("true");
 
     private Premium() {
         throw new UnsupportedOperationException("This is a utility class.");
@@ -34,9 +35,9 @@ public final class Premium {
 
     public static List<ActionRow> buildEntitlementButtons(Collection<Long> meta) {
         return ActionRow.partitionOf(meta.stream()
-                                .filter(e -> e > 1_000_000) // This is to filter out custom sku ids
-                                         .map(e -> Button.premium(SkuSnowflake.fromId(e)))
-                                         .toList());
+                .filter(e -> e > 1_000_000) // This is to filter out custom sku ids
+                .map(e -> Button.premium(SkuSnowflake.fromId(e)))
+                .toList());
     }
 
     @Deprecated(forRemoval = true)
@@ -52,7 +53,6 @@ public final class Premium {
         replyPremium(context, buildEntitlementButtons(skus));
     }
 
-
     public static boolean checkAndReplyPremium(EventContext context, SkuMeta expected) {
         if (isNotEntitled(context, expected)) {
             replyPremium(context, buildEntitlementButtons(expected));
@@ -63,15 +63,17 @@ public final class Premium {
 
     public static void replyPremium(EventContext context, List<ActionRow> buttons) {
         if (context.event().isAcknowledged()) {
-            MessageEditData data = MessageEditBuilder.from(MessageEditData.fromContent(context.localize(context.interactionHub().premiumErrorMessage())))
-                                                     .setComponents(buttons)
-                                                     .build();
+            MessageEditData data = MessageEditBuilder.from(MessageEditData.fromContent(
+                            context.localize(context.interactionHub().premiumErrorMessage())))
+                    .setComponents(buttons)
+                    .build();
             context.event().getHook().editOriginal(data).complete();
             return;
         }
-        context.event().reply(context.localize(context.interactionHub().premiumErrorMessage()))
-               .addComponents(buttons)
-               .complete();
+        context.event()
+                .reply(context.localize(context.interactionHub().premiumErrorMessage()))
+                .addComponents(buttons)
+                .complete();
     }
 
     @Deprecated(forRemoval = true)

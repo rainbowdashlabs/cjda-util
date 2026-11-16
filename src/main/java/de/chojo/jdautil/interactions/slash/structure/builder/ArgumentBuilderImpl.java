@@ -17,7 +17,8 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.function.Consumer;
 
-public class ArgumentBuilderImpl implements StringArgumentBuilder, IntegerArgumentBuilder, NumberArgumentBuilder, CompletableArgumentBuilder {
+public class ArgumentBuilderImpl
+        implements StringArgumentBuilder, IntegerArgumentBuilder, NumberArgumentBuilder, CompletableArgumentBuilder {
     private final OptionType type;
     private final String name;
     private final String description;

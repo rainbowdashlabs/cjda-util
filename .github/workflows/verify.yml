@@ -1,23 +1,72 @@
-name: Verify state
+name: Verify
 
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    types: [opened, ready_for_review, synchronize, reopened]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: 25
 
 jobs:
-  build:
+  verify-format:
+    name: Verify Formatting
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v6
-      - name: Set up JDK
-        uses: actions/setup-java@v5
         with:
-          java-version: 21
-          distribution: adopt
-      - name: Build with Gradle
-        run: ./gradlew jar
-      - name: Test with Gradle
-        run: ./gradlew test
-      - name: Javadoc with Gradle
-        run: ./gradlew javadoc
-      - name: Spotless with Gradle
-        run: ./gradlew spotlessCheck
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew spotlessCheck
+
+  verify-tests:
+    name: Verify Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew test
+
+  verify-build:
+    name: Verify Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: gradle/actions/wrapper-validation@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: gradle/actions/setup-gradle@v6
+      - run: ./gradlew --build-cache build -x spotlessCheck -x test
+
+  verify:
+    name: Verify
+    if: always()
+    needs: [verify-format, verify-tests, verify-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All verifications passed
+        run: test "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "false"

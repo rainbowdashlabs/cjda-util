@@ -38,7 +38,12 @@ public class BotlistService implements Runnable {
     private final SubmissionService submissionService;
     private Consumer<VoteData> data;
 
-    private BotlistService(ShardManager shardManager, Supplier<Integer> guildCount, Supplier<Integer> userCount, Set<BotList> botLists, VoteService voteService) {
+    private BotlistService(
+            ShardManager shardManager,
+            Supplier<Integer> guildCount,
+            Supplier<Integer> userCount,
+            Set<BotList> botLists,
+            VoteService voteService) {
         this.shardManager = shardManager;
         this.botLists = botLists;
         this.voteService = voteService;
@@ -197,7 +202,11 @@ public class BotlistService implements Runnable {
             if (executorService == null) {
                 executorService = Executors.newSingleThreadScheduledExecutor();
             }
-            log.info("Started BotlistReporter for {} lists. Sending data every {} {}", botLists.size(), interval, unit.name());
+            log.info(
+                    "Started BotlistReporter for {} lists. Sending data every {} {}",
+                    botLists.size(),
+                    interval,
+                    unit.name());
             var botlistService = new BotlistService(shardManager, guildCount, userCount, botLists, voteService);
             executorService.scheduleAtFixedRate(botlistService, 1, interval, unit);
             botlistService.ignite();

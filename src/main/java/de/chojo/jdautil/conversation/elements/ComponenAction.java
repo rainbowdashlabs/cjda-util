@@ -31,7 +31,9 @@ public class ComponenAction {
         return switch (component.getType()) {
             case BUTTON -> {
                 var button = (Button) this.component;
-                yield Button.of(button.getStyle(), button.getCustomId() == null ? button.getUrl() : button.getCustomId(),
+                yield Button.of(
+                        button.getStyle(),
+                        button.getCustomId() == null ? button.getUrl() : button.getCustomId(),
                         localizer.localize(button.getLabel(), guild));
             }
             default -> null;

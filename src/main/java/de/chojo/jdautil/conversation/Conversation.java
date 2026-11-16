@@ -93,7 +93,6 @@ public class Conversation {
             case FINISH -> true;
             case FREEZE -> false;
         };
-
     }
 
     private void sendPrompt(MessageChannel channel) {
@@ -103,7 +102,8 @@ public class Conversation {
     private void sendPrompt(MessageChannel messageChannel, int delay) {
         var guild = Channel.guildFromMessageChannel(messageChannel);
         if (step.hasButtons()) {
-            messageChannel.sendMessage(localizer.localize(step.prompt(), guild))
+            messageChannel
+                    .sendMessage(localizer.localize(step.prompt(), guild))
                     .addComponents(step.getActions(localizer, guild))
                     .queueAfter(2, TimeUnit.SECONDS, message -> conversationService.registerButtons(message, this));
         } else {

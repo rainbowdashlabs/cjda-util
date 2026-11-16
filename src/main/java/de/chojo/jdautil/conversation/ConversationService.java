@@ -74,11 +74,12 @@ public class ConversationService extends ListenerAdapter {
             return;
         }
 
-        channel.sendMessage(localizer.localize("conversation.start", guild)).queueAfter(2, TimeUnit.SECONDS, message -> {
-            conversation.inject(user, localizer, this);
-            conversation.start(channel);
-            conversations.putIfAbsent(UserChannelKey.of(user, channel), conversation);
-        });
+        channel.sendMessage(localizer.localize("conversation.start", guild))
+                .queueAfter(2, TimeUnit.SECONDS, message -> {
+                    conversation.inject(user, localizer, this);
+                    conversation.start(channel);
+                    conversations.putIfAbsent(UserChannelKey.of(user, channel), conversation);
+                });
     }
 
     public void startDialog(IReplyCallback event, Conversation conversation) {
@@ -132,7 +133,9 @@ public class ConversationService extends ListenerAdapter {
     }
 
     public void registerButtons(Message message, Conversation conversation) {
-        button.put(UserChannelKey.of(conversation.owner(), message.getChannel()), Pair.of(message.getIdLong(), conversation));
+        button.put(
+                UserChannelKey.of(conversation.owner(), message.getChannel()),
+                Pair.of(message.getIdLong(), conversation));
     }
 
     private void resolveButton(UserChannelKey userChannelKey) {

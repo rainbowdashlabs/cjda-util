@@ -6,10 +6,7 @@
 
 package de.chojo.jdautil.botlist;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
-
-import java.util.List;
 
 public record BotListData(long guilds, long user) {
 

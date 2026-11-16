@@ -1,70 +1,47 @@
+# cjda-util
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rainbowdashlabs/cjda-util/publish_to_nexus.yml?style=for-the-badge&label=Publishing&branch=master)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rainbowdashlabs/cjda-util/verify.yml?style=for-the-badge&label=Building&branch=master)
-![Sonatype Nexus (Releases)](https://img.shields.io/nexus/maven-releases/de.chojo/cjda-util?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
-![Sonatype Nexus (Development)](https://img.shields.io/nexus/maven-dev/de.chojo/cjda-util?label=DEV&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
-![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/de.chojo/cjda-util?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)
+A toolbox for Discord bots built on JDA: slash, message and user commands with automatic deployment, localization,
+menus, modals, pagination, conversations, premium checks and bot list integration.
+
+[![Release](https://img.shields.io/nexus/maven-releases/de.chojo/cjda-util?label=Release&logo=Release&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)][release]
+[![Snapshot](https://img.shields.io/nexus/s/de.chojo/cjda-util?color=orange&label=Snapshot&server=https%3A%2F%2Feldonexus.de&style=for-the-badge)][snapshot]
+
+## Requirements
+
+Java 21 or newer. Built against JDA 6.7.0, which cjda-util brings with it.
+
+## Dependency
 
 Gradle:
-``` kotlin
+
+```kotlin
 repositories {
-    maven {
-        url = uri("https://eldonexus.de/repository/maven-public")
-    }
+    maven("https://eldonexus.de/repository/maven-public/")
 }
 
 dependencies {
-    implementation("de.chojo", "cjda-util", "{version}")
+    implementation("de.chojo:cjda-util:3.0.0")
 }
 ```
 
 Maven:
-``` xml
-    <repositories>
-        <repository>
-            <id>EldoNexus</id>
-            <url>https://eldonexus.de/repository/maven-public</url>
-        </repository>
-    </repositories>
-    
-    <dependencies>
-        <dependency>
-            <groupId>de.chojo</groupId>
-            <artifactId>cjda-util</artifactId>
-            <version>{version}</version>
-        </dependency>
-    </dependencies>
+
+```xml
+<repositories>
+    <repository>
+        <id>eldonexus</id>
+        <url>https://eldonexus.de/repository/maven-public/</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>de.chojo</groupId>
+    <artifactId>cjda-util</artifactId>
+    <version>3.0.0</version>
+</dependency>
 ```
 
-Snapshots are available via: **https://eldonexus.de/repository/maven-snapshots/**
+Documentation: https://docs.chojo.dev/cjda-util
 
-
-### Configuration
-
-ENV always takes precedence over PROP
-
-Prop: `-Dcjda.interactions.cleanguildcommands=true`  
-Env: `CJDA_INTERACTIONS_CLEANGUILDCOMMANDS`  
-_default false_  
-
-Clean guild commands on bot start
-
-Prop: `-Dcjda.interactions.testmode=true`   
-Env: `CJDA_INTERACTIONS_TESTMODE`  
-_default false_
-
-Set the testmode. When active all global commands will be deployed on guilds and not globally.
-
-Prop: `-Dcjda.localisation.error.name=false`  
-Env: `CJDA_LOCALISATION_NAME_ERROR`  
-_default true_
-
-Allows to disable the name error on command localisation.
-
-Prop: `bot.config`  
-Env: `BOT_CONFIG`  
-
-Relative path to the configuration file.
-
-[nexus_releases]: https://eldonexus.de/#browse/browse:maven-releases:de%2Fchojo%2Fcjda-util
-[nexus_snapshots]: https://eldonexus.de/#browse/browse:maven-snapshots:de%2Fchojo%2Fcjda-util
+[release]: https://eldonexus.de/#browse/browse:maven-releases:de%2Fchojo%2Fcjda-util
+[snapshot]: https://eldonexus.de/#browse/browse:maven-snapshots:de%2Fchojo%2Fcjda-util

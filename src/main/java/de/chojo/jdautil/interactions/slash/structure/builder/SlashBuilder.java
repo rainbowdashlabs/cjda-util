@@ -139,7 +139,6 @@ public class SlashBuilder implements RootArgumentBuilder, ExtendableRootBuilder,
         return localized;
     }
 
-
     @Override
     public Slash build() {
         var meta = new CommandMeta(name, description, context, permission, scope, localized, skus);

@@ -49,7 +49,13 @@ public class PageService extends ListenerAdapter {
     private final Cache<Long, IPageBag> cache;
     private final ILocalizer localizer;
 
-    PageService(String previousId, String nextId, String previousLabel, String nextLabel, Cache<Long, IPageBag> cache, ILocalizer localizer) {
+    PageService(
+            String previousId,
+            String nextId,
+            String previousLabel,
+            String nextLabel,
+            Cache<Long, IPageBag> cache,
+            ILocalizer localizer) {
         this.previousId = previousId;
         this.nextId = nextId;
         this.previousLabel = previousLabel;
@@ -85,7 +91,9 @@ public class PageService extends ListenerAdapter {
         if (page.isEmpty()) {
             MessageEditData embed = page.buildEmptyPage();
             if (!event.isAcknowledged()) {
-                event.reply(MessageCreateData.fromEditData(embed)).setEphemeral(ephemeral).complete();
+                event.reply(MessageCreateData.fromEditData(embed))
+                        .setEphemeral(ephemeral)
+                        .complete();
                 return;
             }
             event.getHook().editOriginal(embed).complete();
@@ -97,14 +105,15 @@ public class PageService extends ListenerAdapter {
         cache.put(id, page);
         if (!event.isAcknowledged()) {
             event.reply(MessageCreateData.fromEditData(embed))
-                 .setComponents(getPageButtons(event.getGuild(), page, id))
-                 .setEphemeral(ephemeral)
-                 .complete();
+                    .setComponents(getPageButtons(event.getGuild(), page, id))
+                    .setEphemeral(ephemeral)
+                    .complete();
             return;
         }
-        event.getHook().editOriginal(embed)
-             .setComponents(getPageButtons(event.getGuild(), page, id))
-             .complete();
+        event.getHook()
+                .editOriginal(embed)
+                .setComponents(getPageButtons(event.getGuild(), page, id))
+                .complete();
     }
 
     /**
@@ -125,8 +134,11 @@ public class PageService extends ListenerAdapter {
 
         MessageEditData embed = page.buildPage();
         channel.sendMessage(MessageCreateData.fromEditData(embed))
-               .setComponents(getPageButtons(channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(), page, id))
-               .complete();
+                .setComponents(getPageButtons(
+                        channel.getType() == ChannelType.PRIVATE ? null : ((GuildMessageChannel) channel).getGuild(),
+                        page,
+                        id))
+                .complete();
         log.trace("Registering page with id {}", id);
         cache.put(id, page);
     }
@@ -166,28 +178,30 @@ public class PageService extends ListenerAdapter {
             sendPage(event, pageId.get());
         } else {
             page.buttons().stream()
-                .filter(button -> Objects.equals(button.button(page).getCustomId(), id))
-                .findFirst()
-                .ifPresent(button -> button.invoke(page, event));
+                    .filter(button -> Objects.equals(button.button(page).getCustomId(), id))
+                    .findFirst()
+                    .ifPresent(button -> button.invoke(page, event));
         }
     }
 
     private List<ActionRow> getPageButtons(Guild guild, IPageBag page, long id) {
         var actionRows = new ArrayList<ActionRow>();
-        var previous = localizer.localize(previousLabel, guild).isBlank() ?
-                Button.success(addId(id, previousId), Emoji.fromUnicode("⬅"))
-                : Button.success(addId(id, previousId), localizer.localize(previousLabel, guild)).withEmoji(Emoji.fromUnicode("⬅"));
-        var next = localizer.localize(nextLabel, guild).isBlank() ?
-                Button.success(addId(id, nextId), Emoji.fromUnicode("➡️"))
-                : Button.success(addId(id, nextId), localizer.localize(nextLabel, guild)).withEmoji(Emoji.fromUnicode("➡️"));
+        var previous = localizer.localize(previousLabel, guild).isBlank()
+                ? Button.success(addId(id, previousId), Emoji.fromUnicode("⬅"))
+                : Button.success(addId(id, previousId), localizer.localize(previousLabel, guild))
+                        .withEmoji(Emoji.fromUnicode("⬅"));
+        var next = localizer.localize(nextLabel, guild).isBlank()
+                ? Button.success(addId(id, nextId), Emoji.fromUnicode("➡️"))
+                : Button.success(addId(id, nextId), localizer.localize(nextLabel, guild))
+                        .withEmoji(Emoji.fromUnicode("➡️"));
         actionRows.add(ActionRow.of(
                 previous.withDisabled(!page.hasPrevious()),
-                Button.of(ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
-                next.withDisabled(!page.hasNext())
-        ));
+                Button.of(
+                        ButtonStyle.SECONDARY, addId(id, "pageService:page"), page.current() + 1 + "/" + page.pages()),
+                next.withDisabled(!page.hasNext())));
         var buttons = page.buttons().stream()
-                          .map(b -> b.component(page, id, localizer.context(LocaleProvider.guild(guild))))
-                          .toList();
+                .map(b -> b.component(page, id, localizer.context(LocaleProvider.guild(guild))))
+                .toList();
         if (buttons.isEmpty()) return actionRows;
         actionRows.addAll(ActionRow.partitionOf(buttons));
         return actionRows;
@@ -209,14 +223,15 @@ public class PageService extends ListenerAdapter {
         try {
             MessageEditData embed = page.buildPage();
             event.getHook()
-                 .editOriginal(embed)
-                 .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                 .complete();
+                    .editOriginal(embed)
+                    .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                    .complete();
         } catch (Exception e) {
             log.error("Could not build page", e);
-            event.getHook().editOriginal("Something went wrong")
-                 .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
-                 .complete();
+            event.getHook()
+                    .editOriginal("Something went wrong")
+                    .setComponents(getPageButtons(event.isFromGuild() ? event.getGuild() : null, page, pageId))
+                    .complete();
         }
     }
 

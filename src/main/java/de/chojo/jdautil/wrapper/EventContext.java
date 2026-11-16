@@ -27,8 +27,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +45,15 @@ public class EventContext {
     private final InteractionHub<?, ?, ?> interactionHub;
     private final List<SKU> entitlements;
 
-    public EventContext(@Nullable IReplyCallback event, ConversationService conversationService, ILocalizer localizer, MenuService menus, PageService pages, ModalService modalService, InteractionHub<?, ?, ?> interactionHub, List<SKU> entitlements) {
+    public EventContext(
+            @Nullable IReplyCallback event,
+            ConversationService conversationService,
+            ILocalizer localizer,
+            MenuService menus,
+            PageService pages,
+            ModalService modalService,
+            InteractionHub<?, ?, ?> interactionHub,
+            List<SKU> entitlements) {
         this.event = event;
         this.conversationService = conversationService;
         this.localizer = localizer;

@@ -22,15 +22,19 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class InteractionContext extends Context {
     private final ComponentInteraction interaction;
     private final LocalizationContext localizer;
 
-    public InteractionContext(Map<String, Object> data, Conversation conversation, ComponentInteraction interaction, ILocalizer localizer) {
+    public InteractionContext(
+            Map<String, Object> data,
+            Conversation conversation,
+            ComponentInteraction interaction,
+            ILocalizer localizer) {
         super(conversation, data);
         this.interaction = interaction;
         this.localizer = localizer.context(LocaleProvider.guild(interaction));
@@ -92,13 +96,12 @@ public class InteractionContext extends Context {
         return interaction.getChannel().sendMessage(MessageCreateData.fromMessage(content));
     }
 
-    @Nonnull
+    @NonNull
     public String getComponentId() {
         return interaction.getComponentId();
     }
 
-    @Nonnull
-    public Component.Type getComponentType() {
+    public Component.@NonNull Type getComponentType() {
         return interaction.getComponentType();
     }
 

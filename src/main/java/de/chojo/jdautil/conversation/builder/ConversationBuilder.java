@@ -16,8 +16,7 @@ import java.util.function.Consumer;
 public class ConversationBuilder {
     private final Step initalStep;
     private final Map<Integer, Step> steps = new HashMap<>();
-    private Consumer<Conversation> onClose = c -> {
-    };
+    private Consumer<Conversation> onClose = c -> {};
 
     private ConversationBuilder(Step initalStep) {
         this.initalStep = initalStep;
@@ -38,9 +37,7 @@ public class ConversationBuilder {
         return this;
     }
 
-    public void validate() throws IllegalStateException {
-
-    }
+    public void validate() throws IllegalStateException {}
 
     public Conversation build() {
         validate();

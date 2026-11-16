@@ -17,9 +17,9 @@ import java.util.function.Consumer;
 
 public class ModalServiceBuilder implements ModalServiceModifier {
     private ILocalizer localizer = ILocalizer.DEFAULT;
-    private Cache<String, ModalHandler> handlers = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
+    private Cache<String, ModalHandler> handlers =
+            CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
     private final ShardManager shardManager;
-
 
     public ModalServiceBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;

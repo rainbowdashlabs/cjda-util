@@ -16,7 +16,14 @@ import java.util.List;
 import java.util.Set;
 
 public class CommandMeta extends DescriptiveMeta {
-    public CommandMeta(String name, String description, Set<InteractionContextType> context, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
+    public CommandMeta(
+            String name,
+            String description,
+            Set<InteractionContextType> context,
+            DefaultMemberPermissions permission,
+            InteractionScope scope,
+            boolean localized,
+            List<SKU> skus) {
         super(name, description, context, permission, scope, localized, skus);
     }
 }

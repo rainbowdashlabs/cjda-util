@@ -31,7 +31,5 @@ class ReplacementTest {
         var deserialized = mapper.readValue(json, Replacement.class);
 
         Assertions.assertEquals(replacement, deserialized);
-
     }
-
 }

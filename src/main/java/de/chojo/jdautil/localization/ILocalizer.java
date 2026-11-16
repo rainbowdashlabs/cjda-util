@@ -32,7 +32,8 @@ public interface ILocalizer extends LocalizationFunction {
     Logger log = getLogger(ILocalizer.class);
     ILocalizer DEFAULT = new ILocalizer() {
         @Override
-        public String localize(String message, DiscordLocale language, @Nullable Guild guild, Replacement... replacements) {
+        public String localize(
+                String message, DiscordLocale language, @Nullable Guild guild, Replacement... replacements) {
             return message;
         }
 
@@ -72,7 +73,7 @@ public interface ILocalizer extends LocalizationFunction {
     @Override
     default Map<DiscordLocale, String> apply(@NotNull String localizationKey) {
         return languages().stream()
-                          .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked(localizationKey, lang)));
+                .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked(localizationKey, lang)));
     }
 
     @NotNull
@@ -113,12 +114,12 @@ public interface ILocalizer extends LocalizationFunction {
     @NotNull
     default LocalizationFunction prefixedLocalizer(String prefix) {
         return key -> languages().stream()
-                                 .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
+                .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
     default Map<DiscordLocale, String> keyMap(String prefix, String key) {
         return languages().stream()
-                          .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
+                .collect(Collectors.toMap(lang -> lang, lang -> localizeChecked("%s.%s".formatted(prefix, key), lang)));
     }
 
     String localize(String message, Guild guild, Replacement... replacements);
@@ -128,12 +129,14 @@ public interface ILocalizer extends LocalizationFunction {
     DiscordLocale defaultLanguage();
 
     default Optional<DiscordLocale> getLanguage(String language) {
-        return languages().stream().filter(lang -> lang.getLocale().equalsIgnoreCase(language)).findFirst();
+        return languages().stream()
+                .filter(lang -> lang.getLocale().equalsIgnoreCase(language))
+                .findFirst();
     }
 
     default String localize(String message, LocaleProvider provider, Replacement... replacements) {
         Guild guild = null;
-        if(provider instanceof GuildLocaleProvider guildLocaleProvider){
+        if (provider instanceof GuildLocaleProvider guildLocaleProvider) {
             guild = guildLocaleProvider.guild();
         }
         var optLocale = provider.locale();

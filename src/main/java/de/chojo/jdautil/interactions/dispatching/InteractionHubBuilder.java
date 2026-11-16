@@ -8,10 +8,10 @@ package de.chojo.jdautil.interactions.dispatching;
 
 import de.chojo.jdautil.conversation.ConversationService;
 import de.chojo.jdautil.interactions.base.InteractionMeta;
-import de.chojo.jdautil.interactions.premium.SKU;
-import de.chojo.jdautil.interactions.premium.SKUConfiguration;
 import de.chojo.jdautil.interactions.message.Message;
 import de.chojo.jdautil.interactions.message.provider.MessageProvider;
+import de.chojo.jdautil.interactions.premium.SKU;
+import de.chojo.jdautil.interactions.premium.SKUConfiguration;
 import de.chojo.jdautil.interactions.slash.Slash;
 import de.chojo.jdautil.interactions.slash.provider.SlashProvider;
 import de.chojo.jdautil.interactions.user.User;
@@ -51,26 +51,35 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     private final Map<String, T> commands = new HashMap<>();
     private final Map<String, M> messages = new HashMap<>();
     private final Map<String, U> users = new HashMap<>();
+
     @NotNull
     private ILocalizer localizer = ILocalizer.DEFAULT;
 
-    private Consumer<InteractionResult> postCommandHook = r -> {
-    };
+    private Consumer<InteractionResult> postCommandHook = r -> {};
     private boolean withConversations;
+
     @Deprecated
-    private BiConsumer<InteractionContext, Throwable> commandErrorHandler =
-            (context, err) -> log.error("An unhandled exception occurred while executing command {}: {}", context.interaction(), context.args(), err);
+    private BiConsumer<InteractionContext, Throwable> commandErrorHandler = (context, err) -> log.error(
+            "An unhandled exception occurred while executing command {}: {}",
+            context.interaction(),
+            context.args(),
+            err);
+
     private PageServiceBuilder pagination;
     private MenuServiceBuilder menuService;
     private ModalServiceBuilder modalService;
     private Function<InteractionMeta, List<Long>> guildCommandMapper = meta -> Collections.emptyList();
     private Function<InteractionMeta, Map<Long, String>> aliasMapper = meta -> Collections.emptyMap();
-    private boolean cleanGuildCommands = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS", "cjda.interactions.cleanguildcommands", "false"));
+    private boolean cleanGuildCommands = Boolean.parseBoolean(
+            SysVar.envOrProp("CJDA_INTERACTIONS_CLEANGUILDCOMMANDS", "cjda.interactions.cleanguildcommands", "false"));
     ;
-    private boolean testMode = Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE", "cjda.interactions.testmode", "false"));
+    private boolean testMode =
+            Boolean.parseBoolean(SysVar.envOrProp("CJDA_INTERACTIONS_TESTMODE", "cjda.interactions.testmode", "false"));
     private String premiumErrorMessage = "error.premium";
     private SKUConfiguration skuConfiguration = new SKUConfiguration();
-private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider = (user, guild) -> Collections.emptyList();
+    private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider =
+            (user, guild) -> Collections.emptyList();
+
     InteractionHubBuilder(ShardManager shardManager) {
         this.shardManager = shardManager;
     }
@@ -251,7 +260,8 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
      * @param commandErrorHandler handler for errors
      * @return builder instance
      */
-    public InteractionHubBuilder<T, M, U> withCommandErrorHandler(BiConsumer<InteractionContext, Throwable> commandErrorHandler) {
+    public InteractionHubBuilder<T, M, U> withCommandErrorHandler(
+            BiConsumer<InteractionContext, Throwable> commandErrorHandler) {
         this.commandErrorHandler = commandErrorHandler;
         return this;
     }
@@ -310,7 +320,8 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
         return this;
     }
 
-    public InteractionHubBuilder<T, M, U> withEntitlementProvider(BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider) {
+    public InteractionHubBuilder<T, M, U> withEntitlementProvider(
+            BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlementProvider) {
         this.entitlementProvider = entitlementProvider;
         return this;
     }
@@ -345,9 +356,25 @@ private BiFunction<net.dv8tion.jda.api.entities.User, Guild, List<SKU>> entitlem
             modalService.withLocalizer(localizer);
             modals = modalService.build();
         }
-        var commandListener = new InteractionHub<>(shardManager, commands, messages, users, conversationService, localizer,
-                commandErrorHandler, buttons, pages, modals, postCommandHook, guildCommandMapper, aliasMapper, cleanGuildCommands,
-                testMode, premiumErrorMessage, skuConfiguration, entitlementProvider);
+        var commandListener = new InteractionHub<>(
+                shardManager,
+                commands,
+                messages,
+                users,
+                conversationService,
+                localizer,
+                commandErrorHandler,
+                buttons,
+                pages,
+                modals,
+                postCommandHook,
+                guildCommandMapper,
+                aliasMapper,
+                cleanGuildCommands,
+                testMode,
+                premiumErrorMessage,
+                skuConfiguration,
+                entitlementProvider);
         commandListener.updateCommands();
         shardManager.addEventListener(commandListener);
         return commandListener;

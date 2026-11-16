@@ -23,8 +23,7 @@ class SlashTest {
 
     @Test
     public void testBase() {
-        var command = Slash.of("test", "test")
-                           .command(throwingHandler()).build();
+        var command = Slash.of("test", "test").command(throwingHandler()).build();
 
         var event = eventForPath("test");
         assertThrows(RuntimeException.class, () -> command.onSlashCommand(event, context(event)));
@@ -33,13 +32,10 @@ class SlashTest {
     @Test
     public void testSub() {
         var command = Slash.of("test", "test")
-                           .guildOnly()
-                           .subCommand(SubCommand.of("test1", "test1")
-                                                 .handler(throwingHandler()))
-                           .subCommand(SubCommand.of("sub2", "sub2")
-                                                 .handler(emptyHandler()))
-                           .build();
-
+                .guildOnly()
+                .subCommand(SubCommand.of("test1", "test1").handler(throwingHandler()))
+                .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler()))
+                .build();
 
         var sub1 = eventForPath("test", "test1");
         var sub2 = eventForPath("test", "sub2");
@@ -51,18 +47,13 @@ class SlashTest {
     @Test
     public void testGroup() {
         var command = Slash.of("test", "test")
-                           .group(Group.of("group1", "group1")
-                                       .subCommand(SubCommand.of("sub1", "sub1")
-                                                             .handler(throwingHandler()))
-                                       .subCommand(SubCommand.of("sub2", "sub2")
-                                                             .handler(emptyHandler())))
-                           .group(Group.of("group2", "group2")
-                                       .subCommand(SubCommand.of("sub1", "sub1")
-                                                             .handler(throwingHandler()))
-                                       .subCommand(SubCommand.of("sub2", "sub2")
-                                                             .handler(emptyHandler())))
-                           .build();
-
+                .group(Group.of("group1", "group1")
+                        .subCommand(SubCommand.of("sub1", "sub1").handler(throwingHandler()))
+                        .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler())))
+                .group(Group.of("group2", "group2")
+                        .subCommand(SubCommand.of("sub1", "sub1").handler(throwingHandler()))
+                        .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler())))
+                .build();
 
         var group1sub1 = eventForPath("test", "group1", "sub1");
         var group1sub2 = eventForPath("test", "group1", "sub2");
@@ -76,21 +67,15 @@ class SlashTest {
     @Test
     public void combinedTest() {
         var command = Slash.of("test", "test")
-                           .group(Group.of("group1", "group1")
-                                       .subCommand(SubCommand.of("sub1", "sub1")
-                                                             .handler(throwingHandler()))
-                                       .subCommand(SubCommand.of("sub2", "sub2")
-                                                             .handler(emptyHandler())))
-                           .group(Group.of("group2", "group2")
-                                       .subCommand(SubCommand.of("sub1", "sub1")
-                                                             .handler(throwingHandler()))
-                                       .subCommand(SubCommand.of("sub2", "sub2")
-                                                             .handler(emptyHandler())))
-                           .subCommand(SubCommand.of("sub1", "sub1")
-                                                 .handler(throwingHandler()))
-                           .subCommand(SubCommand.of("sub2", "sub2")
-                                                 .handler(emptyHandler()))
-                           .build();
+                .group(Group.of("group1", "group1")
+                        .subCommand(SubCommand.of("sub1", "sub1").handler(throwingHandler()))
+                        .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler())))
+                .group(Group.of("group2", "group2")
+                        .subCommand(SubCommand.of("sub1", "sub1").handler(throwingHandler()))
+                        .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler())))
+                .subCommand(SubCommand.of("sub1", "sub1").handler(throwingHandler()))
+                .subCommand(SubCommand.of("sub2", "sub2").handler(emptyHandler()))
+                .build();
 
         var group1sub1 = eventForPath("test", "group1", "sub1");
         var group1sub2 = eventForPath("test", "group1", "sub2");
@@ -124,8 +109,7 @@ class SlashTest {
     }
 
     private SlashHandler emptyHandler() {
-        return (event, context) -> {
-        };
+        return (event, context) -> {};
     }
 
     private EventContext context(SlashCommandInteractionEvent event) {

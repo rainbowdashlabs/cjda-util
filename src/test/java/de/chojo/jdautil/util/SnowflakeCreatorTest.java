@@ -22,7 +22,7 @@ class SnowflakeCreatorTest {
     }
 
     @Test
-    public void bench(){
+    public void bench() {
         var ids = 10000000;
         var refRuntime = ids / 4095.0 * 1.1;
         var start = System.currentTimeMillis();
@@ -31,6 +31,7 @@ class SnowflakeCreatorTest {
         }
 
         var runtime = System.currentTimeMillis() - start;
-        Assertions.assertTrue(runtime < refRuntime, "Runtime is longer than the reference runtime. Might be a performance issue");
+        Assertions.assertTrue(
+                runtime < refRuntime, "Runtime is longer than the reference runtime. Might be a performance issue");
     }
 }

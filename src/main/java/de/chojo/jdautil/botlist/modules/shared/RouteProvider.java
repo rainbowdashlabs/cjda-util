@@ -9,8 +9,7 @@ package de.chojo.jdautil.botlist.modules.shared;
 public abstract class RouteProvider {
     private String route;
 
-    public RouteProvider() {
-    }
+    public RouteProvider() {}
 
     public RouteProvider(String route) {
         this.route = transformRoute(route);

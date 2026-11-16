@@ -15,18 +15,21 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import java.util.function.Consumer;
 
 public class StringSelectMenuEntry extends MenuEntry<StringSelectMenu, StringSelectInteractionEvent> {
-    public StringSelectMenuEntry(StringSelectMenu component, Consumer<EntryContext<StringSelectInteractionEvent, StringSelectMenu>> eventConsumer) {
+    public StringSelectMenuEntry(
+            StringSelectMenu component,
+            Consumer<EntryContext<StringSelectInteractionEvent, StringSelectMenu>> eventConsumer) {
         super(component, eventConsumer);
     }
 
     @Override
     public ActionRowChildComponent component(long id, LocalizationContext localizer) {
-        var options = component().getOptions().stream().map(opt -> opt.withLabel(localizer.localize(opt.getLabel()))
-                                                                      .withDescription(localizer.localize(opt.getDescription())))
-                                 .toList();
+        var options = component().getOptions().stream()
+                .map(opt -> opt.withLabel(localizer.localize(opt.getLabel()))
+                        .withDescription(localizer.localize(opt.getDescription())))
+                .toList();
         return StringSelectMenu.create(String.format("%s:%s", id, component().getCustomId()))
-                               .addOptions(options)
-                               .setPlaceholder(localizer.localize(component().getPlaceholder()))
-                               .build();
+                .addOptions(options)
+                .setPlaceholder(localizer.localize(component().getPlaceholder()))
+                .build();
     }
 }

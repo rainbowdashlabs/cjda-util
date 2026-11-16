@@ -21,7 +21,8 @@ public class PageServiceBuilder implements PageServiceModifier {
     private String nextLabel = "pageService:next";
     private String previousText = "Previous";
     private String nextText = "Next";
-    private Cache<Long, IPageBag> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private Cache<Long, IPageBag> cache =
+            CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
     private ILocalizer localizer = ILocalizer.DEFAULT;
 
     public PageServiceBuilder(ShardManager shardManager) {

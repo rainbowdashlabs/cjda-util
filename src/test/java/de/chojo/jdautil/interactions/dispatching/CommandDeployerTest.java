@@ -40,19 +40,20 @@ class CommandDeployerTest {
     private static final long OTHER_GUILD = 2L;
 
     private final Slash reputation = Slash.of("reputation", "give reputation")
-                                          .unlocalized()
-                                          .scope(InteractionScope.PRIVATE)
-                                          .command((event, context) -> {})
-                                          .build();
+            .unlocalized()
+            .scope(InteractionScope.PRIVATE)
+            .command((event, context) -> {})
+            .build();
     private final Slash profile = Slash.of("profile", "show profile")
-                                       .unlocalized()
-                                       .command((event, context) -> {})
-                                       .build();
+            .unlocalized()
+            .command((event, context) -> {})
+            .build();
 
     @Test
     void privateCommandIsReplacedByAlias() {
         var guild = guild(GUILD);
-        var deployer = deployer(meta -> List.of(GUILD, OTHER_GUILD), aliases("reputation", "thanks"), mock(ShardManager.class));
+        var deployer = deployer(
+                meta -> List.of(GUILD, OTHER_GUILD), aliases("reputation", "thanks"), mock(ShardManager.class));
 
         deployer.refresh(guild.guild());
 
@@ -64,7 +65,8 @@ class CommandDeployerTest {
     @Test
     void privateCommandKeepsItsNameWithoutAlias() {
         var guild = guild(OTHER_GUILD);
-        var deployer = deployer(meta -> List.of(GUILD, OTHER_GUILD), aliases("reputation", "thanks"), mock(ShardManager.class));
+        var deployer = deployer(
+                meta -> List.of(GUILD, OTHER_GUILD), aliases("reputation", "thanks"), mock(ShardManager.class));
 
         deployer.refresh(guild.guild());
 
@@ -98,7 +100,8 @@ class CommandDeployerTest {
         var guild = guild(GUILD);
         var aliases = new HashMap<String, Map<Long, String>>();
         aliases.put("profile", Map.of(GUILD, "karma"));
-        var deployer = deployer(meta -> List.of(), meta -> aliases.getOrDefault(meta.name(), Map.of()), mock(ShardManager.class));
+        var deployer = deployer(
+                meta -> List.of(), meta -> aliases.getOrDefault(meta.name(), Map.of()), mock(ShardManager.class));
         deployer.refresh(guild.guild());
 
         aliases.clear();
@@ -161,19 +164,34 @@ class CommandDeployerTest {
         var shardManager = mock(ShardManager.class);
         when(shardManager.getShards()).thenReturn(List.of(shard));
         when(shardManager.getGuilds()).thenReturn(List.of(failing, guild.guild()));
-        var deployer = new CommandDeployer(shardManager, ILocalizer.DEFAULT, List.of(reputation, profile), List.of(),
-                meta -> List.of(GUILD, OTHER_GUILD), meta -> Map.of(), true, false);
+        var deployer = new CommandDeployer(
+                shardManager,
+                ILocalizer.DEFAULT,
+                List.of(reputation, profile),
+                List.of(),
+                meta -> List.of(GUILD, OTHER_GUILD),
+                meta -> Map.of(),
+                true,
+                false);
 
         deployer.start().get(5, TimeUnit.SECONDS);
 
         assertEquals(List.of("reputation"), guild.deployedNames());
     }
 
-    private CommandDeployer deployer(Function<InteractionMeta, List<Long>> guildMapper,
-                                     Function<InteractionMeta, Map<Long, String>> aliasMapper,
-                                     ShardManager shardManager) {
-        return new CommandDeployer(shardManager, ILocalizer.DEFAULT, List.of(reputation, profile), List.of(),
-                guildMapper, aliasMapper, false, false);
+    private CommandDeployer deployer(
+            Function<InteractionMeta, List<Long>> guildMapper,
+            Function<InteractionMeta, Map<Long, String>> aliasMapper,
+            ShardManager shardManager) {
+        return new CommandDeployer(
+                shardManager,
+                ILocalizer.DEFAULT,
+                List.of(reputation, profile),
+                List.of(),
+                guildMapper,
+                aliasMapper,
+                false,
+                false);
     }
 
     private static Function<InteractionMeta, Map<Long, String>> aliases(String command, String alias) {

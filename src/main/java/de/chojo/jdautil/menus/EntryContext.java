@@ -23,14 +23,22 @@ public record EntryContext<Event extends ComponentInteraction, Component extends
     }
 
     public void refresh(Message message) {
-        event.editMessage(MessageEditData.fromMessage(message)).setComponents(container.actionRows()).complete();
+        event.editMessage(MessageEditData.fromMessage(message))
+                .setComponents(container.actionRows())
+                .complete();
     }
 
     public void refresh(MessageEmbed... message) {
-        event.editMessageEmbeds(message).setContent("").setComponents(container.actionRows()).complete();
+        event.editMessageEmbeds(message)
+                .setContent("")
+                .setComponents(container.actionRows())
+                .complete();
     }
 
     public void refresh(String message) {
-        event.editMessage(message).setEmbeds(Collections.emptyList()).setComponents(container.actionRows()).complete();
+        event.editMessage(message)
+                .setEmbeds(Collections.emptyList())
+                .setComponents(container.actionRows())
+                .complete();
     }
 }

@@ -88,10 +88,14 @@ public class Group implements Route<RouteMeta> {
     }
 
     public SubcommandGroupData data(Slash slash, ILocalizer localizer) {
-        LocaleChecks.checkCommandName(localizer, "command", "%s.%s.name".formatted(slash.meta().name(), meta.name()));
-        LocaleChecks.checkCommandDescription(localizer, "command", "%s.%s.description".formatted(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandName(
+                localizer, "command", "%s.%s.name".formatted(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(
+                localizer, "command", "%s.%s.description".formatted(slash.meta().name(), meta.name()));
         return new SubcommandGroupData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .addSubcommands(subCommands.stream().map(s -> s.data(slash, this, localizer)).toList());
+                .addSubcommands(subCommands.stream()
+                        .map(s -> s.data(slash, this, localizer))
+                        .toList());
     }
 
     public SubcommandGroupData data() {

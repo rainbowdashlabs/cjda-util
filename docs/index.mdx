@@ -1,0 +1,116 @@
+---
+title: cjda-util
+sidebar_position: 1
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# cjda-util
+
+cjda-util is a toolbox for Discord bots built on [JDA](https://jda.wiki). It takes care of the parts every bot needs
+and nobody wants to write twice.
+
+What you get:
+
+- [slash, message and user commands](./interactions.md) built with a small builder, deployed for you,
+- [localization](./localization.md) of command names and messages from `.properties` files,
+- [menus and modals](./menus-and-modals.md) that call your code when someone clicks or submits,
+- [paginated messages](./pagination.md) with previous and next buttons,
+- [conversations](./conversations.md) that walk a user through several steps,
+- [premium checks](./premium.md) for Discord SKUs,
+- [bot list integration](./botlist.md) for server counts and vote webhooks,
+- a set of [smaller helpers](./utilities.md) for parsing, mentions and configuration.
+
+## Requirements
+
+| What | Version |
+|---|---|
+| Java | 21 or newer. cjda-util is compiled for Java 21. |
+| JDA | 6.7.0. cjda-util brings JDA with it, so you do not need to add it yourself. |
+
+cjda-util also brings Javalin 6, Jackson 2, Guava, Apache Commons Text and JSpecify as dependencies.
+
+## Add the dependency
+
+cjda-util is published to EldoNexus.
+
+<Tabs groupId="build-tool">
+<TabItem value="gradle" label="Gradle (Kotlin DSL)">
+
+```kotlin
+repositories {
+    maven("https://eldonexus.de/repository/maven-public/")
+}
+
+dependencies {
+    implementation("de.chojo:cjda-util:3.0.0")
+}
+```
+
+</TabItem>
+<TabItem value="gradle-groovy" label="Gradle (Groovy)">
+
+```groovy
+repositories {
+    maven { url 'https://eldonexus.de/repository/maven-public/' }
+}
+
+dependencies {
+    implementation 'de.chojo:cjda-util:3.0.0'
+}
+```
+
+</TabItem>
+<TabItem value="maven" label="Maven">
+
+```xml
+<repositories>
+    <repository>
+        <id>eldonexus</id>
+        <url>https://eldonexus.de/repository/maven-public/</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>de.chojo</groupId>
+    <artifactId>cjda-util</artifactId>
+    <version>3.0.0</version>
+</dependency>
+```
+
+</TabItem>
+</Tabs>
+
+Snapshots of the next version are in `https://eldonexus.de/repository/maven-snapshots/`.
+
+## Upgrading from 2.x
+
+- The version no longer carries the JDA version. `2.15.1+jda-6.7.0` becomes `3.0.0`. This page lists the JDA version
+  each release is built against.
+- Nullness annotations moved from `javax.annotation` (jsr305) to [JSpecify](https://jspecify.dev). cjda-util no longer
+  brings jsr305 along. If your code still uses `javax.annotation`, add `com.google.code.findbugs:jsr305` yourself.
+- cjda-util is now licensed under AGPL-3.0-only.
+
+## Java modules
+
+cjda-util is a named module, `de.chojo.jdautil`. Most bots run on the class path and do not need to care about this.
+
+If your bot is a module itself, require it:
+
+```java
+module my.bot {
+    requires de.chojo.jdautil;
+}
+```
+
+cjda-util reads some of your classes with Jackson. Open these packages to `com.fasterxml.jackson.databind`:
+
+- the package of your configuration class, if you use [`Configuration`](./utilities.md#configuration-files),
+- the package of your own vote payloads, if you add a custom [bot list](./botlist.md).
+
+Keep your locale files at the root of your resources, as shown in [localization](./localization.md).
+
+## Javadoc
+
+The Javadoc is published with every release.

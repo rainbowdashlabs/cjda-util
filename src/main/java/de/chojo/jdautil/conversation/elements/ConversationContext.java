@@ -15,40 +15,39 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import org.jetbrains.annotations.CheckReturnValue;
 import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public interface ConversationContext {
     Message message();
 
-    @Nonnull
+    @NonNull
     User getAuthor();
 
     Member getMember();
 
-    @Nonnull
+    @NonNull
     String getContentDisplay();
 
-    @Nonnull
+    @NonNull
     String getContentRaw();
 
-    @Nonnull
+    @NonNull
     String getContentStripped();
 
     Guild getGuild();
 
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     MessageCreateAction reply(@NotNull String content);
 
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     MessageCreateAction reply(@NotNull Message content);
 
     @CheckReturnValue
-    @Nonnull
+    @NonNull
     MessageCreateAction reply(@NotNull MessageEmbed content);
 
     Conversation conversation();

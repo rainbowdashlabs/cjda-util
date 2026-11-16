@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class PrivateListPageBag<T> extends PrivatePageBag implements IListPageBag<T>{
+public abstract class PrivateListPageBag<T> extends PrivatePageBag implements IListPageBag<T> {
     private final List<T> content;
 
     public PrivateListPageBag(Collection<T> content, long ownerId) {

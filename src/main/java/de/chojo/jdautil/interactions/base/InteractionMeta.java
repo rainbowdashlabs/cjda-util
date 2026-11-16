@@ -22,7 +22,13 @@ public class InteractionMeta implements Meta, SkuMeta {
     private final boolean localized;
     private final List<SKU> skus;
 
-    public InteractionMeta(String name, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
+    public InteractionMeta(
+            String name,
+            Set<InteractionContextType> contextTypes,
+            DefaultMemberPermissions permission,
+            InteractionScope scope,
+            boolean localized,
+            List<SKU> skus) {
         this.name = name;
         this.context = contextTypes;
         this.permission = permission;

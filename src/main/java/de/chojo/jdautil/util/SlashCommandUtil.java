@@ -25,5 +25,4 @@ public class SlashCommandUtil {
         }
         return String.join(" ", components);
     }
-
 }

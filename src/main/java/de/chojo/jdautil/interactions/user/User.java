@@ -20,8 +20,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.util.Locale;
 
 import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
-import static de.chojo.jdautil.util.Premium.isNotEntitled;
-import static de.chojo.jdautil.util.Premium.replyPremium;
 
 public class User implements Interaction, UserHandler, CommandDataProvider {
     private final InteractionMeta meta;
@@ -52,9 +50,7 @@ public class User implements Interaction, UserHandler, CommandDataProvider {
 
     @Override
     public CommandData toCommandData(ILocalizer localizer) {
-        var user = Commands.user(meta.name())
-                           .setContexts(meta.context())
-                           .setDefaultPermissions(meta.permission());
+        var user = Commands.user(meta.name()).setContexts(meta.context()).setDefaultPermissions(meta.permission());
         if (meta.localized()) {
             user.setLocalizationFunction(localizer.prefixedLocalizer("user"));
         }

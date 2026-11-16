@@ -9,7 +9,6 @@ package de.chojo.jdautil.conversation.elements;
 import de.chojo.jdautil.localization.ILocalizer;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
 
 import java.util.Collection;
 import java.util.function.Consumer;

@@ -25,3 +25,6 @@ cmake-build-*/
 /logs/
 /out/
 .direnv
+
+.kotlin/
+.concept/

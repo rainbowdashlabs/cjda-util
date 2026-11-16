@@ -8,10 +8,9 @@ package de.chojo.jdautil.menus;
 
 import de.chojo.jdautil.menus.entries.MenuEntry;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
@@ -21,14 +20,20 @@ import java.util.List;
 
 public class MenuActionBuilder {
     private final MessageCreateData message;
+
     @Nullable
     private IReplyCallback callback;
+
     @Nullable
     private MessageChannel channel;
+
     private boolean ephemeral;
+
     @Nullable
     private User user;
+
     private final List<MenuEntry<?, ?>> components = new ArrayList<>();
+
     @Nullable
     private Guild guild;
 

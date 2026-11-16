@@ -1,75 +1,74 @@
 plugins {
-    java
-    `maven-publish`
     `java-library`
-    id("de.chojo.publishdata") version "1.4.0"
+    `maven-publish`
+    alias(libs.plugins.publishdata)
     alias(libs.plugins.spotless)
-    id("org.openrewrite.rewrite") version "7.23.0"
 }
 
 repositories {
-    maven("https://eldonexus.de/repository/maven-proxies/")
-    maven("https://m2.dv8tion.net/releases")
+    mavenCentral()
+    maven("https://eldonexus.de/repository/maven-public/")
 }
 
 dependencies {
-    rewrite(libs.jda)
     api(libs.jda)
-    api("org.apache.commons", "commons-text", "1.15.0")
-
-    // Serialization
-    api("com.google.guava", "guava", "33.3.0-jre")
-    api("com.fasterxml.jackson.core", "jackson-databind", "2.20.1")
-
-    // web api
+    api(libs.apache.commons.text)
+    api(libs.google.guava)
+    api(libs.jackson.databind)
     api(libs.bundles.javalin)
-    annotationProcessor(libs.javalin.openapiannotation)
+    api(libs.jspecify)
+    compileOnly(libs.jetbrains.annotations)
+    annotationProcessor(libs.javalin.openapi.annotation)
 
-    // unit testing
-    testImplementation(libs.bundles.junit)
-    testImplementation("org.mockito", "mockito-core", "5.21.0")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.core)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 spotless {
     java {
+        palantirJavaFormat(libs.versions.palantir.get()).formatJavadoc(false)
         licenseHeaderFile(rootProject.file("HEADER.txt"))
+        removeUnusedImports()
+        importOrder("", "java", "javax", "\\#")
         target("**/*.java")
+    }
+    kotlinGradle {
+        ktlint(libs.versions.ktlint.get())
+        target("*.gradle.kts")
     }
 }
 
-group = "de.chojo"
-version = "2.15.0+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
-    useEldoNexusRepos(false)
-    publishComponent("java")
-}
-
-rewrite {
-    activeRecipe(
-        "net.dv8tion.MigrateComponentsV2",
-        "net.dv8tion.MigrateComponentsV2Packages",
-        "net.dv8tion.MigrateComponentsV2CustomIdGetters"
-    )
+    eldoNexus(dev = false)
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        publishData.configurePublication(this)
-    }
-
-    repositories {
-        maven {
-            authentication {
-                credentials(PasswordCredentials::class) {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            url = "https://github.com/rainbowdashlabs/cjda-util"
+            licenses {
+                license {
+                    name = "AGPL-3.0-only"
+                    url = "https://www.gnu.org/licenses/agpl-3.0.html"
                 }
             }
-
-            name = "EldoNexus"
-            setUrl(publishData.getRepository())
+            developers {
+                developer {
+                    id = "rainbowdashlabs"
+                    name = "Nora Fülling"
+                    email = "mail@chojo.dev"
+                    url = "https://github.com/rainbowdashlabs"
+                }
+            }
+            scm {
+                url = "https://github.com/rainbowdashlabs/cjda-util"
+                connection = "scm:git:git://github.com/rainbowdashlabs/cjda-util.git"
+                developerConnection = "scm:git:ssh://github.com/rainbowdashlabs/cjda-util.git"
+            }
         }
     }
 }
@@ -79,7 +78,7 @@ java {
     withJavadocJar()
 
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -91,17 +90,14 @@ tasks {
         }
     }
 
-    compileJava {
-        options.encoding = "utf-8"
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.release = 21
     }
 
     javadoc {
         val options = options as StandardJavadocDocletOptions
         options.encoding = "utf-8"
-        options.links(
-            "https://docs.jda.wiki/",
-            //"https://javadoc.io/doc/io.javalin/javalin/6.2.0/",
-            //"https://javadoc.io/doc/com.google.guava/guava/latest/"
-        )
+        options.links("https://docs.oracle.com/en/java/javase/21/docs/api/", "https://docs.jda.wiki/")
     }
 }

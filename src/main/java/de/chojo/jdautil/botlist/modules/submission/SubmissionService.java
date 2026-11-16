@@ -21,7 +21,6 @@ public class SubmissionService {
     private final Supplier<Integer> guildCount;
     private final Supplier<Integer> userCount;
 
-
     public SubmissionService(BotlistService botlistService, Supplier<Integer> guildCount, Supplier<Integer> userCount) {
         this.botlistService = botlistService;
         this.guildCount = guildCount;
