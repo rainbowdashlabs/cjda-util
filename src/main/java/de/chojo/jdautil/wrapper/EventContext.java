@@ -61,11 +61,7 @@ public class EventContext {
         this.pages = pages;
         this.modalService = modalService;
         this.interactionHub = interactionHub;
-        var ent = new HashSet<>(entitlements);
-        if (event != null) {
-            event.getEntitlements().stream().map(SKU::new).toList();
-        }
-        this.entitlements = new ArrayList<>(ent);
+        this.entitlements = new ArrayList<>(new HashSet<>(entitlements));
     }
 
     /**

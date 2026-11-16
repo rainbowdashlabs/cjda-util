@@ -31,11 +31,12 @@ public class SKU implements Predicate<Entitlement> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SKU sku) {
-            return skuId == (sku).skuId;
-        }
-        if (!(obj instanceof Entitlement)) return false;
-        return test((Entitlement) obj);
+        return obj instanceof SKU sku && skuId == sku.skuId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(skuId);
     }
 
     public long skuId() {

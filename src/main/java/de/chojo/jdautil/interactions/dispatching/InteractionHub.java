@@ -126,26 +126,13 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
     }
 
     private EventContext buildContext(GenericInteractionCreateEvent event) {
+        var entitlements = new ArrayList<>(entitlementProvider.apply(event.getUser(), event.getGuild()));
+        event.getEntitlements().stream().map(SKU::new).forEach(entitlements::add);
         if (event instanceof IReplyCallback callback) {
             return new EventContext(
-                    callback,
-                    conversationService,
-                    localizer,
-                    buttons,
-                    pages,
-                    modalService,
-                    this,
-                    entitlementProvider.apply(event.getUser(), event.getGuild()));
+                    callback, conversationService, localizer, buttons, pages, modalService, this, entitlements);
         }
-        return new EventContext(
-                null,
-                conversationService,
-                localizer,
-                buttons,
-                pages,
-                modalService,
-                this,
-                entitlementProvider.apply(event.getUser(), event.getGuild()));
+        return new EventContext(null, conversationService, localizer, buttons, pages, modalService, this, entitlements);
     }
 
     @SubscribeEvent
@@ -166,12 +153,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                 event.getUser());
         try {
             EventContext context = buildContext(event);
-            if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(context, skuConfiguration.messages(event.getFullCommandName()));
-                return;
+            var required = skuConfiguration.messageSkus(event.getFullCommandName());
+            if (Premium.isNotEntitled(context, required)) {
+                Premium.replyPremium(context, required);
+            } else {
+                message.onMessage(event, context);
             }
-
-            message.onMessage(event, context);
         } catch (Throwable t) {
             postCommandHook.accept(failed(event, executionContext, t));
             commandErrorHandler.accept(executionContext, t);
@@ -197,11 +184,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
                 event.getUser());
         try {
             EventContext context = buildContext(event);
-            if (!skuConfiguration.isEntitled(event)) {
-                Premium.replyPremium(context, skuConfiguration.users(event.getFullCommandName()));
-                return;
+            var required = skuConfiguration.userSkus(event.getFullCommandName());
+            if (Premium.isNotEntitled(context, required)) {
+                Premium.replyPremium(context, required);
+            } else {
+                user.onUser(event, context);
             }
-            user.onUser(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             postCommandHook.accept(failed(event, executionContext, t));
@@ -227,11 +215,12 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         try {
             EventContext context = buildContext(event);
             var fullCommandName = canonicalFullCommandName(event, command);
-            if (!skuConfiguration.isCommandEntitled(event, fullCommandName)) {
-                Premium.replyPremium(context, skuConfiguration.commands(fullCommandName));
-                return;
+            var required = skuConfiguration.commandSkus(fullCommandName);
+            if (Premium.isNotEntitled(context, required)) {
+                Premium.replyPremium(context, required);
+            } else {
+                command.onSlashCommand(event, context);
             }
-            command.onSlashCommand(event, context);
         } catch (Throwable t) {
             commandErrorHandler.accept(executionContext, t);
             postCommandHook.accept(failed(event, executionContext, t));
@@ -251,7 +240,8 @@ public class InteractionHub<C extends Slash, M extends Message, U extends User> 
         var command = optCommand.get();
         try {
             EventContext context = buildContext(event);
-            if (!skuConfiguration.isCommandEntitled(event, canonicalFullCommandName(event, command))) {
+            if (Premium.isNotEntitled(
+                    context, skuConfiguration.commandSkus(canonicalFullCommandName(event, command)))) {
                 event.replyChoices().complete();
                 return;
             }
