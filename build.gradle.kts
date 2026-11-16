@@ -27,8 +27,15 @@ dependencies {
 
 spotless {
     java {
+        palantirJavaFormat(libs.versions.palantir.get()).formatJavadoc(false)
         licenseHeaderFile(rootProject.file("HEADER.txt"))
+        removeUnusedImports()
+        importOrder("", "java", "javax", "\\#")
         target("**/*.java")
+    }
+    kotlinGradle {
+        ktlint(libs.versions.ktlint.get())
+        target("*.gradle.kts")
     }
 }
 
