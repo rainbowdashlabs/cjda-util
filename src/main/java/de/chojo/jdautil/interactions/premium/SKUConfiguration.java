@@ -23,12 +23,12 @@ public class SKUConfiguration {
     private Map<String, Set<Long>> messages = new HashMap<>();
     private Map<String, Set<Long>> users = new HashMap<>();
 
-    public SKUConfiguration() {
-    }
+    public SKUConfiguration() {}
 
     public boolean isEntitled(SlashCommandInteractionEvent interaction) {
         return isEntitled(slash, interaction);
     }
+
     public boolean isEntitled(CommandAutoCompleteInteractionEvent interaction) {
         return isEntitled(slash, interaction);
     }
@@ -72,8 +72,7 @@ public class SKUConfiguration {
     private boolean isEntitled(Map<String, Set<Long>> map, CommandInteractionPayload payload, String fullCommandName) {
         Set<Long> entitlements = map.getOrDefault(fullCommandName, Collections.emptySet());
         if (!entitlements.isEmpty()) {
-            return payload.getEntitlements().stream()
-                          .anyMatch(e -> entitlements.contains(e.getIdLong()));
+            return payload.getEntitlements().stream().anyMatch(e -> entitlements.contains(e.getIdLong()));
         }
         return true;
     }

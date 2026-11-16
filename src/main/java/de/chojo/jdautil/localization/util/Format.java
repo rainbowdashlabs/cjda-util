@@ -7,7 +7,11 @@
 package de.chojo.jdautil.localization.util;
 
 public enum Format {
-    BOLD("**"), ITALIC("*"), UNDERLINE("__"), CODE_BLOCK("```"), CODE("`");
+    BOLD("**"),
+    ITALIC("*"),
+    UNDERLINE("__"),
+    CODE_BLOCK("```"),
+    CODE("`");
 
     private final String format;
 

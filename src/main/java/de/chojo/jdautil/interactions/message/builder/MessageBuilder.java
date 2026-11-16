@@ -40,6 +40,7 @@ public class MessageBuilder extends InteractionMetaBuilder<MessageBuilder> imple
     }
 
     public Message build() {
-        return new Message(new InteractionMeta(name(), getContext(), permission(), scope(), localized(), skus), handler);
+        return new Message(
+                new InteractionMeta(name(), getContext(), permission(), scope(), localized(), skus), handler);
     }
 }

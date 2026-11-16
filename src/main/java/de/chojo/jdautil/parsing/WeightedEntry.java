@@ -36,7 +36,9 @@ public class WeightedEntry<T> implements Comparable<WeightedEntry<T>> {
         var lowerName = name.toLowerCase(Locale.ROOT);
         var lowerEffective = member.getEffectiveName().toLowerCase(Locale.ROOT);
         var lowerUser = member.getUser().getName().toLowerCase(Locale.ROOT);
-        var jaro = Math.max(SIMILARITY.apply(member.getEffectiveName(), name), SIMILARITY.apply(member.getUser().getName(), name));
+        var jaro = Math.max(
+                SIMILARITY.apply(member.getEffectiveName(), name),
+                SIMILARITY.apply(member.getUser().getName(), name));
         var score = jaro;
         if (jaro < 0.85) {
             var startsWith = 0.65;

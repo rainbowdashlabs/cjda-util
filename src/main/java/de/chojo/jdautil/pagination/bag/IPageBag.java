@@ -26,7 +26,8 @@ public interface IPageBag {
         };
     }
 
-    static IPageBag standard(int pages, Function<IPageBag, MessageEditData> embed, Function<IPageBag, MessageEditData> empty) {
+    static IPageBag standard(
+            int pages, Function<IPageBag, MessageEditData> embed, Function<IPageBag, MessageEditData> empty) {
         return new PageBag(pages) {
             @Override
             public MessageEditData buildPage() {
@@ -49,7 +50,10 @@ public interface IPageBag {
         };
     }
 
-    static <T> IPageBag list(List<T> pages, Function<ListPageBag<T>, MessageEditData> embed, Function<ListPageBag<T>, MessageEditData> empty) {
+    static <T> IPageBag list(
+            List<T> pages,
+            Function<ListPageBag<T>, MessageEditData> embed,
+            Function<ListPageBag<T>, MessageEditData> empty) {
         return new ListPageBag<>(pages) {
             @Override
             public MessageEditData buildPage() {
@@ -142,7 +146,8 @@ public interface IPageBag {
      * @throws EmptyPageBagException when not overridden.
      */
     default MessageEditData buildEmptyPage() {
-        throw new EmptyPageBagException("The provided page bag is empty. Escape empty page submission or implement IPageBag#buildEmptyPage()");
+        throw new EmptyPageBagException(
+                "The provided page bag is empty. Escape empty page submission or implement IPageBag#buildEmptyPage()");
     }
 
     /**

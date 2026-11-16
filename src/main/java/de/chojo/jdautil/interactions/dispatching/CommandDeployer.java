@@ -65,11 +65,15 @@ final class CommandDeployer {
     private final Set<Long> refreshedDuringDeployment = ConcurrentHashMap.newKeySet();
     private CompletableFuture<Void> deployment = CompletableFuture.completedFuture(null);
 
-    CommandDeployer(ShardManager shardManager, ILocalizer localizer,
-                    Collection<? extends Slash> slash, Collection<? extends CommandDataProvider> contextInteractions,
-                    Function<InteractionMeta, List<Long>> guildCommandMapper,
-                    Function<InteractionMeta, Map<Long, String>> aliasMapper,
-                    boolean cleanGuildCommands, boolean testMode) {
+    CommandDeployer(
+            ShardManager shardManager,
+            ILocalizer localizer,
+            Collection<? extends Slash> slash,
+            Collection<? extends CommandDataProvider> contextInteractions,
+            Function<InteractionMeta, List<Long>> guildCommandMapper,
+            Function<InteractionMeta, Map<Long, String>> aliasMapper,
+            boolean cleanGuildCommands,
+            boolean testMode) {
         this.shardManager = shardManager;
         this.localizer = localizer;
         this.slash = slash;
@@ -130,7 +134,8 @@ final class CommandDeployer {
      * @return the canonical command name if the name is an alias on this guild
      */
     Optional<String> canonicalName(long guildId, String name) {
-        return Optional.ofNullable(aliases.getOrDefault(guildId, Collections.emptyMap()).get(name.toLowerCase(Locale.ROOT)));
+        return Optional.ofNullable(
+                aliases.getOrDefault(guildId, Collections.emptyMap()).get(name.toLowerCase(Locale.ROOT)));
     }
 
     private void runOnDeploymentThread(Runnable runnable) {
@@ -147,7 +152,8 @@ final class CommandDeployer {
         }
 
         if (testMode) {
-            log.warn("Interactions hub is running in test mode. All interactions will be published on guilds and not globally");
+            log.warn(
+                    "Interactions hub is running in test mode. All interactions will be published on guilds and not globally");
             for (var guild : shardManager.getGuilds()) {
                 var deploy = new ArrayList<>(global);
                 deploy.addAll(guildCommands.getOrDefault(guild.getIdLong(), Collections.emptyList()));
@@ -192,17 +198,26 @@ final class CommandDeployer {
 
     private void deployGlobal(List<CommandData> global) {
         log.info("Updating {} global commands.", global.size());
-        shardManager.getShards().getFirst().updateCommands().addCommands(global).queue(RestAction.getDefaultSuccess(), err -> {
-            if (err instanceof ErrorResponseException e && e.getErrorCode() == 50035) {
-                for (var error : e.getSchemaErrors()) {
-                    var loc = error.getLocation().split("\\.", 2);
-                    var command = global.get(Integer.parseInt(loc[0]));
-                    log.error("Invalid values in command {} at {}. Caused by:\n{}", command.getName(), loc[1], error.getErrors());
-                }
-                return;
-            }
-            log.error("Could not deploy commands", err);
-        });
+        shardManager
+                .getShards()
+                .getFirst()
+                .updateCommands()
+                .addCommands(global)
+                .queue(RestAction.getDefaultSuccess(), err -> {
+                    if (err instanceof ErrorResponseException e && e.getErrorCode() == 50035) {
+                        for (var error : e.getSchemaErrors()) {
+                            var loc = error.getLocation().split("\\.", 2);
+                            var command = global.get(Integer.parseInt(loc[0]));
+                            log.error(
+                                    "Invalid values in command {} at {}. Caused by:\n{}",
+                                    command.getName(),
+                                    loc[1],
+                                    error.getErrors());
+                        }
+                        return;
+                    }
+                    log.error("Could not deploy commands", err);
+                });
     }
 
     private void deployGuild(Guild guild, List<CommandData> commands) {
@@ -296,7 +311,8 @@ final class CommandDeployer {
         try {
             return command.toCommandData(localizer);
         } catch (Exception e) {
-            throw new IllegalStateException("Bot command deployment failed in command " + command.meta().name(), e);
+            throw new IllegalStateException(
+                    "Bot command deployment failed in command " + command.meta().name(), e);
         }
     }
 
@@ -318,7 +334,8 @@ final class CommandDeployer {
 
         void addAlias(long guildId, String alias, CommandDataProvider command, CommandData data) {
             add(guildId, data);
-            aliases.computeIfAbsent(guildId, k -> new HashMap<>()).put(alias.toLowerCase(Locale.ROOT), command.meta().name());
+            aliases.computeIfAbsent(guildId, k -> new HashMap<>())
+                    .put(alias.toLowerCase(Locale.ROOT), command.meta().name());
         }
     }
 }

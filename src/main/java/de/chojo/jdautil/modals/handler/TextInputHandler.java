@@ -36,8 +36,8 @@ public class TextInputHandler {
     }
 
     public ModalTopLevelComponent input(LocalizationContext localizer) {
-        var textInput = input.setPlaceholder(localizer.localize(input.getPlaceholder()))
-             .build();
+        var textInput =
+                input.setPlaceholder(localizer.localize(input.getPlaceholder())).build();
         return Label.of(localizer.localize(label), textInput);
     }
 

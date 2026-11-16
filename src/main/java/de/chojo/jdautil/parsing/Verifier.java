@@ -11,17 +11,15 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-
 public final class Verifier {
     private static final Pattern ID_PATTERN = Pattern.compile("(?:<[@#!&]{1,2})?(?<id>[0-9]{15,19})(?:>)?");
     private static final Pattern IPV_4 = Pattern.compile("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?$");
     private static final Pattern IPV_6 = Pattern.compile("(^\\[([a-fA-F0-9]{0,4}:){4,7}[a-fA-F0-9]{0,4}]:"
             + "[0-9]{1,5}$)|(([a-fA-F0-9]{0,4}:){4,7}[a-fA-F0-9]{0,4}$)");
-    private static final Pattern DOMAIN = Pattern.compile("^(?!://)([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]"
-            + "+\\.[a-zA-Z]{2,11}?(:[0-9]{1,5})?$");
+    private static final Pattern DOMAIN = Pattern.compile(
+            "^(?!://)([a-zA-Z0-9-_]+\\.)*[a-zA-Z0-9][a-zA-Z0-9-_]" + "+\\.[a-zA-Z]{2,11}?(:[0-9]{1,5})?$");
 
-    private Verifier() {
-    }
+    private Verifier() {}
 
     /**
      * Returns true if the id is a valid id.
@@ -46,7 +44,6 @@ public final class Verifier {
         if (a == null || b == null) return false;
         return a.getIdLong() == b.getIdLong();
     }
-
 
     /**
      * Returns true if on of the arguments matches the argument. Not case sensitive.
@@ -74,5 +71,4 @@ public final class Verifier {
         var matcher = ID_PATTERN.matcher(id);
         return !matcher.matches() ? Optional.empty() : Optional.ofNullable(matcher.group(1));
     }
-
 }

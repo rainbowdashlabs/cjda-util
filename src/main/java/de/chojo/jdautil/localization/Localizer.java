@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-
 public class Localizer implements ILocalizer {
-    private static final boolean NAME_ERROR = "true".equalsIgnoreCase(SysVar.envOrProp("CJDA_LOCALISATION_NAME_ERROR", "cjda.localisation.error.name", "true"));
+    private static final boolean NAME_ERROR = "true"
+            .equalsIgnoreCase(SysVar.envOrProp("CJDA_LOCALISATION_NAME_ERROR", "cjda.localisation.error.name", "true"));
     private final Pattern EMBEDDED_CODE;
     private static final Pattern SIMPLE__CODE = Pattern.compile("^([a-zA-Z_]+?\\.[a-zA-Z_.]+)$");
     private static final Logger log = getLogger(Localizer.class);
@@ -41,7 +41,13 @@ public class Localizer implements ILocalizer {
     private final DiscordLocale defaultLanguage;
     private final BiFunction<Guild, String, Optional<String>> guildLocaleCode;
 
-    public Localizer(Map<DiscordLocale, ResourceBundle> languages, Function<Guild, Optional<DiscordLocale>> languageProvider, DiscordLocale defaultLanguage, String embedCodeStart, String embedCodeEnd, BiFunction<Guild, String, Optional<String>> guildLocaleCode) {
+    public Localizer(
+            Map<DiscordLocale, ResourceBundle> languages,
+            Function<Guild, Optional<DiscordLocale>> languageProvider,
+            DiscordLocale defaultLanguage,
+            String embedCodeStart,
+            String embedCodeEnd,
+            BiFunction<Guild, String, Optional<String>> guildLocaleCode) {
         this.languages = languages;
         this.languageProvider = languageProvider;
         this.defaultLanguage = defaultLanguage;
@@ -86,8 +92,11 @@ public class Localizer implements ILocalizer {
         if (!NAME_ERROR && localetag.endsWith(".name")) {
             return;
         }
-        log.warn("Missing localization for key: {} in language pack: {}. Using Fallback Language {}",
-                localetag, language, defaultLanguage);
+        log.warn(
+                "Missing localization for key: {} in language pack: {}. Using Fallback Language {}",
+                localetag,
+                language,
+                defaultLanguage);
     }
 
     private void reportMissing(String localetag) {
@@ -157,7 +166,7 @@ public class Localizer implements ILocalizer {
             result = message;
 
             for (var match : keys) {
-                //Replace current placeholders with replacements
+                // Replace current placeholders with replacements
                 var languageString = getLanguageString(language, guild, match);
                 result = result.replace("$" + match + "$", languageString);
             }
@@ -220,7 +229,8 @@ public class Localizer implements ILocalizer {
          * @param guildLocaleCodeProvider provider
          * @return optional that might contain a value
          */
-        public Builder withGuildLocaleCodeProvider(BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider) {
+        public Builder withGuildLocaleCodeProvider(
+                BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider) {
             this.guildLocaleCodeProvider = guildLocaleCodeProvider;
             return this;
         }
@@ -273,9 +283,14 @@ public class Localizer implements ILocalizer {
 
         public Localizer build() {
             loadLanguages();
-            return new Localizer(resourceBundles, languageProvider, defaultLanguage, embedCodeStart, embedCodeEnd, guildLocaleCodeProvider);
+            return new Localizer(
+                    resourceBundles,
+                    languageProvider,
+                    defaultLanguage,
+                    embedCodeStart,
+                    embedCodeEnd,
+                    guildLocaleCodeProvider);
         }
-
 
         private void loadLanguages() {
             for (var lang : languages) {

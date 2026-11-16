@@ -11,10 +11,10 @@ import net.dv8tion.jda.api.interactions.DiscordLocale;
 
 import java.util.Optional;
 
-public interface GuildLocaleProvider extends LocaleProvider{
+public interface GuildLocaleProvider extends LocaleProvider {
     Guild guild();
 
-    static GuildLocaleProvider of(Guild guild){
+    static GuildLocaleProvider of(Guild guild) {
         return new GuildLocaleProvider() {
             @Override
             public Guild guild() {

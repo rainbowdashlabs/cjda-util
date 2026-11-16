@@ -6,17 +6,18 @@
 
 package de.chojo.jdautil.localization.util;
 
-import de.chojo.jdautil.localization.LocalizationContext;
 import de.chojo.jdautil.localization.ILocalizer;
+import de.chojo.jdautil.localization.LocalizationContext;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.Color;
 import java.time.temporal.TemporalAccessor;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Wrapper for auto localization of embeds.
@@ -46,7 +47,8 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
         return localizer.localize(message, replacements);
     }
 
-    public LocalizedEmbedBuilder addField(@Nullable String name, @Nullable String value, boolean inline, Replacement... replacements) {
+    public LocalizedEmbedBuilder addField(
+            @Nullable String name, @Nullable String value, boolean inline, Replacement... replacements) {
         super.addField(localize(name, replacements), localize(value, replacements), inline);
         return this;
     }
@@ -118,7 +120,8 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     }
 
     @Nonnull
-    public LocalizedEmbedBuilder setFooter(@Nullable String text, @Nullable String iconUrl, Replacement... replacements) {
+    public LocalizedEmbedBuilder setFooter(
+            @Nullable String text, @Nullable String iconUrl, Replacement... replacements) {
         super.setFooter(localize(text, replacements), iconUrl);
         return this;
     }
@@ -223,7 +226,8 @@ public class LocalizedEmbedBuilder extends EmbedBuilder {
     }
 
     @Nonnull
-    public LocalizedEmbedBuilder setAuthor(@Nullable String name, @Nullable String url, @Nullable String iconUrl, Replacement... replacements) {
+    public LocalizedEmbedBuilder setAuthor(
+            @Nullable String name, @Nullable String url, @Nullable String iconUrl, Replacement... replacements) {
         super.setAuthor(localize(name, replacements), url, iconUrl);
         return this;
     }

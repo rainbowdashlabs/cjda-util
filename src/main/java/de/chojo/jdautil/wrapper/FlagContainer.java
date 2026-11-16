@@ -62,7 +62,6 @@ public class FlagContainer {
                 continue;
             }
 
-
             if (currFlag != null) {
                 flagArgs.add(arg);
             }

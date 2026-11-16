@@ -16,5 +16,4 @@ public interface StringArgumentBuilder extends CompletableArgumentBuilder {
     StringArgumentBuilder minLength(int min);
 
     StringArgumentBuilder maxLength(int max);
-
 }

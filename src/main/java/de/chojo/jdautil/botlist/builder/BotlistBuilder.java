@@ -41,7 +41,6 @@ public class BotlistBuilder implements ClientStage, BaseUrlStage, AuthStage, Con
     private VoteReceiver<?> voteReceiver;
     private boolean shardStats = true;
 
-
     private BotlistBuilder(String name) {
         this.name = name;
     }
@@ -50,7 +49,7 @@ public class BotlistBuilder implements ClientStage, BaseUrlStage, AuthStage, Con
         return new BotlistBuilder(name);
     }
 
-    public BotlistBuilder useShardStats(boolean shardStats){
+    public BotlistBuilder useShardStats(boolean shardStats) {
         this.shardStats = shardStats;
         return this;
     }
@@ -111,6 +110,17 @@ public class BotlistBuilder implements ClientStage, BaseUrlStage, AuthStage, Con
 
     @Override
     public BotList build() {
-        return new BotList(objectMapper, httpClient, clientId, name, baseUrl, statusCodeHandler, authHandler, statsMapper, voteChecker, voteReceiver, shardStats);
+        return new BotList(
+                objectMapper,
+                httpClient,
+                clientId,
+                name,
+                baseUrl,
+                statusCodeHandler,
+                authHandler,
+                statsMapper,
+                voteChecker,
+                voteReceiver,
+                shardStats);
     }
 }

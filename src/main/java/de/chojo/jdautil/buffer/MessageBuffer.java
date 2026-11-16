@@ -23,14 +23,14 @@ public class MessageBuffer implements Runnable {
     private Instant oldest;
     private final StringBuilder buffer = new StringBuilder();
 
-    private MessageBuffer(int maxLength, DateTimeFormatter formatter, ShardManager shardManager, long channelId, int flushDuration) {
+    private MessageBuffer(
+            int maxLength, DateTimeFormatter formatter, ShardManager shardManager, long channelId, int flushDuration) {
         this.maxLength = maxLength;
         this.formatter = formatter;
         this.shardManager = shardManager;
         this.channelId = channelId;
         this.flushDuration = flushDuration;
     }
-
 
     @Override
     public synchronized void run() {
@@ -61,7 +61,6 @@ public class MessageBuffer implements Runnable {
     private String timestamp() {
         return formatter.format(Instant.now());
     }
-
 
     public static final class Builder {
         private final int maxLength = 2048;

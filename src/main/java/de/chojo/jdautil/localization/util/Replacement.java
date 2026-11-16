@@ -38,9 +38,10 @@ public final class Replacement {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public static Replacement deserialize(@JsonProperty("key") String key,
-                                          @JsonProperty("value") String value,
-                                          @JsonProperty("caseSensitive") boolean caseSensitive) {
+    public static Replacement deserialize(
+            @JsonProperty("key") String key,
+            @JsonProperty("value") String value,
+            @JsonProperty("caseSensitive") boolean caseSensitive) {
         if (caseSensitive) {
             return new Replacement(key, value).matchCase();
         }
@@ -121,7 +122,6 @@ public final class Replacement {
         return create("CHANNEL", value.getAsMention());
     }
 
-
     /**
      * Add formatting codes to the replacement. A §r will be appended after the replacement. Only provide the formatting
      * character. Without § or &amp;.
@@ -145,7 +145,6 @@ public final class Replacement {
         this.caseSensitive = false;
         return this;
     }
-
 
     /**
      * Invoke the replacement on the string.
@@ -180,10 +179,9 @@ public final class Replacement {
 
     @Override
     public String toString() {
-        return "Replacement{" +
-               "key='" + key + '\'' +
-               ", value='" + value + '\'' +
-               ", caseSensitive=" + caseSensitive +
-               '}';
+        return "Replacement{" + "key='"
+                + key + '\'' + ", value='"
+                + value + '\'' + ", caseSensitive="
+                + caseSensitive + '}';
     }
 }

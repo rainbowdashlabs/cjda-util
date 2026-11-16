@@ -45,5 +45,4 @@ public abstract class Context implements ConversationContext {
     public <T> T getOrDefault(String key, T defaultValue) {
         return (T) data.getOrDefault(key, defaultValue);
     }
-
 }

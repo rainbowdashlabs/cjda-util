@@ -24,7 +24,9 @@ public interface LocaleProvider {
 
     static LocaleProvider guild(Interaction interaction) {
         if (interaction == null) return empty();
-        return interaction.isFromGuild() ? GuildLocaleProvider.of(interaction.getGuild()) : UserLocaleProvider.of(interaction.getUser(), interaction.getUserLocale());
+        return interaction.isFromGuild()
+                ? GuildLocaleProvider.of(interaction.getGuild())
+                : UserLocaleProvider.of(interaction.getUser(), interaction.getUserLocale());
     }
 
     static LocaleProvider guild(Guild guild) {

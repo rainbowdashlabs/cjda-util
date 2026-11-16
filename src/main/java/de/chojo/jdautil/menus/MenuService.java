@@ -61,7 +61,13 @@ public class MenuService extends ListenerAdapter {
     public void register(MenuAction interaction) {
         var id = nextId();
         interaction.send(localizer, id);
-        cache.put(id, new MenuContainer(id, localizer.context(LocaleProvider.guild(interaction.guild())), interaction.components(), interaction.user()));
+        cache.put(
+                id,
+                new MenuContainer(
+                        id,
+                        localizer.context(LocaleProvider.guild(interaction.guild())),
+                        interaction.components(),
+                        interaction.user()));
     }
 
     private long nextId() {

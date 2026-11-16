@@ -13,9 +13,7 @@ import java.util.List;
 public class QueryParamBuilder {
     List<String> params;
 
-    private QueryParamBuilder() {
-
-    }
+    private QueryParamBuilder() {}
 
     public static QueryParamBuilder builder() {
         return new QueryParamBuilder();

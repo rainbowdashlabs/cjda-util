@@ -7,5 +7,6 @@
 package de.chojo.jdautil.interactions.base;
 
 public enum InteractionScope {
-    PRIVATE, GLOBAL
+    PRIVATE,
+    GLOBAL
 }

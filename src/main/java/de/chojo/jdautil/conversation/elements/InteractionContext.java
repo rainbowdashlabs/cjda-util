@@ -23,14 +23,19 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
 
 public class InteractionContext extends Context {
     private final ComponentInteraction interaction;
     private final LocalizationContext localizer;
 
-    public InteractionContext(Map<String, Object> data, Conversation conversation, ComponentInteraction interaction, ILocalizer localizer) {
+    public InteractionContext(
+            Map<String, Object> data,
+            Conversation conversation,
+            ComponentInteraction interaction,
+            ILocalizer localizer) {
         super(conversation, data);
         this.interaction = interaction;
         this.localizer = localizer.context(LocaleProvider.guild(interaction));

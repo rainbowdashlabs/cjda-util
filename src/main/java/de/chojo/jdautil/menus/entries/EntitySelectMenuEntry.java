@@ -15,14 +15,18 @@ import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionE
 import java.util.function.Consumer;
 
 public class EntitySelectMenuEntry extends MenuEntry<EntitySelectMenu, EntitySelectInteractionEvent> {
-    public EntitySelectMenuEntry(EntitySelectMenu component, Consumer<EntryContext<EntitySelectInteractionEvent, EntitySelectMenu>> eventConsumer) {
+    public EntitySelectMenuEntry(
+            EntitySelectMenu component,
+            Consumer<EntryContext<EntitySelectInteractionEvent, EntitySelectMenu>> eventConsumer) {
         super(component, eventConsumer);
     }
 
     @Override
     public ActionRowChildComponent component(long id, LocalizationContext localizer) {
-        return component().createCopy().setCustomId(String.format("%s:%s", id, component().getCustomId()))
-                          .setPlaceholder(localizer.localize(component().getPlaceholder()))
-                          .build();
+        return component()
+                .createCopy()
+                .setCustomId(String.format("%s:%s", id, component().getCustomId()))
+                .setPlaceholder(localizer.localize(component().getPlaceholder()))
+                .build();
     }
 }

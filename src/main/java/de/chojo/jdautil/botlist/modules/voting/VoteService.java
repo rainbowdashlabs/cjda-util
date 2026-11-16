@@ -70,10 +70,11 @@ public class VoteService {
             }
             String guildIdString = ctx.queryParam("guildId");
             long guildId = 0;
-            if(guildIdString != null) {
+            if (guildIdString != null) {
                 guildId = Long.parseLong(guildIdString);
             }
-            var data = OBJECT_MAPPER.readValue(ctx.body(), botList.voteReceiver().payload());
+            var data =
+                    OBJECT_MAPPER.readValue(ctx.body(), botList.voteReceiver().payload());
             data.injectGuild(guildId);
             var voteData = botList.voteReceiver().mapToVoteData(data);
             voted(voteData);

@@ -12,5 +12,4 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 @FunctionalInterface
 public interface AutoCompleteHandler {
     void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context);
-
 }

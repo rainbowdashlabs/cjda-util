@@ -17,7 +17,9 @@ import java.util.function.BiConsumer;
 public interface PartialSubCommandBuilder {
     SubCommandBuilder handler(SlashHandler handler);
 
-    default SubCommandBuilder handler(BiConsumer<SlashCommandInteractionEvent, EventContext> slash, BiConsumer<CommandAutoCompleteInteractionEvent, EventContext> completion) {
+    default SubCommandBuilder handler(
+            BiConsumer<SlashCommandInteractionEvent, EventContext> slash,
+            BiConsumer<CommandAutoCompleteInteractionEvent, EventContext> completion) {
         return handler(new SlashHandler() {
             @Override
             public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {

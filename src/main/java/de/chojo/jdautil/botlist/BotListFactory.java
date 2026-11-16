@@ -23,11 +23,7 @@ public interface BotListFactory {
             .forClient(shardManager)
             .withBaseUrl("https://top.gg/api")
             .withAuthentication(AuthHandler.of(config.statsToken()))
-            .withSubmission(StatsMapper.of(
-                    "bots/{id}/stats",
-                    (data, map) -> map
-                            .add("server_count", data.guilds())
-            ))
+            .withSubmission(StatsMapper.of("bots/{id}/stats", (data, map) -> map.add("server_count", data.guilds())))
             .withVoteReceiver(VoteReceiverFactory.TOP_GG.build(config.voteToken()))
             .build();
 
@@ -35,15 +31,11 @@ public interface BotListFactory {
      * Build a discord.bots.gg botlist
      */
     BotListFactory DISCORD_BOTS_GG = (shardManager, config) -> BotlistBuilder.builder("discord.bots.gg")
-                                                                             .forClient(shardManager)
-                                                                             .withBaseUrl("https://discord.bots.gg/api/v1")
-                                                                             .withAuthentication(AuthHandler.of(config.statsToken()))
-                                                                             .withSubmission(StatsMapper.of(
-                    "bots/{id}/stats",
-                    (data, map) -> map
-                            .add("guildCount", data.guilds())
-            ))
-                                                                             .build();
+            .forClient(shardManager)
+            .withBaseUrl("https://discord.bots.gg/api/v1")
+            .withAuthentication(AuthHandler.of(config.statsToken()))
+            .withSubmission(StatsMapper.of("bots/{id}/stats", (data, map) -> map.add("guildCount", data.guilds())))
+            .build();
 
     /**
      * Build a discordbotlist.com botlist
@@ -53,10 +45,8 @@ public interface BotListFactory {
             .withBaseUrl("https://discordbotlist.com")
             .withAuthentication(AuthHandler.of(config.statsToken()))
             .withSubmission(StatsMapper.of(
-                    "api/v1/bots/{id}/stats", (shard, map) -> map
-                            .add("guilds", shard.guilds())
-                            .add("users", shard.user())
-            ))
+                    "api/v1/bots/{id}/stats",
+                    (shard, map) -> map.add("guilds", shard.guilds()).add("users", shard.user())))
             .withVoteReceiver(VoteReceiverFactory.DISCORDBOTLIST_COM.build(config.voteToken()))
             .build();
 
@@ -67,11 +57,8 @@ public interface BotListFactory {
             .forClient(shardManager)
             .withBaseUrl("https://botlist.me")
             .withAuthentication(AuthHandler.of(config.statsToken()))
-            .withSubmission(StatsMapper.of(
-                    "api/v1/bots/{id}/stats",
-                    (shard, map) -> map
-                            .add("server_count", shard.guilds())
-            ))
+            .withSubmission(
+                    StatsMapper.of("api/v1/bots/{id}/stats", (shard, map) -> map.add("server_count", shard.guilds())))
             .useShardStats(false)
             .withVoteReceiver(VoteReceiverFactory.BOTLIST_ME.build(config.voteToken()))
             .build();

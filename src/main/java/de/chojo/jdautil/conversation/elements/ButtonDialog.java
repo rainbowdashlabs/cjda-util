@@ -39,8 +39,8 @@ public class ButtonDialog {
 
     public Collection<ActionRow> getActions(ILocalizer localizer, Guild guild) {
         var components = this.components.values().stream()
-                                        .map(action -> action.getTranslatedComponent(localizer, guild))
-                                        .collect(Collectors.toList());
+                .map(action -> action.getTranslatedComponent(localizer, guild))
+                .collect(Collectors.toList());
         return ActionRow.partitionOf(components);
     }
 }

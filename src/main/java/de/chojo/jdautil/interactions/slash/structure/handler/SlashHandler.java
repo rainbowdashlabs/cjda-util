@@ -26,7 +26,5 @@ public interface SlashHandler extends SlashCommandHandler, AutoCompleteHandler {
     }
 
     @Override
-    default void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-
-    }
+    default void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {}
 }

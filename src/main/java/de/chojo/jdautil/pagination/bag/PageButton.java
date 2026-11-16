@@ -7,7 +7,6 @@
 package de.chojo.jdautil.pagination.bag;
 
 import de.chojo.jdautil.localization.LocalizationContext;
-import net.dv8tion.jda.api.components.ActionComponent;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonInteraction;
 
@@ -41,8 +40,7 @@ public interface PageButton {
             }
 
             @Override
-            public void invoke(IPageBag pageBag, ButtonInteraction event) {
-            }
+            public void invoke(IPageBag pageBag, ButtonInteraction event) {}
         };
     }
 
@@ -58,6 +56,6 @@ public interface PageButton {
             return button.withCustomId(String.format("%s:%s", id, button.getCustomId()));
         }
         return button.withCustomId(String.format("%s:%s", id, button.getCustomId()))
-                     .withLabel(localizer.localize(button.getLabel()));
+                .withLabel(localizer.localize(button.getLabel()));
     }
 }

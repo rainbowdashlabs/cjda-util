@@ -12,8 +12,7 @@ public class AuthHandler {
     private String name;
     private String token;
 
-    public AuthHandler() {
-    }
+    public AuthHandler() {}
 
     private AuthHandler(String name, String token) {
         this.name = name;

@@ -20,8 +20,7 @@ import static java.lang.System.lineSeparator;
 public final class TextFormatting {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
 
-    private TextFormatting() {
-    }
+    private TextFormatting() {}
 
     /**
      * Appends white spaces to a string to match the given length. Returns input if fill is smaller or equal
@@ -64,7 +63,8 @@ public final class TextFormatting {
             return "";
         }
 
-        return String.join(delimiter, Arrays.copyOfRange(source, finalFrom, finalTo)).trim();
+        return String.join(delimiter, Arrays.copyOfRange(source, finalFrom, finalTo))
+                .trim();
     }
 
     /**
@@ -98,7 +98,6 @@ public final class TextFormatting {
         }
         return builder.toString().trim();
     }
-
 
     /**
      * Changes the boolean in to a specified String.
@@ -236,7 +235,6 @@ public final class TextFormatting {
                 }
                 length[column] = max;
             }
-
 
             for (var col = 0; col < length.length; col++) {
                 for (var row = 0; row < table.length; row++) {

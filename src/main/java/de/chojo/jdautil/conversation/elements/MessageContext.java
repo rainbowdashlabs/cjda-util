@@ -20,10 +20,11 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class MessageContext extends Context {
     private final Message message;
@@ -34,7 +35,6 @@ public class MessageContext extends Context {
         this.message = message;
         this.localizer = localizer.context(LocaleProvider.guild(message));
     }
-
 
     @Override
     public Message message() {

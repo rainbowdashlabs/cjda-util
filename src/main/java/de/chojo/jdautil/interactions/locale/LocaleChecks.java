@@ -44,9 +44,15 @@ public final class LocaleChecks {
 
     private static void checkLength(ILocalizer localizer, String prefix, String key, int min, int max) {
         localizer.keyMap(prefix, key).entrySet().stream()
-                 .filter(e -> e.getValue().trim().length() < min || e.getValue().length() > max)
-                 .forEach(e -> log.warn("Key {}.{}@{} has invalid length ({}). {}-{}",
-                         prefix, key, e.getKey(), e.getValue(), min, max));
+                .filter(e -> e.getValue().trim().length() < min || e.getValue().length() > max)
+                .forEach(e -> log.warn(
+                        "Key {}.{}@{} has invalid length ({}). {}-{}",
+                        prefix,
+                        key,
+                        e.getKey(),
+                        e.getValue(),
+                        min,
+                        max));
     }
 
     private static void checkLength(String name, int min, int max) {
@@ -57,15 +63,22 @@ public final class LocaleChecks {
 
     private static void checkSnakeCase(ILocalizer localizer, String prefix, String key) {
         localizer.keyMap(prefix, key).entrySet().stream()
-                 .filter(e -> !e.getValue().equals(e.getValue().toLowerCase().replace(" ", "_")))
-                 .forEach(e -> log.warn("Key {}.{}@{} is not snake_case ({}). Should be {}",
-                         prefix, key, e.getKey(), e.getValue(), e.getValue().toLowerCase().replace(" ", "_")));
+                .filter(e -> !e.getValue().equals(e.getValue().toLowerCase().replace(" ", "_")))
+                .forEach(e -> log.warn(
+                        "Key {}.{}@{} is not snake_case ({}). Should be {}",
+                        prefix,
+                        key,
+                        e.getKey(),
+                        e.getValue(),
+                        e.getValue().toLowerCase().replace(" ", "_")));
     }
 
     private static void checkSnakeCase(String name) {
         if (!name.equals(name.toLowerCase().replace(" ", "_"))) {
-            log.warn("Value \"{}\" is not snake_case. Should be {}",
-                    name, name.toLowerCase(Locale.ROOT).replace(" ", "_"));
+            log.warn(
+                    "Value \"{}\" is not snake_case. Should be {}",
+                    name,
+                    name.toLowerCase(Locale.ROOT).replace(" ", "_"));
         }
     }
 

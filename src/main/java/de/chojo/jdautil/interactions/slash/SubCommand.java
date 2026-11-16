@@ -23,8 +23,6 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import java.util.List;
 
 import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
-import static de.chojo.jdautil.util.Premium.isNotEntitled;
-import static de.chojo.jdautil.util.Premium.replyPremium;
 
 public class SubCommand implements Route<RouteMeta> {
     private final RouteMeta meta;
@@ -77,17 +75,29 @@ public class SubCommand implements Route<RouteMeta> {
     }
 
     public SubcommandData data(Slash slash, Group group, ILocalizer localizer) {
-        LocaleChecks.checkCommandName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), meta.name()));
-        LocaleChecks.checkCommandDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), meta.name()));
+        LocaleChecks.checkCommandName(
+                localizer,
+                "command",
+                LocaleKey.name(slash.meta().name(), group.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(
+                localizer,
+                "command",
+                LocaleKey.description(slash.meta().name(), group.meta().name(), meta.name()));
         return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .addOptions(arguments.stream().map(a -> a.data(slash, group, this, localizer)).toList());
+                .addOptions(arguments.stream()
+                        .map(a -> a.data(slash, group, this, localizer))
+                        .toList());
     }
 
     public SubcommandData data(Slash slash, ILocalizer localizer) {
-        LocaleChecks.checkCommandName(localizer, "command", LocaleKey.name(slash.meta().name(), meta.name()));
-        LocaleChecks.checkCommandDescription(localizer, "command", LocaleKey.description(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandName(
+                localizer, "command", LocaleKey.name(slash.meta().name(), meta.name()));
+        LocaleChecks.checkCommandDescription(
+                localizer, "command", LocaleKey.description(slash.meta().name(), meta.name()));
         return new SubcommandData(meta.name(), localizer.localize(meta.description(), LocaleProvider.empty()))
-                .addOptions(arguments.stream().map(a -> a.data(slash, this, localizer)).toList());
+                .addOptions(arguments.stream()
+                        .map(a -> a.data(slash, this, localizer))
+                        .toList());
     }
 
     public SubcommandData data() {

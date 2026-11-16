@@ -16,7 +16,14 @@ import java.util.Set;
 public abstract class DescriptiveMeta extends InteractionMeta {
     private final String description;
 
-    public DescriptiveMeta(String name, String description, Set<InteractionContextType> contextTypes, DefaultMemberPermissions permission, InteractionScope scope, boolean localized, List<SKU> skus) {
+    public DescriptiveMeta(
+            String name,
+            String description,
+            Set<InteractionContextType> contextTypes,
+            DefaultMemberPermissions permission,
+            InteractionScope scope,
+            boolean localized,
+            List<SKU> skus) {
         super(name, contextTypes, permission, scope, localized, skus);
         this.description = description;
     }

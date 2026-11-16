@@ -17,24 +17,29 @@ public class SysVar {
     }
 
     @Deprecated
-    public static <T extends Exception> String getOrThrowChecked(String property, String environment, Supplier<T> throwableSupplier) throws T {
+    public static <T extends Exception> String getOrThrowChecked(
+            String property, String environment, Supplier<T> throwableSupplier) throws T {
         return get(property, environment).orElseThrow(throwableSupplier);
     }
 
-    public static <T extends Exception> String envOrPropOrThrow(String env, String prop, Supplier<T> throwableSupplier) throws T {
+    public static <T extends Exception> String envOrPropOrThrow(String env, String prop, Supplier<T> throwableSupplier)
+            throws T {
         return envOrProp(env, prop).orElseThrow(throwableSupplier);
     }
 
-    public static <T extends Exception> String propOrEnvOrThrow(String property, String environment, Supplier<T> throwableSupplier) throws T {
+    public static <T extends Exception> String propOrEnvOrThrow(
+            String property, String environment, Supplier<T> throwableSupplier) throws T {
         return propOrEnv(property, environment).orElseThrow(throwableSupplier);
     }
 
     public static <T extends Exception> String envOrPropOrThrow(String property, String environment) throws T {
-        return envOrProp(property, environment).orElseThrow(() -> UnknownVariableException.forEnvOrProp(environment, property));
+        return envOrProp(property, environment)
+                .orElseThrow(() -> UnknownVariableException.forEnvOrProp(environment, property));
     }
 
     public static <T extends Exception> String propOrEnvOrThrow(String property, String environment) throws T {
-        return propOrEnv(property, environment).orElseThrow(() -> UnknownVariableException.forEnvOrProp(environment, property));
+        return propOrEnv(property, environment)
+                .orElseThrow(() -> UnknownVariableException.forEnvOrProp(environment, property));
     }
 
     public static String getOrDefault(String property, String environment, String def) {
@@ -92,7 +97,8 @@ public class SysVar {
         }
 
         public static UnknownVariableException forEnvOrProp(String env, String prop) {
-            return new UnknownVariableException("Neither environment variable %s nor prop %s are set".formatted(env, prop));
+            return new UnknownVariableException(
+                    "Neither environment variable %s nor prop %s are set".formatted(env, prop));
         }
     }
 }

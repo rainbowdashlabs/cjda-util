@@ -12,14 +12,14 @@ import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
 
 public class TextInputHandlerBuilder {
     private final TextInput.Builder builder;
     private final String label;
     private Consumer<ModalMapping> handler = Consumers.empty();
-
 
     public TextInputHandlerBuilder(String id, String label, TextInputStyle style) {
         this.label = label;

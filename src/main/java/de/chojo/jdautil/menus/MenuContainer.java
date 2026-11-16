@@ -44,19 +44,21 @@ public class MenuContainer {
             menu.invoke(new EntryContext<>(buttonEvent, menu, this));
         }
 
-        if (event instanceof StringSelectInteractionEvent selectMenuEvent && entry instanceof StringSelectMenuEntry menu) {
+        if (event instanceof StringSelectInteractionEvent selectMenuEvent
+                && entry instanceof StringSelectMenuEntry menu) {
             menu.invoke(new EntryContext<>(selectMenuEvent, menu, this));
         }
-        if (event instanceof EntitySelectInteractionEvent selectMenuEvent && entry instanceof EntitySelectMenuEntry menu) {
+        if (event instanceof EntitySelectInteractionEvent selectMenuEvent
+                && entry instanceof EntitySelectMenuEntry menu) {
             menu.invoke(new EntryContext<>(selectMenuEvent, menu, this));
         }
     }
 
     public List<ActionRowChildComponent> components() {
         return entries.stream()
-                      .filter(MenuEntry::visible)
-                      .map(e -> e.component(id, localizer))
-                      .toList();
+                .filter(MenuEntry::visible)
+                .map(e -> e.component(id, localizer))
+                .toList();
     }
 
     public Optional<MenuEntry<?, ?>> entry(String id) {

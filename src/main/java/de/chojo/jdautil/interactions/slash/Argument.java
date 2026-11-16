@@ -22,8 +22,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public record Argument(OptionType type, String name, String description, boolean required, boolean autoComplete,
-                       @NotNull Consumer<OptionData> min, @NotNull Consumer<OptionData> max) {
+public record Argument(
+        OptionType type,
+        String name,
+        String description,
+        boolean required,
+        boolean autoComplete,
+        @NotNull Consumer<OptionData> min,
+        @NotNull Consumer<OptionData> max) {
 
     /**
      * @deprecated Use {@link #builder(OptionType, String, String)} instead
@@ -96,26 +102,51 @@ public record Argument(OptionType type, String name, String description, boolean
     }
 
     public OptionData data(ILocalizer localizer) {
-        return applySize(new OptionData(type, name, localizer.localize(description, LocaleProvider.empty()), required(), autoComplete()));
+        return applySize(new OptionData(
+                type, name, localizer.localize(description, LocaleProvider.empty()), required(), autoComplete()));
     }
 
     public OptionData data(Slash slash, Group group, SubCommand subCommand, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), group.meta().name(), subCommand.meta().name(), "options", name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), group.meta().name(), subCommand.meta().name(), "options", name()));
+        LocaleChecks.checkOptionName(
+                localizer,
+                "command",
+                LocaleKey.name(
+                        slash.meta().name(),
+                        group.meta().name(),
+                        subCommand.meta().name(),
+                        "options",
+                        name()));
+        LocaleChecks.checkOptionDescription(
+                localizer,
+                "command",
+                LocaleKey.description(
+                        slash.meta().name(),
+                        group.meta().name(),
+                        subCommand.meta().name(),
+                        "options",
+                        name()));
 
         return data(localizer);
     }
 
     public OptionData data(Slash slash, SubCommand subCommand, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), subCommand.meta().name(), "options", name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), subCommand.meta().name(), "options", name()));
+        LocaleChecks.checkOptionName(
+                localizer,
+                "command",
+                LocaleKey.name(slash.meta().name(), subCommand.meta().name(), "options", name()));
+        LocaleChecks.checkOptionDescription(
+                localizer,
+                "command",
+                LocaleKey.description(slash.meta().name(), subCommand.meta().name(), "options", name()));
 
         return data(localizer);
     }
 
     public OptionData data(Slash slash, ILocalizer localizer) {
-        LocaleChecks.checkOptionName(localizer, "command", LocaleKey.name(slash.meta().name(), "options", name()));
-        LocaleChecks.checkOptionDescription(localizer, "command", LocaleKey.description(slash.meta().name(), "options", name()));
+        LocaleChecks.checkOptionName(
+                localizer, "command", LocaleKey.name(slash.meta().name(), "options", name()));
+        LocaleChecks.checkOptionDescription(
+                localizer, "command", LocaleKey.description(slash.meta().name(), "options", name()));
 
         return data(localizer);
     }

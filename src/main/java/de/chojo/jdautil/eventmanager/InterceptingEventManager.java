@@ -11,9 +11,10 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.hooks.InterfacedEventManager;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.BiConsumer;
+
+import javax.annotation.Nonnull;
 
 public class InterceptingEventManager implements IEventManager {
     private final InterfacedEventManager eventManager = new InterfacedEventManager();
@@ -50,5 +51,4 @@ public class InterceptingEventManager implements IEventManager {
             }
         }
     }
-
 }

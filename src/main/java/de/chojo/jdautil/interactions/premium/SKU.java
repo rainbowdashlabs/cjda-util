@@ -14,14 +14,13 @@ public class SKU implements Predicate<Entitlement> {
 
     private long skuId;
 
-    public SKU() {
-    }
+    public SKU() {}
 
     public SKU(long skuId) {
         this.skuId = skuId;
     }
 
-    public SKU(Entitlement entitlement){
+    public SKU(Entitlement entitlement) {
         this.skuId = entitlement.getSkuIdLong();
     }
 

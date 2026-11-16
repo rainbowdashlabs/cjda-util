@@ -11,5 +11,6 @@ import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 public interface VoteDataAdapter {
     VoteData toVoteData();
 
-    default void injectGuild(long guildId){};
+    default void injectGuild(long guildId) {}
+    ;
 }

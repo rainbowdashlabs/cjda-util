@@ -7,12 +7,12 @@
 package de.chojo.jdautil.parsing;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.util.Arrays;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static de.chojo.jdautil.parsing.Verifier.getIdRaw;
@@ -34,16 +33,16 @@ import static de.chojo.jdautil.parsing.Verifier.isValidId;
  */
 public class DiscordResolver {
 
-
     private static Optional<Member> byNameOnGuild(String memberString, Guild guild) {
         var collect = guild.getMemberCache().stream()
-                .filter(m -> m.getEffectiveName().toLowerCase()
-                        .startsWith(memberString.toLowerCase())).findFirst();
+                .filter(m -> m.getEffectiveName().toLowerCase().startsWith(memberString.toLowerCase()))
+                .findFirst();
         if (collect.isPresent()) {
             return collect;
         }
-        return guild.getMemberCache().stream().filter(m -> m.getUser().getName().toLowerCase()
-                .startsWith(memberString.toLowerCase())).findFirst();
+        return guild.getMemberCache().stream()
+                .filter(m -> m.getUser().getName().toLowerCase().startsWith(memberString.toLowerCase()))
+                .findFirst();
     }
 
     /**
@@ -66,7 +65,6 @@ public class DiscordResolver {
         }
         return Optional.ofNullable(textChannel);
     }
-
 
     private static <T> T byId(String id, Function<String, T> convert) {
         if (isValidId(id)) {
@@ -119,7 +117,8 @@ public class DiscordResolver {
      * @return list of valid roles
      */
     public static List<Role> getValidRoles(Guild guild, String[] args) {
-        return Arrays.stream(args).map(roleId -> guild.getRoleById(getIdRaw(roleId).orElse("0")))
+        return Arrays.stream(args)
+                .map(roleId -> guild.getRoleById(getIdRaw(roleId).orElse("0")))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -145,7 +144,8 @@ public class DiscordResolver {
      * @return list of valid channels
      */
     public static List<TextChannel> getValidTextChannels(Guild guild, String[] args) {
-        return Arrays.stream(args).map(channelId -> guild.getTextChannelById(getIdRaw(channelId).orElse("0")))
+        return Arrays.stream(args)
+                .map(channelId -> guild.getTextChannelById(getIdRaw(channelId).orElse("0")))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -159,7 +159,8 @@ public class DiscordResolver {
      * @return list of valid channels
      */
     public static List<TextChannel> getValidTextChannelsById(Guild guild, List<Long> ids) {
-        return ids.stream().map(guild::getTextChannelById)
+        return ids.stream()
+                .map(guild::getTextChannelById)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -211,26 +212,26 @@ public class DiscordResolver {
         if (memberString == null) {
             return Optional.empty();
         }
-        //Lookup by id
+        // Lookup by id
         var foundUser = byId(memberString, guild::getMemberById);
         foundUser = byId(memberString, m -> guild.retrieveMemberById(m).complete());
 
-        //Lookup by tag
+        // Lookup by tag
         if (foundUser == null && User.USER_TAG.matcher(memberString).matches()) {
             foundUser = guild.getMemberByTag(memberString);
         }
 
-        //lookup by nickname
+        // lookup by nickname
         if (foundUser == null) {
             foundUser = byName(memberString, s -> guild.getMembersByNickname(s, true));
         }
 
-        //lookup by effective name
+        // lookup by effective name
         if (foundUser == null) {
             foundUser = byName(memberString, s -> guild.getMembersByEffectiveName(s, true));
         }
 
-        //lookup by name
+        // lookup by name
         if (foundUser == null) {
             foundUser = byName(memberString, s -> guild.getMembersByName(s, true));
         }
@@ -251,8 +252,11 @@ public class DiscordResolver {
      * @return list of text channels without null objects
      */
     public static List<TextChannel> getTextChannels(Guild guild, Collection<String> channelStrings) {
-        return channelStrings.stream().map(s -> getTextChannel(guild, s))
-                .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        return channelStrings.stream()
+                .map(s -> getTextChannel(guild, s))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -264,8 +268,11 @@ public class DiscordResolver {
      * @return list of roles. without null objects
      */
     public static List<Role> getRoles(Guild guild, Collection<String> roleStrings) {
-        return roleStrings.stream().map(roleString -> getRole(guild, roleString))
-                .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+        return roleStrings.stream()
+                .map(roleString -> getRole(guild, roleString))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -333,18 +340,17 @@ public class DiscordResolver {
      * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
      * returned.
      */
-
     public static List<WeightedEntry<Member>> fuzzyGuildUserSearch(Guild guild, String userString) {
         if (guild == null) {
             return Collections.emptyList();
         }
-        //Lookup by id
+        // Lookup by id
         var foundUser = byId(userString, guild::getMemberById);
         if (foundUser != null) {
             return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
-        //Lookup by tag
+        // Lookup by tag
         if (User.USER_TAG.matcher(userString).matches()) {
             foundUser = guild.getMemberByTag(userString);
             if (foundUser != null) {
@@ -352,25 +358,26 @@ public class DiscordResolver {
             }
         }
 
-        //lookup by nickname
+        // lookup by nickname
         foundUser = byName(userString, s -> guild.getMembersByNickname(s, true));
         if (foundUser != null) {
             return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
-        //lookup by effective name
+        // lookup by effective name
         foundUser = byName(userString, s -> guild.getMembersByEffectiveName(s, true));
         if (foundUser != null) {
             return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
-        //lookup by name
+        // lookup by name
         foundUser = byName(userString, s -> guild.getMembersByName(s, true));
         if (foundUser != null) {
             return Collections.singletonList(WeightedEntry.directMatch(foundUser));
         }
 
-        return guild.getMemberCache().stream().map(m -> WeightedEntry.withJaro(m, userString))
+        return guild.getMemberCache().stream()
+                .map(m -> WeightedEntry.withJaro(m, userString))
                 .sorted(Comparator.reverseOrder())
                 .limit(10)
                 .collect(Collectors.toList());
@@ -385,30 +392,33 @@ public class DiscordResolver {
      * @return a list of users. if a direct match was found only 1 user. if guild id is invalid a empty list is
      * returned.
      */
-
     public static List<WeightedEntry<Member>> fuzzyGuildTargetSearch(String userString, Collection<Member> targets) {
         if (targets == null) {
             return Collections.emptyList();
         }
 
-        //Lookup by id
+        // Lookup by id
         var foundUser = targetById(userString, targets);
         if (foundUser.isPresent()) {
             return Collections.singletonList(WeightedEntry.directMatch(foundUser.get()));
         }
 
-        //Lookup by tag
+        // Lookup by tag
         if (User.USER_TAG.matcher(userString).matches()) {
-            foundUser = targets.stream().filter(t -> t.getUser().getAsTag().equalsIgnoreCase(userString)).findFirst();
+            foundUser = targets.stream()
+                    .filter(t -> t.getUser().getAsTag().equalsIgnoreCase(userString))
+                    .findFirst();
             if (foundUser.isPresent()) {
                 return Collections.singletonList(WeightedEntry.directMatch(foundUser.get()));
             }
         }
 
-        //lookup by nickname
+        // lookup by nickname
         foundUser = targetByName(userString, targets);
-        return foundUser.map(member -> Collections.singletonList(WeightedEntry.directMatch(member)))
-                .orElseGet(() -> targets.stream().map(m -> WeightedEntry.withJaro(m, userString))
+        return foundUser
+                .map(member -> Collections.singletonList(WeightedEntry.directMatch(member)))
+                .orElseGet(() -> targets.stream()
+                        .map(m -> WeightedEntry.withJaro(m, userString))
                         .sorted(Comparator.reverseOrder())
                         .limit(10)
                         .collect(Collectors.toList()));
@@ -452,7 +462,8 @@ public class DiscordResolver {
 
         if (user == null) {
             return shardManager.getUserCache().stream()
-                    .filter(cu -> cu.getName().toLowerCase().startsWith(userString.toLowerCase())).findFirst();
+                    .filter(cu -> cu.getName().toLowerCase().startsWith(userString.toLowerCase()))
+                    .findFirst();
         }
         return Optional.of(user);
     }
@@ -506,7 +517,8 @@ public class DiscordResolver {
 
         if (guild == null) {
             return shardManager.getGuildCache().stream()
-                    .filter(g -> g.getName().toLowerCase().startsWith(guildString.toLowerCase())).findFirst();
+                    .filter(g -> g.getName().toLowerCase().startsWith(guildString.toLowerCase()))
+                    .findFirst();
         }
         return Optional.of(guild);
     }
@@ -548,5 +560,4 @@ public class DiscordResolver {
                 .filter(cu -> cu.getName().toLowerCase().contains(userString.toLowerCase()))
                 .collect(Collectors.toList());
     }
-
 }

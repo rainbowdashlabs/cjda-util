@@ -11,5 +11,5 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
-public record InteractionContext(Interaction interaction, String args, Guild guild, MessageChannel channel, User user) {
-}
+public record InteractionContext(
+        Interaction interaction, String args, Guild guild, MessageChannel channel, User user) {}

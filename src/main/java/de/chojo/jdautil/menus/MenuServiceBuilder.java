@@ -16,7 +16,8 @@ import java.util.function.Consumer;
 
 public class MenuServiceBuilder implements MenuServiceModifier {
     private final ShardManager shardManager;
-    private Cache<Long, MenuContainer> cache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
+    private Cache<Long, MenuContainer> cache =
+            CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
     private ILocalizer localizer = ILocalizer.DEFAULT;
 
     public MenuServiceBuilder(ShardManager shardManager) {

@@ -24,18 +24,31 @@ import java.util.stream.Collectors;
 
 public class MenuAction {
     private final MessageCreateData message;
+
     @Nullable
     private final IReplyCallback callback;
+
     @Nullable
     private final MessageChannel channel;
+
     private final boolean ephemeral;
+
     @Nullable
     private final User user;
+
     private final List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components;
+
     @Nullable
     private final Guild guild;
 
-    public MenuAction(MessageCreateData message, @Nullable IReplyCallback callback, @Nullable MessageChannel channel, Guild guild, boolean ephemeral, User user, List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components) {
+    public MenuAction(
+            MessageCreateData message,
+            @Nullable IReplyCallback callback,
+            @Nullable MessageChannel channel,
+            Guild guild,
+            boolean ephemeral,
+            User user,
+            List<de.chojo.jdautil.menus.entries.MenuEntry<?, ?>> components) {
         this.message = message;
         this.callback = callback;
         this.channel = channel;
@@ -54,9 +67,7 @@ public class MenuAction {
         var rows = ActionRow.partitionOf(buttons);
 
         if (channel != null) {
-            channel.sendMessage(message)
-                    .addComponents(rows)
-                    .complete();
+            channel.sendMessage(message).addComponents(rows).complete();
         }
 
         if (callback != null) {

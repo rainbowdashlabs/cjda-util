@@ -11,8 +11,8 @@ import java.util.OptionalLong;
 import java.util.regex.Pattern;
 
 public class ValueParser {
-    private static final Pattern INTERVAL = Pattern.compile("([0-9])+\\s(((min|hour|day|week)s?)|month)",
-            Pattern.MULTILINE);
+    private static final Pattern INTERVAL =
+            Pattern.compile("([0-9])+\\s(((min|hour|day|week)s?)|month)", Pattern.MULTILINE);
 
     /**
      * Get a boolean as a boolean state.

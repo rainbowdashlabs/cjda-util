@@ -6,25 +6,6 @@
 
 package de.chojo.jdautil.configuration;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import de.chojo.jdautil.configuration.exception.ConfigurationException;
-import de.chojo.jdautil.util.SysVar;
-import org.slf4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.slf4j.LoggerFactory.getLogger;
-
 /**
  * Wrapper class for configuration files.
  *
@@ -41,5 +22,4 @@ public class Configuration<T> extends BaseConfiguration<T> {
         configuration.reload();
         return configuration;
     }
-
 }
