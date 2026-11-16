@@ -40,31 +40,29 @@ spotless {
     }
 }
 
-group = "de.chojo"
-version = "2.15.1+jda-${libs.versions.jda.get()}"
 description = "Discord utilities for use with JDA"
 
 publishData {
-    useEldoNexusRepos(false)
-    publishComponent("java")
+    eldoNexus(dev = false)
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        publishData.configurePublication(this)
-    }
-
-    repositories {
-        maven {
-            authentication {
-                credentials(PasswordCredentials::class) {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            url = "https://github.com/rainbowdashlabs/cjda-util"
+            developers {
+                developer {
+                    id = "rainbowdashlabs"
+                    name = "Nora Fülling"
+                    email = "mail@chojo.dev"
+                    url = "https://github.com/rainbowdashlabs"
                 }
             }
-
-            name = "EldoNexus"
-            setUrl(publishData.getRepository())
+            scm {
+                url = "https://github.com/rainbowdashlabs/cjda-util"
+                connection = "scm:git:git://github.com/rainbowdashlabs/cjda-util.git"
+                developerConnection = "scm:git:ssh://github.com/rainbowdashlabs/cjda-util.git"
+            }
         }
     }
 }
