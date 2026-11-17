@@ -9,7 +9,9 @@ Discord lets you sell SKUs. cjda-util can lock commands behind them and reply wi
 
 ## Tell the hub who owns what
 
-The entitlement provider returns the SKUs a user or guild owns. It is called for every interaction.
+The entitlements Discord sends with an interaction count automatically. For SKUs you track yourself, for example
+subscriptions bought elsewhere, add an entitlement provider. It is called for every interaction, and its SKUs count
+next to Discord's.
 
 ```java
 .withEntitlementProvider((user, guild) -> guild == null
@@ -19,9 +21,12 @@ The entitlement provider returns the SKUs a user or guild owns. It is called for
 
 `new SKU(long)` takes a SKU id, `new SKU(Entitlement)` the SKU of an entitlement.
 
+Your own SKUs can use small ids, up to 1,000,000. Discord SKU ids are snowflakes and always larger, so cjda-util knows
+which SKUs Discord sells. Buy buttons are only shown for Discord SKUs.
+
 ## Lock a command
 
-Add `skus(...)` to a slash command with its own handler, a sub command, a message command or a user command:
+Add `skus(...)` to a slash command, a group, a sub command, a message command or a user command:
 
 ```java
 Slash.of("stats", "command.stats.description")
@@ -29,8 +34,8 @@ Slash.of("stats", "command.stats.description")
         .command(new Stats());
 ```
 
-On a slash command with sub commands, `skus(...)` on the command itself is not checked. Put it on each sub command
-instead.
+SKUs on a slash command or a group lock everything below them. A sub command runs only when the user owns one SKU of
+each level that has SKUs: command, group and sub command. Autocomplete of a locked command answers with no choices.
 
 The command runs when the user owns at least one of the SKUs. Otherwise cjda-util replies with the text of the key
 `error.premium` and a button to buy each SKU. Change the key with `withPremiumErrorMessage(...)`.

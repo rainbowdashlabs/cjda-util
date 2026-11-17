@@ -22,10 +22,8 @@ Localizer localizer = Localizer.builder(DiscordLocale.ENGLISH_US)
 |---|---|---|
 | `addLanguage(DiscordLocale...)` | only the default language | The languages your bot ships. |
 | `withBundlePath(String)` | `locale` | Base name of the resource bundles. |
-| `withLanguageProvider(...)` | the default language | Returns an `Optional<DiscordLocale>` with the language a guild chose, for example from your database. |
-| `withGuildLocaleCodeProvider(...)` | none | Lets a guild override single keys. Return `Optional.empty()` to use the files. |
-
-Set a guild locale code provider whenever you localize for a guild. Without one, localizing with a guild fails.
+| `withLanguageProvider(...)` | the guild's Discord locale | Returns an `Optional<DiscordLocale>` with the language a guild chose, for example from your database. Empty means the guild's Discord locale. |
+| `withGuildLocaleCodeProvider(...)` | no overrides | Lets a guild override single keys. Return `Optional.empty()` to use the files. |
 
 Pass the localizer to the hub with `withLocalizer(localizer)`. Pages, menus, modals and conversations use it then too.
 
@@ -78,22 +76,22 @@ context.localize("command.invite.message.click", Replacement.create("URL", invit
 | `Replacement.createMention(channel)` | `%CHANNEL%` | the mention |
 | `Replacement.createMention("KEY", mentionable)` | `%KEY%` | the mention |
 
-Placeholders match without regard to case. `Format` also has `ITALIC`, `UNDERLINE`, `CODE` and `CODE_BLOCK`.
+Placeholders match without regard to case. Call `matchCase()` on a replacement to only replace the exact case.
+`Format` also has `ITALIC`, `UNDERLINE`, `CODE` and `CODE_BLOCK`.
 
 ## Which language is used
 
 | You call | Language |
 |---|---|
 | `context.localize(...)` in a handler | The guild's language in a guild, the user's language in DMs. |
+| `context.guildLocalizer().localize(...)` | The guild's language. |
 | `localizer.localize(key, guild, ...)` | The guild's language. |
-| `context.guildLocalizer().localize(...)` | The guild's Discord locale. Your language provider is only asked when that locale is English (US). |
 | `context.userLocalizer().localize(...)` | The user's client language. |
 | `localizer.localize(key, locale, guild, ...)` | The given language. |
 
-The guild's language is the one your language provider returns, else the guild's Discord locale. A language you did
-not add falls back to the default language. A key missing everywhere comes back as the key itself, with a warning.
-
-`LocalizedEmbedBuilder` with `guildLocalizer()`, menu labels and modal labels follow the `guildLocalizer()` rule.
+The guild's language is the one your language provider returns, else the guild's Discord locale. Embeds, menu labels
+and modal labels use it too. A language you did not add falls back to the default language. A key missing everywhere
+comes back as the key itself, with a warning.
 
 ## Embeds
 

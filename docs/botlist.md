@@ -5,16 +5,19 @@ sidebar_position: 8
 
 # Bot lists
 
-The `BotlistService` posts your server count to bot list sites and receives their vote webhooks.
+The `BotlistService` posts your server count to bot list sites, receives their vote webhooks and asks them whether a
+user voted.
 
 ## Supported lists
 
-| List | Server count | Vote webhook route |
-|---|---|---|
-| top.gg | yes | `voting/topgg` |
-| discordbotlist.com | yes | `voting/discordbotlistcom` |
-| botlist.me | yes | `voting/botlistme` |
-| discord.bots.gg | yes | none |
+| List | Server count | Vote webhook route | Vote check |
+|---|---|---|---|
+| top.gg | total and shard count | `voting/topgg` | yes |
+| discordbotlist.com | per shard | `voting/discordbotlistcom` | the last 500 votes |
+| botlist.me | total and shard count | `voting/botlistme` | yes |
+| discord.bots.gg | total | none | no |
+
+top.gg uses its API v1. The `statsToken` for top.gg is a v1 project token from your bot's settings on top.gg.
 
 ## Configure a list
 
@@ -50,13 +53,11 @@ BotlistService.build(shardManager,
         .build();
 ```
 
-Always set a vote service when you add a list.
-
 | Method | Default | What it does |
 |---|---|---|
 | `withSubmitInterval(interval, unit)` | 60 minutes | How often the counts are posted. The first post happens after one interval unit. |
 | `withExecutorService(executor)` | a single thread | Where the posts run. |
-| `withVoteService(...)` | | Receives votes. |
+| `withVoteService(...)` | none | Receives vote webhooks. Without it, votes are not received. |
 
 ## Votes
 
@@ -74,6 +75,17 @@ Your `onVote` consumer gets a `VoteData`:
 | `bonus()` | `true` for weekend votes on top.gg. |
 | `guildId()` | For top.gg, the `guildId` query parameter of the webhook URL. `0` otherwise. |
 
+## Check a vote
+
+`hasVoted(user)` asks every list with a vote check and returns the lists the user has an active vote on:
+
+```java
+List<BotList> voted = botlistService.hasVoted(user);
+```
+
+Answers are kept for a minute per list and user. A list that cannot be reached counts as "not voted". Prefer the
+webhooks to react to votes; the check is for looking up a single user.
+
 ## Add another list
 
 `BotList.builder(name)` builds a list of your own:
@@ -85,8 +97,17 @@ BotList myList = BotList.builder("mylist.example")
         .withAuthentication(AuthHandler.of(statsToken))
         .withSubmission(StatsMapper.of("bots/{id}/stats", (data, map) -> map.add("servers", data.guilds())))
         .withVoteReceiver(VoteReceiver.create(MyVotePayload.class, AuthHandler.of(voteToken)))
+        .withVoteChecker(new VotingCheckingService<>("bots/{id}/votes/{user}", MyVoteCheck.class))
         .build();
 ```
 
-`{id}` is replaced with your application id. `MyVotePayload` implements `VoteDataAdapter` and turns the webhook body
-into a `VoteData`. Override `injectGuild(long)` to receive the `guildId` query parameter. Register the list with `forBotlist(myList)`.
+`{id}` is replaced with your application id and `{user}` with the id of the user to check. Register the list with
+`forBotlist(myList)`.
+
+| Part | What it does |
+|---|---|
+| `AuthHandler.of(token)` | Sends the token in the `Authorization` header. `AuthHandler.bearer(token)` adds `Bearer `. |
+| `StatsMapper.of(route, mapper)` | Posts the stats. `StatsMapper.of("PATCH", route, mapper)` uses another HTTP method. |
+| `useShardStats(true)` | Sends one request per shard. Write `data.shardId()` into the body when you use it. The default is the total. |
+| `VoteReceiver.create(payload, auth)` | Receives webhooks. The payload implements `VoteDataAdapter` and turns the body into a `VoteData`. Override `injectGuild(long)` to receive the `guildId` query parameter. |
+| `VotingCheckingService` | Calls the vote check route. The response class implements `VotePayload`. |

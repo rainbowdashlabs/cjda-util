@@ -48,6 +48,21 @@ The page wraps around: next on the last page shows the first one.
 Override `buildEmptyPage()` to show something when there are no pages. Without it, an empty bag throws
 `EmptyPageBagException`.
 
+## Build a bag without a class
+
+`PageBuilder` builds a bag from lambdas:
+
+```java
+IPageBag bag = PageBuilder.list(entries)
+        .syncPage(page -> MessageEditData.fromContent(page.currentElement()))
+        .syncEmptyPage(page -> MessageEditData.fromContent("Nothing here."))
+        .buttons(page -> List.of(PageButton.of(Button.primary("refresh", "words.refresh"))))
+        .forUser(event.getUser())
+        .build();
+```
+
+`PageBuilder.standard(pages)` does the same for a fixed number of pages. `forUser` makes the bag private.
+
 ## Extra buttons
 
 Override `buttons()` to add buttons below the page:
