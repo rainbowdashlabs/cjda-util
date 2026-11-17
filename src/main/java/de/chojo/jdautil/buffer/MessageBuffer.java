@@ -6,9 +6,11 @@
 
 package de.chojo.jdautil.buffer;
 
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,7 +28,7 @@ public class MessageBuffer implements Runnable {
     private MessageBuffer(
             int maxLength, DateTimeFormatter formatter, ShardManager shardManager, long channelId, int flushDuration) {
         this.maxLength = maxLength;
-        this.formatter = formatter;
+        this.formatter = formatter.getZone() == null ? formatter.withZone(ZoneId.systemDefault()) : formatter;
         this.shardManager = shardManager;
         this.channelId = channelId;
         this.flushDuration = flushDuration;
@@ -40,9 +42,9 @@ public class MessageBuffer implements Runnable {
         }
     }
 
-    public void add(String string) {
+    public synchronized void add(String string) {
         var message = timestamp() + " " + string + "\n";
-        if (message.length() + buffer.length() > maxLength) {
+        if (!buffer.isEmpty() && message.length() + buffer.length() > maxLength) {
             flush();
         }
         if (oldest == null) {
@@ -63,7 +65,7 @@ public class MessageBuffer implements Runnable {
     }
 
     public static final class Builder {
-        private final int maxLength = 2048;
+        private final int maxLength = Message.MAX_CONTENT_LENGTH;
         private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         private final ShardManager shardManager;
         private final long channelId;
