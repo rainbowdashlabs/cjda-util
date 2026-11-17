@@ -47,7 +47,7 @@ public class BotlistService implements Runnable {
         this.shardManager = shardManager;
         this.botLists = botLists;
         this.voteService = voteService;
-        this.submissionService = new SubmissionService(this, guildCount, userCount);
+        this.submissionService = new SubmissionService(this, shardManager, guildCount, userCount);
     }
 
     /**
@@ -65,17 +65,23 @@ public class BotlistService implements Runnable {
         try {
             submissionService.submitData();
         } catch (RuntimeException e) {
-            log.error("Data submission failed.");
+            log.error("Data submission failed.", e);
         }
     }
 
     private void ignite() {
+        if (voteService == null) return;
         for (var botList : botLists) voteService.register(botList);
     }
 
+    /**
+     * The bot lists on which the user has an active vote. Only lists with a vote checker are asked.
+     *
+     * @param user user to check
+     * @return lists with an active vote of the user
+     */
     public List<BotList> hasVoted(User user) {
-        if (voteService == null) return Collections.emptyList();
-        return voteService.hasVoted(user);
+        return botLists.stream().filter(botList -> botList.hasVoted(user)).toList();
     }
 
     public Set<BotList> botlists() {
@@ -149,7 +155,7 @@ public class BotlistService implements Runnable {
          * @return builder instance
          */
         public Builder forBotlistMe(BotListConfig config) {
-            validateUrls(config, "https://botlist.me/");
+            validateUrls(config, "https://botlist.me");
             return forBotlist(BotListFactory.BOTLIST_ME.build(shardManager, config));
         }
 
@@ -185,12 +191,16 @@ public class BotlistService implements Runnable {
         }
 
         private void validateUrls(BotListConfig config, String base) {
-            if (!config.profileUrl().isBlank() && !config.profileUrl().startsWith(base)) {
+            if (!config.profileUrl().isBlank() && !isOnHost(config.profileUrl(), base)) {
                 throw new IllegalArgumentException("Profile URL must start with " + base);
             }
-            if (!config.voteUrl().isBlank() && !config.voteUrl().startsWith(base)) {
+            if (!config.voteUrl().isBlank() && !isOnHost(config.voteUrl(), base)) {
                 throw new IllegalArgumentException("Vote URL must start with " + base);
             }
+        }
+
+        private static boolean isOnHost(String url, String base) {
+            return url.equals(base) || url.startsWith(base + "/");
         }
 
         /**

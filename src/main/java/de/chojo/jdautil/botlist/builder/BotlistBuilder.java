@@ -39,7 +39,7 @@ public class BotlistBuilder implements ClientStage, BaseUrlStage, AuthStage, Con
     private StatsMapper statsMapper;
     private VoteChecker voteChecker;
     private VoteReceiver<?> voteReceiver;
-    private boolean shardStats = true;
+    private boolean shardStats = false;
 
     private BotlistBuilder(String name) {
         this.name = name;

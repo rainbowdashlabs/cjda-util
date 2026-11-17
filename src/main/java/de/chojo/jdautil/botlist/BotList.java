@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -73,19 +74,38 @@ public class BotList {
     }
 
     /**
-     * Report statistics to the botlist
+     * Report statistics to the botlist. Lists with shard stats get one request per shard, all others the total.
      *
-     * @param shardManager shardmanager for statistics
+     * @param total  statistics of the whole bot
+     * @param shards statistics per shard
      * @throws JsonProcessingException if the payload could not be parsed
      */
-    public void report(BotListData shardManager) throws JsonProcessingException {
+    public void report(BotListData total, List<BotListData> shards) throws JsonProcessingException {
         if (statsMapper == null) return;
 
         log.debug("Sending Server stats to {}.", name);
 
-        var request = buildPOST(getUrl(statsMapper), statsMapper.data(shardManager));
+        if (shardStats && !shards.isEmpty()) {
+            for (var shard : shards) {
+                request(buildStatsRequest(statsMapper.data(shard)));
+            }
+            return;
+        }
+        request(buildStatsRequest(statsMapper.data(total)));
+    }
 
-        request(request);
+    /**
+     * Sends an authenticated GET request to a route of the bot list. A 404 response is returned without being logged,
+     * since vote checks answer "no vote" with it.
+     *
+     * @param route route relative to the base url
+     * @return the response, or empty when the request failed
+     */
+    public Optional<HttpResponse<String>> get(String route) {
+        return send(buildGET(URI.create(baseUrl + route)).build()).map(response -> {
+            if (response.statusCode() != 404) statusCodeHandler.handle(this, response);
+            return response;
+        });
     }
 
     public URI getUrl(RouteProvider provider) {
@@ -94,10 +114,25 @@ public class BotList {
 
     public boolean hasVoted(User user) {
         if (voteChecker == null) return false;
-        return voteChecker.hasVoted(user);
+        return voteChecker.hasVoted(this, user);
+    }
+
+    public long clientId() {
+        return clientId;
+    }
+
+    public ObjectMapper mapper() {
+        return mapper;
     }
 
     private Optional<HttpResponse<String>> request(HttpRequest request) {
+        return send(request).map(response -> {
+            statusCodeHandler.handle(this, response);
+            return response;
+        });
+    }
+
+    private Optional<HttpResponse<String>> send(HttpRequest request) {
         HttpResponse<String> response;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
@@ -105,7 +140,6 @@ public class BotList {
             log.warn("Request to {}!", name, e);
             return Optional.empty();
         }
-        statusCodeHandler.handle(this, response);
         return Optional.of(response);
     }
 
@@ -117,10 +151,10 @@ public class BotList {
         return baseUrl;
     }
 
-    private HttpRequest buildPOST(URI uri, Map<String, Object> data) throws JsonProcessingException {
+    private HttpRequest buildStatsRequest(Map<String, Object> data) throws JsonProcessingException {
         var builder = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(data)))
-                .uri(uri)
+                .method(statsMapper.method(), HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(data)))
+                .uri(getUrl(statsMapper))
                 .header("Content-Type", "application/json")
                 .header("User-Agent", "cjda-util");
         return authHandler.auth(builder).build();
@@ -141,6 +175,10 @@ public class BotList {
 
     public VoteReceiver<?> voteReceiver() {
         return voteReceiver;
+    }
+
+    public StatsMapper statsMapper() {
+        return statsMapper;
     }
 
     public VoteChecker voteChecker() {

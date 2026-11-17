@@ -74,6 +74,8 @@ module de.chojo.jdautil {
 
     opens de.chojo.jdautil.botlist to
             com.fasterxml.jackson.databind;
+    opens de.chojo.jdautil.botlist.modules.voting.poll to
+            com.fasterxml.jackson.databind;
     opens de.chojo.jdautil.botlist.modules.voting.post.payload to
             com.fasterxml.jackson.databind;
     opens de.chojo.jdautil.configuration to
