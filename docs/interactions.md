@@ -30,7 +30,7 @@ command that cannot be built fails `build()` with an `IllegalStateException` tha
 | `withLocalizer(ILocalizer)` | Localizes command names, descriptions and replies. See [localization](./localization.md). |
 | `withCommands(...)` | Adds slash commands. Takes `Slash` objects or `SlashProvider`s. |
 | `withMessages(...)` | Adds message context commands. Takes `Message` objects or `MessageProvider`s. |
-| `withUsers(UserProvider...)` | Adds user context commands. |
+| `withUsers(...)` | Adds user context commands. Takes `User` objects or `UserProvider`s. |
 | `withDefaultPagination()`, `withPagination(...)` | Enables [pagination](./pagination.md). |
 | `withDefaultMenuService()`, `withMenuService(...)` | Enables [menus](./menus-and-modals.md#menus). |
 | `withDefaultModalService()`, `withModalService(...)` | Enables [modals](./menus-and-modals.md#modals). |

@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
+import static de.chojo.jdautil.util.Premium.isNotEntitled;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Group implements Route<RouteMeta> {
@@ -50,6 +52,10 @@ public class Group implements Route<RouteMeta> {
 
     @Override
     public void onSlashCommand(SlashCommandInteractionEvent event, EventContext context) {
+        if (checkAndReplyPremium(context, meta)) {
+            return;
+        }
+
         var commandPath = event.getFullCommandName().split("\\s");
 
         if (commandPath.length != 3) {
@@ -67,6 +73,11 @@ public class Group implements Route<RouteMeta> {
 
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
+        if (isNotEntitled(context, meta)) {
+            event.replyChoices().complete();
+            return;
+        }
+
         var commandPath = event.getFullCommandName().split("\\s");
 
         if (commandPath.length != 3) {

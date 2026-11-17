@@ -217,21 +217,21 @@ public class InteractionHubBuilder<T extends Slash, M extends Message, U extends
     }
 
     /**
-     * Register message interactions
+     * Register user interactions
      *
-     * @param messages commands to register
+     * @param users commands to register
      * @return builder instance
      */
     @SafeVarargs
-    public final InteractionHubBuilder<T, M, U> withUsers(M... messages) {
-        for (var message : messages) {
-            this.messages.put(message.meta().name().toLowerCase(Locale.ROOT), message);
+    public final InteractionHubBuilder<T, M, U> withUsers(U... users) {
+        for (var user : users) {
+            this.users.put(user.meta().name().toLowerCase(Locale.ROOT), user);
         }
         return this;
     }
 
     /**
-     * Register message interactions
+     * Register user interactions
      *
      * @param users commands to register
      * @return builder instance

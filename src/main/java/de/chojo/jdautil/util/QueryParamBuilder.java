@@ -8,10 +8,11 @@ package de.chojo.jdautil.util;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class QueryParamBuilder {
-    List<String> params;
+    private final List<String> params = new ArrayList<>();
 
     private QueryParamBuilder() {}
 
@@ -30,6 +31,6 @@ public class QueryParamBuilder {
         if (params.isEmpty()) {
             return url;
         }
-        return url + "?" + String.join("&", params);
+        return url + (url.contains("?") ? "&" : "?") + String.join("&", params);
     }
 }

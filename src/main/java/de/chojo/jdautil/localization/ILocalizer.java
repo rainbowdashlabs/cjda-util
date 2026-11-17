@@ -135,20 +135,10 @@ public interface ILocalizer extends LocalizationFunction {
     }
 
     default String localize(String message, LocaleProvider provider, Replacement... replacements) {
-        Guild guild = null;
-        if (provider instanceof GuildLocaleProvider guildLocaleProvider) {
-            guild = guildLocaleProvider.guild();
-        }
-        var optLocale = provider.locale();
-        if (optLocale.isEmpty()) {
-            return localize(message, defaultLanguage(), guild, replacements);
-        }
-        var locale = optLocale.get();
         if (provider instanceof GuildLocaleProvider guildProvider) {
-            if (locale == DiscordLocale.ENGLISH_US) {
-                locale = getGuildLocale(guildProvider.guild());
-            }
+            return localize(message, guildProvider.guild(), replacements);
         }
-        return localize(message, locale, guild, replacements);
+        var locale = provider.locale().filter(languages()::contains).orElse(defaultLanguage());
+        return localize(message, locale, null, replacements);
     }
 }

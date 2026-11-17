@@ -61,11 +61,7 @@ public class EventContext {
         this.pages = pages;
         this.modalService = modalService;
         this.interactionHub = interactionHub;
-        var ent = new HashSet<>(entitlements);
-        if (event != null) {
-            event.getEntitlements().stream().map(SKU::new).toList();
-        }
-        this.entitlements = new ArrayList<>(ent);
+        this.entitlements = new ArrayList<>(new HashSet<>(entitlements));
     }
 
     /**
@@ -183,7 +179,8 @@ public class EventContext {
     }
 
     /**
-     * Returns a guild localizer, which uses the {@link Guild#getLocale()}
+     * Returns a guild localizer. It uses the language from the language provider, else the guild's Discord locale
+     * ({@link Guild#getLocale()}), else the default language.
      *
      * @return localizer with guild locale linked
      */
@@ -201,7 +198,7 @@ public class EventContext {
     }
 
     /**
-     * Returns a guild localizer, which uses the {@link Interaction#getUserLocale()}
+     * Returns a user localizer, which uses the {@link Interaction#getUserLocale()}
      *
      * @return localizer with user locale linked
      */

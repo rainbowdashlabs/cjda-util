@@ -15,20 +15,20 @@ import java.util.function.Consumer;
 
 public interface PageServiceModifier {
     /**
-     * Sets the button label of the previous button.
+     * Sets the custom id of the previous button.
      *
-     * @param label button label
+     * @param id custom id
      * @return builder instance
      */
-    PageServiceModifier previousLabel(String label);
+    PageServiceModifier previousId(String id);
 
     /**
-     * Sets the button label of the next button.
+     * Sets the custom id of the next button.
      *
-     * @param label button label
+     * @param id custom id
      * @return builder instance
      */
-    PageServiceModifier nextLabel(String label);
+    PageServiceModifier nextId(String id);
 
     /**
      * Sets the text of the previous button

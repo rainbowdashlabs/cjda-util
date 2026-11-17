@@ -23,6 +23,16 @@ public class AuthHandler {
         return new AuthHandler("Authorization", token);
     }
 
+    /**
+     * Sends the token as a bearer token in the Authorization header.
+     *
+     * @param token token
+     * @return auth handler
+     */
+    public static AuthHandler bearer(String token) {
+        return new AuthHandler("Authorization", "Bearer " + token);
+    }
+
     public static AuthHandler of(String name, String token) {
         return new AuthHandler(name, token);
     }

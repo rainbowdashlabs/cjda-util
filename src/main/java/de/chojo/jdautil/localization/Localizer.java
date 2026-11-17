@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -148,7 +149,6 @@ public class Localizer implements ILocalizer {
             return message;
         }
         String result;
-        // If the matcher doesn't find any key we assume its a simple message.
         if (!EMBEDDED_CODE.matcher(message).find()) {
             if (!SIMPLE__CODE.matcher(message).find()) {
                 result = message;
@@ -156,19 +156,17 @@ public class Localizer implements ILocalizer {
                 result = getLanguageString(language, guild, message);
             }
         } else {
-            // find locale codes in message
             var matcher = EMBEDDED_CODE.matcher(message);
-            var keys = new ArrayList<String>();
+            var keys = new LinkedHashMap<String, String>();
             while (matcher.find()) {
-                keys.add(matcher.group(1));
+                keys.put(matcher.group(0), matcher.group(1));
             }
 
             result = message;
 
-            for (var match : keys) {
-                // Replace current placeholders with replacements
-                var languageString = getLanguageString(language, guild, match);
-                result = result.replace("$" + match + "$", languageString);
+            for (var entry : keys.entrySet()) {
+                var languageString = getLanguageString(language, guild, entry.getValue());
+                result = result.replace(entry.getKey(), languageString);
             }
         }
 
@@ -204,12 +202,12 @@ public class Localizer implements ILocalizer {
         private Function<Guild, Optional<DiscordLocale>> languageProvider;
         private String embedCodeStart = "\\$";
         private String embedCodeEnd = "\\$";
-        private BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider;
+        private BiFunction<Guild, String, Optional<String>> guildLocaleCodeProvider = (guild, key) -> Optional.empty();
 
         public Builder(DiscordLocale defaultLanguage) {
             this.defaultLanguage = defaultLanguage;
             languages.add(defaultLanguage);
-            languageProvider = s -> Optional.of(defaultLanguage);
+            languageProvider = guild -> Optional.empty();
         }
 
         public Builder withBundlePath(String bundlePath) {
@@ -217,6 +215,13 @@ public class Localizer implements ILocalizer {
             return this;
         }
 
+        /**
+         * Sets the language a guild chose. An empty optional falls back to the guild's Discord locale, which is also the
+         * default when no provider is set.
+         *
+         * @param languageProvider provider of the guild language
+         * @return builder instance
+         */
         public Builder withLanguageProvider(Function<Guild, Optional<DiscordLocale>> languageProvider) {
             this.languageProvider = languageProvider;
             return this;

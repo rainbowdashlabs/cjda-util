@@ -135,9 +135,7 @@ public interface IPageBag {
      *
      * @return A message embed.
      */
-    default MessageEditData buildPage() {
-        return buildPage();
-    }
+    MessageEditData buildPage();
 
     /**
      * Build an embed for an empty page when the bag is empty

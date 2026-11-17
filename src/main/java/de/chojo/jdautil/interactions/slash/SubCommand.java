@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import java.util.List;
 
 import static de.chojo.jdautil.util.Premium.checkAndReplyPremium;
+import static de.chojo.jdautil.util.Premium.isNotEntitled;
 
 public class SubCommand implements Route<RouteMeta> {
     private final RouteMeta meta;
@@ -57,7 +58,7 @@ public class SubCommand implements Route<RouteMeta> {
 
     @Override
     public void onAutoComplete(CommandAutoCompleteInteractionEvent event, EventContext context) {
-        if (checkAndReplyPremium(context, meta())) {
+        if (isNotEntitled(context, meta())) {
             event.replyChoices().complete();
             return;
         }

@@ -6,6 +6,7 @@
 
 package de.chojo.jdautil.interactions.premium;
 
+import de.chojo.jdautil.interactions.base.SkuMeta;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.CommandInteractionPayload;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,6 +55,43 @@ public class SKUConfiguration {
         return isEntitled(slash, interaction, fullCommandName);
     }
 
+    /**
+     * The SKUs required for a slash command.
+     *
+     * @param fullCommandName full command name
+     * @return required SKUs, empty when the command is not restricted
+     */
+    public SkuMeta commandSkus(String fullCommandName) {
+        return skuMeta(slash, fullCommandName);
+    }
+
+    /**
+     * The SKUs required for a message command.
+     *
+     * @param name command name
+     * @return required SKUs, empty when the command is not restricted
+     */
+    public SkuMeta messageSkus(String name) {
+        return skuMeta(messages, name);
+    }
+
+    /**
+     * The SKUs required for a user command.
+     *
+     * @param name command name
+     * @return required SKUs, empty when the command is not restricted
+     */
+    public SkuMeta userSkus(String name) {
+        return skuMeta(users, name);
+    }
+
+    private static SkuMeta skuMeta(Map<String, Set<Long>> map, String name) {
+        List<SKU> skus = map.getOrDefault(name, Collections.emptySet()).stream()
+                .map(SKU::new)
+                .toList();
+        return () -> skus;
+    }
+
     public Set<Long> commands(String name) {
         return slash.get(name);
     }
@@ -72,7 +111,7 @@ public class SKUConfiguration {
     private boolean isEntitled(Map<String, Set<Long>> map, CommandInteractionPayload payload, String fullCommandName) {
         Set<Long> entitlements = map.getOrDefault(fullCommandName, Collections.emptySet());
         if (!entitlements.isEmpty()) {
-            return payload.getEntitlements().stream().anyMatch(e -> entitlements.contains(e.getIdLong()));
+            return payload.getEntitlements().stream().anyMatch(e -> entitlements.contains(e.getSkuIdLong()));
         }
         return true;
     }

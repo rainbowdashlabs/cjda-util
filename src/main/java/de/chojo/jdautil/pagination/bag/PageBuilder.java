@@ -39,6 +39,17 @@ public class PageBuilder {
             return self();
         }
 
+        /**
+         * Adds buttons below the page.
+         *
+         * @param buttons function that returns the buttons for the current state of the bag
+         * @return builder instance
+         */
+        public T buttons(Function<V, List<PageButton>> buttons) {
+            this.buttons = buttons;
+            return self();
+        }
+
         public T forUser(ISnowflake user) {
             this.user = user;
             return self();

@@ -14,12 +14,9 @@ import de.chojo.jdautil.botlist.BotList;
 import de.chojo.jdautil.botlist.modules.voting.post.VoteData;
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
-import net.dv8tion.jda.api.entities.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -33,7 +30,6 @@ public class VoteService {
             .setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
             .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    private final List<BotList> checker = new ArrayList<>();
 
     public VoteService(Javalin javalin, Consumer<VoteData> voteNotifier) {
         this.javalin = javalin;
@@ -44,14 +40,6 @@ public class VoteService {
         if (botList.voteReceiver() != null) {
             registerWeebhook(botList);
         }
-
-        if (botList.voteChecker() != null) {
-            registerVoteChecker(botList);
-        }
-    }
-
-    private void registerVoteChecker(BotList botList) {
-        checker.add(botList);
     }
 
     private void registerWeebhook(BotList botList) {
@@ -80,22 +68,6 @@ public class VoteService {
             voted(voteData);
             ctx.status(HttpStatus.OK_200);
         };
-    }
-
-    /**
-     * Queries all botlists and returns all botlists, where the user has recent votes.
-     *
-     * @param user suer to check
-     * @return list of botlist where the user has voted
-     */
-    public List<BotList> hasVoted(User user) {
-        List<BotList> result = new ArrayList<>();
-        for (var botList : checker) {
-            if (botList.hasVoted(user)) {
-                result.add(botList);
-            }
-        }
-        return result;
     }
 
     public void voted(VoteData data) {

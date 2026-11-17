@@ -25,11 +25,12 @@ public interface ConfigurationStage extends Buildable {
     ConfigurationStage withSubmission(StatsMapper statsMapper);
 
     /**
-     * @param voteChecker add a vote checker
+     * Sets the vote checker that asks the bot list whether a user voted. Prefer {@link #withVoteReceiver(VoteReceiver)}
+     * to be notified of votes; the checker is for looking up a single user.
+     *
+     * @param voteChecker vote checker
      * @return builder instance
-     * @deprecated Polling is not implemented yet. Also polling is quite bad. use the {@link #withVoteReceiver(VoteReceiver)} instead to receive a notification on votes.
      */
-    @Deprecated
     ConfigurationStage withVoteChecker(VoteChecker voteChecker);
 
     /**
@@ -65,8 +66,10 @@ public interface ConfigurationStage extends Buildable {
     ConfigurationStage withVoteReceiver(VoteReceiver<?> voteReceiver);
 
     /**
-     * Report the start per shard or a total for all connected shards
-     * @param shardStats true if stats should be reported per shard. Default {@code true}
+     * Report the stats per shard or a total for all connected shards. Only enable it when the list accepts per shard
+     * stats and the stats mapper writes the shard id.
+     *
+     * @param shardStats true if stats should be reported per shard. Default {@code false}
      * @return builder instance
      */
     ConfigurationStage useShardStats(boolean shardStats);
